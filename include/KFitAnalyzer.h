@@ -19,9 +19,10 @@
  *
  * @updated 01.08.2023
  * @version v1.0.0
- * 
- * "User interface" class to automatically analyze and fit root file 
- * Particle candidates must be stored in a TClones array of KinFitParticles
+ *
+ * "User interface" class to automatically analyze and fit ROOT files.
+ * Particle candidates must be stored in a TClonesArray of KinFitParticle
+ * objects.
  *
  */
 
@@ -31,10 +32,10 @@
 #include "KinFitParticle.h"
 
 // framework includes
-#include "TTree.h"
-#include "TString.h"
-#include "TLorentzVector.h"
 #include "TClonesArray.h"
+#include "TLorentzVector.h"
+#include "TString.h"
+#include "TTree.h"
 
 // system includes
 #include <iostream>
@@ -43,74 +44,80 @@
 using std::cout;
 using std::endl;
 
-class KFitAnalyzer
-{
+class KFitAnalyzer {
 private:
-    std::vector< std::vector<KinFitParticle> > fCandsFit; // Vector of vector of particle candidates for each PID
-    std::vector<int> fPids; // Vector of allPIDs of particles included in fit
-    int fEvents;    // Number of events to be analyzed
+  std::vector<std::vector<KinFitParticle>>
+      fCandsFit; // Vector of vector of particle candidates for each PID
+  std::vector<int> fPids; // Vector of allPIDs of particles included in fit
+  int fEvents;            // Number of events to be analyzed
 
-    int fVerbose;   // Verbosity
+  int fVerbose; // Verbosity
 
-    //Read in data
-    TTree *fTree;   // Input data tree
-    TClonesArray *fCands_in = new TClonesArray("KinFitParticle"); // Input TClones array of KinFitParticles
+  // Read in data
+  TTree *fTree; // Input data tree
+  TClonesArray *fCands_in = new TClonesArray(
+      "KinFitParticle"); // Input TClones array of KinFitParticles
 
-    //Output data
-    TFile *foutFile;    // Output file
-    TTree *fTree_out;   // Output data tree
+  // Output data
+  TFile *foutFile;  // Output file
+  TTree *fTree_out; // Output data tree
 
-    /** @brief Function that returns the output tree
-    */
-    TTree* getFittedTree(){ return fTree_out; }
+  /** @brief Return the output tree with fit results.
+   * @return Pointer to the output TTree.
+   */
+  TTree *getFittedTree() { return fTree_out; }
 
-    /** @brief select and sort candidates according to their PID
-    */
-    void selectCandidates();
+  /** @brief Select and sort candidates according to their PID.
+   */
+  void selectCandidates();
 
-    /** @brief write output tree to output file, close
-    */
-    void finish(); 
-    
+  /** @brief Write the output tree to file and close resources.
+   */
+  void finish();
+
 public:
-    /** @brief Constructor
-     * @param inFileName Full file name of input root-file
-     * @param outFileName Hull file name of ouput root-file
-     * @param nEvents Number of events to be analyzed
-    */
-    KFitAnalyzer(TString inFileName, TString outFileName, int nEvents=-1);
+  /** @brief Constructor
+   * @param inFileName Full file name of the input ROOT file.
+   * @param outFileName Full file name of the output ROOT file.
+   * @param nEvents Number of events to analyze. If negative, process all
+   * available events.
+   */
+  KFitAnalyzer(TString inFileName, TString outFileName, int nEvents = -1);
 
-    /** @brief Default deconstructor */
-    ~KFitAnalyzer(){};
-    
-    void setVerbosity(int val){ fVerbose = val; }
+  /** @brief Default destructor. */
+  ~KFitAnalyzer() {};
 
-    //---------------User functions---------------------------------------
+  void setVerbosity(int val) { fVerbose = val; }
 
-    /** @brief Call this function to perform the automated fitting procedure
-     *          reads input tree,
-     *          initialized DecayBuilder,
-     *          performs event loop,
-     *          runs decay builder,
-     *          fills output tree with fit result
-     * @param task String defining the task to be performed. Possibilities: 4C, Vertex, Mass
-     * @param pids Vector of PIDs of all particles included in fit
-     * @param mass optional, mass or missing mass of particle if needed for fit
-     * @param lv optinal, if 4-vector input is needed for fit
-    */
-    void doFitterTask(TString task, std::vector<int> pids, double mass=-1., TLorentzVector lv = TLorentzVector(), KinFitParticle mother = KinFitParticle());
-    //void addFitterTask(TString task, std::vector<int> primPids, std::vector<int> decayPids); // Jenny, for 3C fit
-    //void addBuilderTask(TString task, std::vector<int> pids, TLorentzVector lv);
+  //---------------User functions---------------------------------------
 
-    /** @brief Set PIDs for fit
-     * @param val Vector of PIDs of particles included in fit
-    */
-    void setPids(std::vector<int> val){ fPids = val; }
+  /** @brief Perform the automated fitting procedure.
+   *
+   * Reads the input tree, initializes the decay builder, runs the event loop,
+   * executes the fit, and fills the output tree with the fit result.
+   *
+   * @param task Task type to run (for example: "4C", "Vertex", "Mass").
+   * @param pids Vector of PIDs of all particles included in the fit.
+   * @param mass Optional mass or missing mass used by mass-constrained tasks.
+   * @param lv Optional four-vector input required by specific tasks.
+   * @param mother Optional mother particle used by specific tasks.
+   */
+  void doFitterTask(TString task, std::vector<int> pids, double mass = -1.,
+                    TLorentzVector lv = TLorentzVector(),
+                    KinFitParticle mother = KinFitParticle());
+  // void addFitterTask(TString task, std::vector<int> primPids,
+  // std::vector<int> decayPids); // Jenny, for 3C fit void
+  // addBuilderTask(TString task, std::vector<int> pids, TLorentzVector lv);
 
-    /** @brief Function that returns the PID vector
-    */
-    std::vector<int> getPids(){ return fPids; }
+  /** @brief Set PIDs used for the fit.
+   * @param val Vector of PIDs of particles included in the fit.
+   */
+  void setPids(std::vector<int> val) { fPids = val; }
 
+  /** @brief Return the configured PID vector.
+   * @return Vector of PIDs used in the fit.
+   */
+  std::vector<int> getPids() { return fPids; }
 };
 
 #endif /* KFITANALYZER_H */

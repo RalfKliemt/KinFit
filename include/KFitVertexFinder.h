@@ -17,10 +17,11 @@
 /**
  * KFitVertexFinder.h
  *
- *@updated 03.08.2023
- *@version v1.0.0 
+ * @updated 03.08.2023
+ * @version v1.0.0
  *
- * Class 
+ * Vertex finder using a linear least-squares solution of track-line
+ * intersections.
  */
 
 #ifndef KFITVERTEXFINDER_H
@@ -38,50 +39,51 @@
 using std::cout;
 using std::endl;
 
-class KFitVertexFinder
-{
+class KFitVertexFinder {
 
 private:
+  int fVerbose; // Verbosity level
 
-    int fVerbose; // Verbosity level
+  std::vector<KinFitParticle> fCands;
 
-    std::vector<KinFitParticle> fCands;
+  TVector3 fVertex; // Vertex after finding
 
-    TVector3 fVertex; // Vertex after finding
+  TMatrixD fM; // Temporal matrix for calculations
 
-    TMatrixD fM; // Temporal matrix for calculations
+  TVector3 fDir; // Direction vector used for each track in the fitting
 
-    TVector3 fDir; // Direction vector used for each track in the fitting
+  TVector3 fBase; // Base vector used for each track in the fitting
 
-    TVector3 fBase; // Base vector used for each track in the fitting
- 
-    void addLinesToVertex(const TVector3 &r, const TVector3 &alpha, const double w = 1.0);
+  void addLinesToVertex(const TVector3 &r, const TVector3 &alpha,
+                        const double w = 1.0);
 
-    /** @brief Function that finds the vertex via matrix multiplications
-    */
-    void findVertex();    
-    
-    void reset();
+  /** @brief Find the vertex via matrix operations.
+   */
+  void findVertex();
+
+  /** @brief Reset internal matrices and vectors used in the fit.
+   */
+  void reset();
 
 protected:
-    TMatrixD fSys; // LSM system inverse matrix
-    TVector3 fB;   // LSM independent term
+  TMatrixD fSys; // LSM system inverse matrix
+  TVector3 fB;   // LSM independent term
 
 public:
-    
-    /**  Constructor 
-    */
-    KFitVertexFinder(std::vector<KinFitParticle> &);
+  /** @brief Constructor.
+   * @param cands Input track candidates.
+   */
+  KFitVertexFinder(std::vector<KinFitParticle> &);
 
-    /** Default Destructor **/
-    ~KFitVertexFinder(){};
+  /** @brief Default destructor. */
+  ~KFitVertexFinder() {};
 
-    void setVerbosity(int val) { fVerbose = val; }
+  void setVerbosity(int val) { fVerbose = val; }
 
-    /** @brief Function that returns the vertex
-    * @return A Tvector3 with the vertex X, Y and Z positions
-    */
-    TVector3 getVertex() const { return fVertex; }
+  /** @brief Return the fitted vertex.
+   * @return A TVector3 with vertex x, y, and z positions.
+   */
+  TVector3 getVertex() const { return fVertex; }
 };
 
 #endif /* KFITVERTEXFINDER_H */

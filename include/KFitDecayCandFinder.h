@@ -17,12 +17,12 @@
 /**
  * KFitDecayCandFinder.h
  *
- *@updated 03.08.2023
- *@version v1.0.0 
+ * @updated 03.08.2023
+ * @version v1.0.0
  *
- * Class to calculate the decay candidate
- * from the decay products 
- * 
+ * Class to calculate a decay candidate
+ * from its decay products.
+ *
  */
 
 #ifndef KFITDECAYCANDFINDER_H
@@ -38,115 +38,127 @@
 using std::cout;
 using std::endl;
 
-class KFitDecayCandFinder
-{
+class KFitDecayCandFinder {
 private:
-    std::vector<KinFitParticle> fCands; // Vector of decay products
+  std::vector<KinFitParticle> fCands; // Vector of decay products
 
-    TVector3 fPrimaryVertex; // Vector pointing to the primary vertex
-    TVector3 fDecayVertex; // Vector pointing to the decay vertex
-    int fVerbose = 0;
+  TVector3 fPrimaryVertex; // Vector pointing to the primary vertex
+  TVector3 fDecayVertex;   // Vector pointing to the decay vertex
+  int fVerbose = 0;
 
-    double fMomentumBeforeDecay; // Estimated momentum of the decay particle
-    double fDecayCandMass; // Assuption for the mass of the decay particle
-    
-    KinFitParticle fDecayCand;
+  double fMomentumBeforeDecay; // Estimated momentum of the decay particle
+  double fDecayCandMass;       // Assumption for the mass of the decay particle
 
-    double fPrimVtxResX; // Primary vertex resolution in x-direction
-    double fPrimVtxResY; // Primary vertex resolution in y-direction
-    double fPrimVtxResZ; // Primary vertex resolution in z-direction
+  KinFitParticle fDecayCand;
 
-    double fDecVtxResX; // Decay vertex resolution in x-direction
-    double fDecVtxResY; // Decay vertex resolution in y-direction
-    double fDecVtxResZ; // Decay vertex resolution in z-direction
+  double fPrimVtxResX; // Primary vertex resolution in x-direction
+  double fPrimVtxResY; // Primary vertex resolution in y-direction
+  double fPrimVtxResZ; // Primary vertex resolution in z-direction
 
-    double fCorrPrimXY = 0; // Correlations between primary vertex uncertainties in X and Y direction
-    double fCorrPrimXZ = 0; // Correlations between primary vertex uncertainties in X and Z direction
-    double fCorrPrimYZ = 0; // Correlations between primary vertex uncertainties in Y and Z direction
+  double fDecVtxResX; // Decay vertex resolution in x-direction
+  double fDecVtxResY; // Decay vertex resolution in y-direction
+  double fDecVtxResZ; // Decay vertex resolution in z-direction
 
-    double fCorrDecXY = 0; // Correlations between decay vertex uncertainties in X and Y direction
-    double fCorrDecXZ = 0; // Correlations between decay vertex uncertainties in X and Z direction
-    double fCorrDecYZ = 0; // Correlations between decay vertex uncertainties in Y and Z direction
-    
-    /** Covariance matrix of the decay candidate
-    * Diagonal entries correspond to the covariances 
-    * in the parameters in the following order
-    * 
-    * -----------------------------
-    * | 1/p                       |
-    * |     theta                 |
-    * |            phi            |
-    * |                   R       |
-    * |                        Z  |
-    * -----------------------------
-    * 
-    * Off diagonal elements corresponds to the
-    * correlations between the parameters
-    */
-    TMatrixD fCovarianceDecayCand; 
+  double fCorrPrimXY = 0; // Correlations between primary vertex uncertainties
+                          // in X and Y direction
+  double fCorrPrimXZ = 0; // Correlations between primary vertex uncertainties
+                          // in X and Z direction
+  double fCorrPrimYZ = 0; // Correlations between primary vertex uncertainties
+                          // in Y and Z direction
+
+  double fCorrDecXY =
+      0; // Correlations between decay vertex uncertainties in X and Y direction
+  double fCorrDecXZ =
+      0; // Correlations between decay vertex uncertainties in X and Z direction
+  double fCorrDecYZ =
+      0; // Correlations between decay vertex uncertainties in Y and Z direction
+
+  /** Covariance matrix of the decay candidate
+   * Diagonal entries correspond to the covariances
+   * in the parameters in the following order
+   *
+   * -----------------------------
+   * | 1/p                       |
+   * |     theta                 |
+   * |            phi            |
+   * |                   R       |
+   * |                        Z  |
+   * -----------------------------
+   *
+   * Off diagonal elements correspond to the
+   * covariances between the parameters.
+   */
+  TMatrixD fCovarianceDecayCand;
 
 public:
-    /** @brief Constructor
-    * @param cands - vector of decay particles
-    * @param decayCandMass - mass asumption for the decay particle
-    * @param primaryVertex - vector with primary vertex positions
-    * @param decayVertex - vector with decay vertex positions
-    * @param primVtxResX - primary vertex resolution in x-direction
-    * @param primVtxResY - primary vertex resolution in y-direction
-    * @param primVtxResZ - primary vertex resolution in z-direction   
-    * @param decVtxResX - decay vertex resolution in x-direction
-    * @param decVtxResY - decay vertex resolution in y-direction
-    * @param decVtxResZ - decay vertex resolution in z-direction
-    */
-    KFitDecayCandFinder(const std::vector<KinFitParticle> &cands, double decayCandMass, TVector3 primaryVertex, TVector3 decayVertex, double primVtxResX, double primVtxResY, double primVtxResZ, double decVtxResX, double decVtxResY, double decVtxResZ);
-    
-    /** @brief Constructor
-    * Decault vertex resolutions are used and lambda mass hypothesis
-    * @param cands - vector of decay particles
-    * @param primaryVertex - vector with primary vertex positions
-    * @param decayVertex - vector with decay vertex positions
-    */
-    KFitDecayCandFinder(const std::vector<KinFitParticle> &cands, TVector3 primaryVertex, TVector3 decayVertex);
-    
-    /** Default Deconstructor **/
-    ~KFitDecayCandFinder(){};
-
-    void setVerbosity(int val) { fVerbose = val; }
-
-    /** @brief Set correlations between the x, y and z positions of the primary and the decay vertex
-    * @param valPrimXY - x-y correlation of primary vertex uncertainties
-    * @param valPrimXZ - x-z correlation of primary vertex uncertainties    
-    * @param valPrimYZ - y-z correlation of primary vertex uncertainties
-    * @param valDecXY -  x-y correlation of decay vertex uncertainties  
-    * @param valDecXZ -  x-z correlation of decay vertex uncertainties
-    * @param valDecYZ -  y-z correlation of decay vertex uncertainties
-    */
-    void setVertexCorrelations(double valPrimXY, double valPrimXZ, double valPrimYZ, double valDecXY, double valDecXZ, double valDecYZ){
-        
-        fCorrPrimXY = valPrimXY;
-        fCorrPrimXZ = valPrimXZ;
-        fCorrPrimYZ = valPrimYZ;
-
-        fCorrDecXY = valDecXY;
-        fCorrDecXZ = valDecXZ;
-        fCorrDecYZ = valDecYZ;
-        
-    }
-
-    /** @brief Function that returns the decay candidate
-    */
-    KinFitParticle getDecayCand() { return fDecayCand; }
-
-    /** @brief Function that returns the covariance matrix of the decay candidate
-    */
-    TMatrixD getCovarianceMatrixDecayCand() { return fCovarianceDecayCand; }
-    
-private:
-
-   /** @brief Function that calculates the decay candidate
+  /** @brief Constructor
+   * @param cands Vector of decay particles.
+   * @param decayCandMass Mass assumption for the decay particle.
+   * @param primaryVertex Primary vertex position.
+   * @param decayVertex Decay vertex position.
+   * @param primVtxResX Primary vertex resolution in x-direction.
+   * @param primVtxResY Primary vertex resolution in y-direction.
+   * @param primVtxResZ Primary vertex resolution in z-direction.
+   * @param decVtxResX Decay vertex resolution in x-direction.
+   * @param decVtxResY Decay vertex resolution in y-direction.
+   * @param decVtxResZ Decay vertex resolution in z-direction.
    */
-    void calculateDecayCand();
+  KFitDecayCandFinder(const std::vector<KinFitParticle> &cands,
+                      double decayCandMass, TVector3 primaryVertex,
+                      TVector3 decayVertex, double primVtxResX,
+                      double primVtxResY, double primVtxResZ, double decVtxResX,
+                      double decVtxResY, double decVtxResZ);
 
+  /** @brief Constructor
+   * Default vertex resolutions are used with a lambda-mass hypothesis.
+   * @param cands Vector of decay particles.
+   * @param primaryVertex Primary vertex position.
+   * @param decayVertex Decay vertex position.
+   */
+  KFitDecayCandFinder(const std::vector<KinFitParticle> &cands,
+                      TVector3 primaryVertex, TVector3 decayVertex);
+
+  /** @brief Default destructor. */
+  ~KFitDecayCandFinder() {};
+
+  void setVerbosity(int val) { fVerbose = val; }
+
+  /** @brief Set correlations between x, y, and z uncertainties of the primary
+   * and decay vertices.
+   * @param valPrimXY x-y correlation of primary-vertex uncertainties.
+   * @param valPrimXZ x-z correlation of primary-vertex uncertainties.
+   * @param valPrimYZ y-z correlation of primary-vertex uncertainties.
+   * @param valDecXY x-y correlation of decay-vertex uncertainties.
+   * @param valDecXZ x-z correlation of decay-vertex uncertainties.
+   * @param valDecYZ y-z correlation of decay-vertex uncertainties.
+   */
+  void setVertexCorrelations(double valPrimXY, double valPrimXZ,
+                             double valPrimYZ, double valDecXY, double valDecXZ,
+                             double valDecYZ) {
+
+    fCorrPrimXY = valPrimXY;
+    fCorrPrimXZ = valPrimXZ;
+    fCorrPrimYZ = valPrimYZ;
+
+    fCorrDecXY = valDecXY;
+    fCorrDecXZ = valDecXZ;
+    fCorrDecYZ = valDecYZ;
+  }
+
+  /** @brief Return the calculated decay candidate.
+   * @return Decay candidate as KinFitParticle.
+   */
+  KinFitParticle getDecayCand() { return fDecayCand; }
+
+  /** @brief Return covariance matrix of the decay candidate.
+   * @return Covariance matrix in (1/p, theta, phi, R, Z) ordering.
+   */
+  TMatrixD getCovarianceMatrixDecayCand() { return fCovarianceDecayCand; }
+
+private:
+  /** @brief Calculate decay-candidate kinematics and covariance.
+   */
+  void calculateDecayCand();
 };
 
 #endif /* KFITDECAYCANDFINDER_H */

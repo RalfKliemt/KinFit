@@ -15,8 +15,12 @@
 //****************************************************************************
 
 // ROOT includes
-#include "KinFitParticle.h"
 #include "CoordinateConversion.h"
+#include "KinFitParticle.h"
+
+/**
+ * @file CoordinateConversion.cxx
+ * @brief Translation unit for coordinate-conversion utilities.
+ */
 
 void CoordTest();
-
