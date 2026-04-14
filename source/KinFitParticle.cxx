@@ -16,6 +16,8 @@
 
 #include "KinFitParticle.h"
 
+#include <iostream>
+
 /**
  * @file KinFitParticle.cxx
  * @brief Implementation of particle parameter and covariance container.
@@ -99,4 +101,26 @@ void KinFitParticle::setCovariance(const TMatrixD &cov) {
   else if (cov.GetNoElements() == 6 * 6) {
     // TO-DO: implement error-propagation calculation for 6x6 inputs.
   }
+}
+
+void KinFitParticle::Print(Option_t *option) const {
+  // Print TLorentzVector state first.
+  TLorentzVector::Print(option);
+
+  std::cout << "KinFitParticle:"
+            << " p=" << fMomentum
+            << " theta=" << fTheta
+            << " phi=" << fPhi
+            << " R=" << fR
+            << " Z=" << fZ
+            << " q=" << fCharge
+            << " pid=" << fPid
+            << " trackId=" << fTrackId
+            << std::endl;
+}
+
+void KinFitParticle::PrintCovariance() const {
+  std::cout << "KinFitParticle covariance matrix (parameter order: 1/p, theta, phi, R, Z)"
+            << std::endl;
+  fCov.Print();
 }

@@ -24,8 +24,7 @@
  *
  */
 
-#ifndef KINFITTER_H
-#define KINFITTER_H
+#pragma once
 
 // framework includes
 #include "KinFitParticle.h"
@@ -267,5 +266,3 @@ private:
 
   ClassDef(KinFitter, 1)
 };
-
-#endif /* KINFITTER_H */

@@ -26,8 +26,7 @@
  *
  */
 
-#ifndef KFITANALYZER_H
-#define KFITANALYZER_H
+#pragma once
 
 #include "KinFitParticle.h"
 
@@ -119,5 +118,3 @@ public:
    */
   std::vector<int> getPids() { return fPids; }
 };
-
-#endif /* KFITANALYZER_H */

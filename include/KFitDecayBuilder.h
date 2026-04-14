@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef KFITDECAYBUILDER_H
-#define KFITDECAYBUILDER_H
+#pragma once
 
 // framework includes
 #include "KinFitParticle.h"
@@ -140,4 +139,3 @@ public:
   double getProbability() { return fBestProb; }
 };
 
-#endif /* KFITDECAYBUILDER_H */

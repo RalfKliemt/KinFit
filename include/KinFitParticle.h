@@ -6,7 +6,7 @@
 //*                 copied verbatim in the file "LICENSE".                   *
 //*                                                                          *
 //*                             Copyright 2024                               *
-//*             GSI Helmholtzzentrum für Schwerionenforschung                *
+//*             GSI Helmholtzzentrum fuer Schwerionenforschung               *
 //*          This software is distributed under the terms of the             *
 //*          GNU General Public Licence version 3 (GPL Version 3)            *
 //*                                                                          *
@@ -17,15 +17,14 @@
 /**
  * KinFitParticle.h
  *
- * @updated 03.08.2023
- * @version v1.0.0
+ *@updated 03.08.2023
+ *@version v1.0.0
  *
  * Object containing track parameters
- * and the covariance matrix.
+ * as well as the covariance matrix
  */
 
-#ifndef KINFITPARTICLE_H
-#define KINFITPARTICLE_H
+#pragma once
 
 // ROOT includes
 #include <TLorentzVector.h>
@@ -98,25 +97,25 @@ private:
   TMatrixD fCov;
 
 public:
-  /** @brief Default constructor. */
+  /** Default Constructor **/
   KinFitParticle();
 
   /** @brief Constructor
-   * @param cand TLorentzVector with theta, phi, and momentum set.
-   * @param R Closest distance between particle track and beam line.
-   * @param Z Point along the beam line where the particle passes closest.
+   * @param cand - TLorentzVector with theta, phi and momentum set
+   * @param R - Closest distance between particle track and beam line
+   * @param Z - Point along the beamline where the particle passes closest to it
    */
   KinFitParticle(TLorentzVector cand, double R, double Z);
 
   /** @brief Constructor
-   * @param cand TLorentzVector with theta, phi, and momentum set.
-   * @param X Starting x-position of track.
-   * @param Y Starting y-position of track.
-   * @param Z Starting z-position of track.
+   * @param cand - TLorentzVector with theta, phi and momentum set
+   * @param X - Starting X-position of track
+   * @param Y - Starting Y-position of track
+   * @param Z - Starting Z-position of track
    */
   KinFitParticle(TLorentzVector cand, double X, double Y, double Z);
 
-  /** @brief Default destructor. */
+  /** Default Destructor **/
   ~KinFitParticle() {};
 
   void setMomentum(double val) { fMomentum = val; } // Sets the momentum [MeV/c]
@@ -135,9 +134,9 @@ public:
   void setPhiDeg(double val) {
     fPhi = val * TMath::DegToRad();
     cand.SetTheta(val * TMath::DegToRad());
-  } // Sets the azimuthal angle [deg]
-  void setR(double val) { fR = val; }           // Sets R [mm]
-  void setZ(double val) { fZ = val; }           // Sets Z [mm]
+  }                                   // Sets the azimuthal angle [deg]
+  void setR(double val) { fR = val; } // Sets R [mm]
+  void setZ(double val) { fZ = val; } // Sets Z [mm]
   void setCharge(double val) { fCharge = val; } // Sets Charge
   void setBeta(double val) { fBeta = val; }     // Sets Beta
   void setChi2(double val) { fChi2 = val; }     // Sets Chi2
@@ -178,7 +177,7 @@ public:
   } // Sets the polar angle [deg]
   void setGenPhiDeg(double val) {
     fGenPhi = val;
-  } // Sets the azimuthal angle [deg]
+  }                                         // Sets the azimuthal angle [deg]
   void setGenR(double val) { fGenR = val; } // Sets R [mm]
   void setGenZ(double val) { fGenZ = val; } // Sets Z [mm]
 
@@ -250,6 +249,8 @@ public:
   double getGenZ() const { return fGenZ; }
 
   int getSector() const { return fSector; } // Returns the sector
+
+  void Print(Option_t *option) const; // Prints the particle information to the console
+  void PrintCovariance() const; // Prints the covariance matrix and parameter ordering
 };
 
-#endif /* KINFITPARTICLE_H */

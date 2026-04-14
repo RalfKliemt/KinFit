@@ -24,8 +24,7 @@
  * intersections.
  */
 
-#ifndef KFITVERTEXFINDER_H
-#define KFITVERTEXFINDER_H
+#pragma once
 
 // framework includes
 #include "KinFitParticle.h"
@@ -86,4 +85,3 @@ public:
   TVector3 getVertex() const { return fVertex; }
 };
 
-#endif /* KFITVERTEXFINDER_H */

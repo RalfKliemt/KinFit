@@ -22,8 +22,7 @@
  * including first-order uncertainty propagation.
  */
 
-#ifndef COORDINATECONVERSION_H
-#define COORDINATECONVERSION_H
+#pragma once
 
 // system includes
 #include <cmath>
@@ -397,4 +396,3 @@ public:
       ;}
   */
 };
-#endif

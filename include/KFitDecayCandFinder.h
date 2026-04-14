@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef KFITDECAYCANDFINDER_H
-#define KFITDECAYCANDFINDER_H
+#pragma once
 
 // framework includes
 #include "KinFitParticle.h"
@@ -161,4 +160,3 @@ private:
   void calculateDecayCand();
 };
 
-#endif /* KFITDECAYCANDFINDER_H */

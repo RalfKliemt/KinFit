@@ -12,6 +12,7 @@
 #pragma link C++ class KinFitParticle;
 #pragma link C++ class KFitDecayCandFinder;
 #pragma link C++ class KFitVertexFinder;
+#pragma link C++ class KFitVertexFinderConstB;
 #pragma link C++ class KFitDecayBuilder;
 #pragma link C++ class KFitAnalyzer;
 
