@@ -29,7 +29,6 @@
 #define KFITANALYZER_H
 
 #include "KFitParticle.h"
-#include "KFitDecayBuilder.h"
 
 // framework includes
 #include "TTree.h"
@@ -40,7 +39,6 @@
 // system includes
 #include <iostream>
 #include <vector>
-#include <cmath>
 
 using std::cout;
 using std::endl;

@@ -30,20 +30,12 @@
 
 // framework includes
 #include "KFitParticle.h"
-#include "KinFitter.h"
 
-//#include "TH1F.h"
 #include "TString.h"
-#include "TTree.h"
-#include "TFile.h"
 
 // system includes
 #include <iostream>
-#include <iomanip>
 #include <vector>
-#include <cmath>
-#include <algorithm>
-#include <iterator>
 
 using std::cout;
 using std::endl;

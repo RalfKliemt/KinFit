@@ -30,13 +30,10 @@
 #include "KFitParticle.h"
 
 // ROOT includes
-#include "TMatrixD.h"
 
 // system includes
 #include <iostream>
-#include <iomanip>
 #include <vector>
-#include <cmath>
 
 using std::cout;
 using std::endl;

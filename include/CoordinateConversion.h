@@ -24,9 +24,6 @@
 #define COORDINATECONVERSION_H
 
 // system includes
-#include <iostream>
-#include <iomanip>
-#include <vector>
 #include <cmath>
 
 // root includes

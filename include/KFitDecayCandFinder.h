@@ -33,9 +33,7 @@
 
 // system includes
 #include <iostream>
-#include <iomanip>
 #include <vector>
-#include <cmath>
 
 using std::cout;
 using std::endl;

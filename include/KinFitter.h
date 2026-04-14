@@ -32,12 +32,13 @@
 
 // ROOT includes
 #include "TObject.h"
+#include "TMath.h"
+#include "TLorentzVector.h"
 
 // system includes
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <cmath>
 
 using std::cout;
 using std::endl;

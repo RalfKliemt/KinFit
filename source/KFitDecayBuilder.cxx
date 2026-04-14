@@ -15,6 +15,7 @@
 //****************************************************************************
 
 #include "KFitDecayBuilder.h"
+#include "KinFitter.h"
 
 KFitDecayBuilder::KFitDecayBuilder(TString task, std::vector<int> pids, TLorentzVector lv, double mass) : fTask(task),
                                                                                                           fPids(pids),

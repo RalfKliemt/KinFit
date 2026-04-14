@@ -15,6 +15,9 @@
 //****************************************************************************
 
 #include "KFitAnalyzer.h"
+#include "KFitDecayBuilder.h"
+
+#include "TFile.h"
 
 KFitAnalyzer::KFitAnalyzer(TString inFileName, TString outFileName, int nEvents) : fEvents(nEvents),
                                                                                     fVerbose(0)
