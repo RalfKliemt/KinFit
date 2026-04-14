@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(
   KinFit
   VERSION 0.0.1
@@ -31,7 +31,7 @@ root_generate_dictionary(KinFitDict ${HFILES}
 # cmake-format: on
 add_library(KinFit SHARED ${SRCFILES} KinFitDict.cxx)
 add_library(KinFit::KinFit ALIAS KinFit)
-target_link_libraries(KinFit ROOT::Core )
+target_link_libraries(KinFit ROOT::Core ROOT::Matrix ROOT::Physics ROOT::MathCore ROOT::RIO ROOT::Tree)
 target_include_directories(
   KinFit
   PUBLIC $<INSTALL_INTERFACE:include>
