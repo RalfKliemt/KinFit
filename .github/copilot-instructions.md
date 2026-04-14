@@ -11,10 +11,10 @@
 
 ## Architecture
 - Core fit engine: KinFitter (iterative constrained kinematic fit, Jacobians, covariance updates).
-- Physics object container: KFitParticle (track parameters + covariance matrix + ROOT serialization).
+- Physics object container: KinFitParticle (track parameters + covariance matrix + ROOT serialization).
 - Analysis orchestration: KFitAnalyzer (event loop and output writing), KFitDecayBuilder (candidate combinations and best-fit selection).
 - Utility/reconstruction helpers: KFitDecayCandFinder, KFitVertexFinder, CoordinateConversion.
-- Typical flow: build KFitParticle objects -> configure constraint in KinFitter/KFitAnalyzer -> run fit -> read fitted daughters/mother/probability.
+- Typical flow: build KinFitParticle objects -> configure constraint in KinFitter/KFitAnalyzer -> run fit -> read fitted daughters/mother/probability.
 
 ## Build and Test
 - Build/install (from repo root):
@@ -32,5 +32,5 @@
 ## Conventions and Pitfalls
 - Do not hand-edit generated ROOT dictionary files (for example KinFitDict.cxx in build outputs).
 - In KinFitter, constraints are implemented as mutually exclusive mode flags; do not silently combine constraints unless explicitly redesigning that logic.
-- Preserve covariance parameter ordering documented in KFitParticle: 1/p, theta, phi, R, Z.
+- Preserve covariance parameter ordering documented in KinFitParticle: 1/p, theta, phi, R, Z.
 - Changes to serialized ROOT classes can affect compatibility. Treat ClassDef version changes as deliberate API/IO changes, not incidental edits.

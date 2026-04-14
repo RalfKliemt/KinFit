@@ -20,7 +20,7 @@
 const size_t cov_dim = 5;
 
 // general KinFitter constructor
-KinFitter::KinFitter(const std::vector<KFitParticle> &cands) : fCands(cands)
+KinFitter::KinFitter(const std::vector<KinFitParticle> &cands) : fCands(cands)
 {
     if (fVerbose > 0)
     {
@@ -46,7 +46,7 @@ KinFitter::KinFitter(const std::vector<KFitParticle> &cands) : fCands(cands)
     // and the covariance
     for (int ix = 0; ix < fN; ix++)
     {
-        KFitParticle cand = fCands[ix];
+        KinFitParticle cand = fCands[ix];
         y(0 + ix * cov_dim, 0) = 1. / cand.P();
         y(1 + ix * cov_dim, 0) = cand.Theta();
         y(2 + ix * cov_dim, 0) = cand.Phi();
@@ -141,7 +141,7 @@ void KinFitter::add4Constraint(TLorentzVector lv)
     f4Constraint = true;
 }
 
-void KinFitter::add3Constraint(KFitParticle mother)
+void KinFitter::add3Constraint(KinFitParticle mother)
 {
     if (fVerbose > 0)
     {
@@ -161,7 +161,7 @@ void KinFitter::add3Constraint(KFitParticle mother)
     // Set y to measurements and the covariance, set mass
     for (int ix = 0; ix < fN; ix++) // for daughters
     {
-        KFitParticle cand = fCands[ix];
+        KinFitParticle cand = fCands[ix];
 
         y(0 + ix * cov_dim, 0) = 1. / cand.P();
         y(1 + ix * cov_dim, 0) = cand.Theta();
@@ -1737,7 +1737,7 @@ void KinFitter::updateDaughters()
     }
     for (int val = 0; val < fN; ++val)
     {
-        KFitParticle &cand = fCands[val];
+        KinFitParticle &cand = fCands[val];
         double Px = (1. / y(0 + val * cov_dim, 0)) *
                     std::sin(y(1 + val * cov_dim, 0)) *
                     std::cos(y(2 + val * cov_dim, 0));
@@ -1775,7 +1775,7 @@ void KinFitter::updateMother()
         cout << " Update mother" << endl;
     }
 
-    KFitParticle &mother = fMother;
+    KinFitParticle &mother = fMother;
     double Px = (1. / x(0, 0)) *
                 std::sin(y(0 + fN * cov_dim, 0)) *
                 std::cos(y(1 + fN * cov_dim, 0));

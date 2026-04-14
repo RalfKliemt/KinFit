@@ -47,14 +47,14 @@ void KFitAnalyzer::selectCandidates()
     int ntracks = fCands_in->GetEntries();
 
     fCandsFit.clear();
-    std::vector<KFitParticle > tempVec;
+    std::vector<KinFitParticle > tempVec;
 
     for (size_t it = 0; it < fPids.size(); it++)
     {
         tempVec.clear();
         for (int j = 0; j < ntracks; j++)
         {
-            KFitParticle *cand = (KFitParticle *)fCands_in->At(j);
+            KinFitParticle *cand = (KinFitParticle *)fCands_in->At(j);
 
             if (cand->getPid() == fPids[it])
             {
@@ -66,7 +66,7 @@ void KFitAnalyzer::selectCandidates()
     } // end of PIDs loop
 }
 
-void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids, double mass, TLorentzVector lv, KFitParticle mother)
+void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids, double mass, TLorentzVector lv, KinFitParticle mother)
 {
     if (fVerbose > 0)
     {
@@ -78,17 +78,17 @@ void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids, double mass
 
     // Read input tree
     int Event;
-    fTree->SetBranchAddress("KFitParticle", &fCands_in);
+    fTree->SetBranchAddress("KinFitParticle", &fCands_in);
     
     // Create output tree
     fTree_out->SetName("data_fitted");
     TString out_branchname = "cands_fitted";
-    TClonesArray *fitted_cands = new TClonesArray("KFitParticle");
+    TClonesArray *fitted_cands = new TClonesArray("KinFitParticle");
     TClonesArray &fit_arrayRef = *fitted_cands;
     double Chi2, Prob;
 
     fTree_out->Branch("Event", &Event, "Event/I");
-    fTree_out->Branch("KFitParticle", "TClonesArray", &fitted_cands);
+    fTree_out->Branch("KinFitParticle", "TClonesArray", &fitted_cands);
     fTree_out->Branch("Chi2", &Chi2, "Chi2/D");
     fTree_out->Branch("Prob", &Prob, "Prob/D");
 
@@ -137,7 +137,7 @@ void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids, double mass
         builder.buildDecay();
 
         // get result from DecayBuilder
-        std::vector<KFitParticle> result;
+        std::vector<KinFitParticle> result;
         if(result.size()>0) result.clear();
         builder.getFitCands(result);
         Chi2 = builder.getChi2();
@@ -149,7 +149,7 @@ void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids, double mass
         if(Prob>0){
         for (int k = 0; k < result.size(); k++)
         {
-            KFitParticle *fitted_cand = new (fit_arrayRef[ii]) KFitParticle(result[k], result[k].getR(), result[k].getZ());
+            KinFitParticle *fitted_cand = new (fit_arrayRef[ii]) KinFitParticle(result[k], result[k].getR(), result[k].getZ());
             fitted_cand->setPid(result[k].getPid());
             fitted_cand->setTrackId(result[k].getTrackId());
             fitted_cand->setCovariance(result[k].getCovariance());

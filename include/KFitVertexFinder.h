@@ -27,7 +27,7 @@
 #define KFITVERTEXFINDER_H
 
 // framework includes
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 
 // ROOT includes
 
@@ -45,7 +45,7 @@ private:
 
     int fVerbose; // Verbosity level
 
-    std::vector<KFitParticle> fCands;
+    std::vector<KinFitParticle> fCands;
 
     TVector3 fVertex; // Vertex after finding
 
@@ -71,7 +71,7 @@ public:
     
     /**  Constructor 
     */
-    KFitVertexFinder(std::vector<KFitParticle> &);
+    KFitVertexFinder(std::vector<KinFitParticle> &);
 
     /** Default Destructor **/
     ~KFitVertexFinder(){};

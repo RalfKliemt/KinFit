@@ -15,7 +15,7 @@
 //****************************************************************************
 
 // ROOT includes
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 #include "CoordinateConversion.h"
 
 void CoordTest();

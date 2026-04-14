@@ -34,7 +34,7 @@
 
 using namespace std;
 
-void FillData(KFitParticle& outcand, double arr[])
+void FillData(KinFitParticle& outcand, double arr[])
 {
     double deg2rad = TMath::DegToRad();
 
@@ -202,19 +202,19 @@ Int_t fit_toyMC_fromPluto(TString infile, Int_t nEvents)
         h01->Fill(lambda.M());
         h012->Fill(lambda.P());
 
-        KFitParticle proton1_fit(*proton1,p1CandRecoR,p1CandRecoZ);
+        KinFitParticle proton1_fit(*proton1,p1CandRecoR,p1CandRecoZ);
         FillData(proton1_fit, proton1_errors);
-        KFitParticle kaon_fit(*kaon,KCandRecoR,KCandRecoZ);
+        KinFitParticle kaon_fit(*kaon,KCandRecoR,KCandRecoZ);
         FillData(kaon_fit, kaon_errors);
-        KFitParticle proton2_fit(*proton2,p2CandRecoR,p2CandRecoZ);
+        KinFitParticle proton2_fit(*proton2,p2CandRecoR,p2CandRecoZ);
         FillData(proton2_fit, proton2_errors);
-        KFitParticle pion_fit(*pion,piCandRecoR, piCandRecoZ);
+        KinFitParticle pion_fit(*pion,piCandRecoR, piCandRecoZ);
         FillData(pion_fit, pion_errors);
 
         // ---------------------------------------------------------------------------------
         // begin kinfit here
         // ---------------------------------------------------------------------------------
-        std::vector<KFitParticle> cands;
+        std::vector<KinFitParticle> cands;
         cands.clear();
         cands.push_back(proton2_fit);
         cands.push_back(pion_fit);
@@ -226,8 +226,8 @@ Int_t fit_toyMC_fromPluto(TString infile, Int_t nEvents)
         fitter.addVertexConstraint();
         if(fitter.fit()){
 
-            KFitParticle fcand1 = fitter.getDaughter(0); // proton
-            KFitParticle fcand2 = fitter.getDaughter(1); // pion
+            KinFitParticle fcand1 = fitter.getDaughter(0); // proton
+            KinFitParticle fcand2 = fitter.getDaughter(1); // pion
 
             TLorentzVector daughter = fitter.getMissingDaughter();
             cout<<daughter.Px()<<endl;

@@ -14,9 +14,9 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 
-KFitParticle::KFitParticle(TLorentzVector cand, double R, double Z)
+KinFitParticle::KinFitParticle(TLorentzVector cand, double R, double Z)
     : TLorentzVector(cand), cand(cand), fMomentum(cand.P()), fTheta(cand.Theta()), fPhi(cand.Phi()), fR(R), fZ(Z)
 {
     fPid = -1;
@@ -24,7 +24,7 @@ KFitParticle::KFitParticle(TLorentzVector cand, double R, double Z)
     fCov.ResizeTo(5, 5);
 }
 
-KFitParticle::KFitParticle(TLorentzVector cand, double X, double Y, double Z)
+KinFitParticle::KinFitParticle(TLorentzVector cand, double X, double Y, double Z)
     : TLorentzVector(cand), cand(cand), fMomentum(cand.P()), fTheta(cand.Theta()), fPhi(cand.Phi())
 {
     double deg2rad = TMath::DegToRad();
@@ -61,7 +61,7 @@ KFitParticle::KFitParticle(TLorentzVector cand, double X, double Y, double Z)
     fTrackId = -1;
 }
 
-KFitParticle::KFitParticle()
+KinFitParticle::KinFitParticle()
     : TLorentzVector()
 {
     cand.SetXYZM(0,0,0,0);
@@ -72,7 +72,7 @@ KFitParticle::KFitParticle()
     fCov.ResizeTo(5, 5);
 }
 
-void KFitParticle::setCovariance(const TMatrixD &cov)
+void KinFitParticle::setCovariance(const TMatrixD &cov)
 {
     // HADES default track parametrization
     // 0 = 1/p

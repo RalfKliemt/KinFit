@@ -7,7 +7,7 @@
 #pragma link off all typedef;
 
 #pragma link C++ class KinFitter;
-#pragma link C++ class KFitParticle;
+#pragma link C++ class KinFitParticle;
 #pragma link C++ class KFitDecayCandFinder;
 #pragma link C++ class KFitVertexFinder;
 #pragma link C++ class KFitDecayBuilder;

@@ -16,7 +16,7 @@
 
 #include "KFitVertexFinder.h"
 
-KFitVertexFinder::KFitVertexFinder(std::vector<KFitParticle> &cands) : fVerbose(0), fCands(cands)
+KFitVertexFinder::KFitVertexFinder(std::vector<KinFitParticle> &cands) : fVerbose(0), fCands(cands)
 {   
     
     fM.ResizeTo(3, 3);
@@ -26,7 +26,7 @@ KFitVertexFinder::KFitVertexFinder(std::vector<KFitParticle> &cands) : fVerbose(
 
     for (int i_cand = 0; i_cand < fCands.size(); i_cand++)
     {
-        KFitParticle cand = cands[i_cand];
+        KinFitParticle cand = cands[i_cand];
 
         double param_theta = cand.Theta();
         double param_phi = cand.Phi();

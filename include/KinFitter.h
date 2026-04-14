@@ -28,7 +28,7 @@
 #define KINFITTER_H
 
 // framework includes
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 
 // ROOT includes
 #include "TObject.h"
@@ -85,8 +85,8 @@ private:
     int fIteration = 0;               // Iterations needed until convergence
     int fN;                           // Number of input candidates
     int fyDim;                        // Dimension of y
-    std::vector<KFitParticle> fCands; // Vector of input candidates
-    KFitParticle fMother;             // Decaying particle
+    std::vector<KinFitParticle> fCands; // Vector of input candidates
+    KinFitParticle fMother;             // Decaying particle
     TLorentzVector fMissDaughter;     // Missing decay product
     std::vector <double > fMassVec;   // Vector of masses that is used if several mass fits are used
 
@@ -128,7 +128,7 @@ public:
     /** @brief Constructor
      * @param cands - vector of particles to be fitted
      */
-    KinFitter(const std::vector<KFitParticle> &cands);
+    KinFitter(const std::vector<KinFitParticle> &cands);
 
     /** Default Deconstructor **/
     ~KinFitter(){};
@@ -156,7 +156,7 @@ public:
      * @param lv - initial beam-target 4-momentum
      * @param mass - mass of particle / missing mass of system (depending on constraint)
      */
-    void add3Constraint(KFitParticle mother);                          // 4-momentum constraint in a decay vertex
+    void add3Constraint(KinFitParticle mother);                          // 4-momentum constraint in a decay vertex
     void add4Constraint(TLorentzVector lv);                            // 4-momentum constrint of final state particles to the initial system, lv
     void addVertexConstraint();                                        // Geometrical vertex constraint
     void addMissingParticleConstraint(TLorentzVector lv, double mass); // Constraint of the final state particles + one undetected to the initial system, lv, and a missing particle with mass m
@@ -221,13 +221,13 @@ public:
 
     /** @brief Fitted particle number val is returned with updated track parameters
      */
-    KFitParticle getDaughter(int val) { return fCands[val]; }
+    KinFitParticle getDaughter(int val) { return fCands[val]; }
     /** @brief All fitted particles are returned
      */
-    void getDaughters(std::vector<KFitParticle> &daughters) { daughters = fCands; }
+    void getDaughters(std::vector<KinFitParticle> &daughters) { daughters = fCands; }
     /** @brief Returns fitted mother particle
      */
-    KFitParticle getMother() { return fMother; }
+    KinFitParticle getMother() { return fMother; }
     /** @brief Returns TLorentzVector fitted missing particle if existing
      */
     TLorentzVector getMissingDaughter() { return fMissDaughter; }

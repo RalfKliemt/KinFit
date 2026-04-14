@@ -36,12 +36,12 @@ target_link_libraries(your_executable other_dependencies KinFit::KinFit ROOT::Co
 
 ## Direct use of the fitter tools in your own analysis
 
-1) Create KFitParticles from your particle candidates
-    KFitParticle particle(TLorentzVector lv, Double_t R, Double_t Z);
+1) Create KinFitParticles from your particle candidates
+    KinFitParticle particle(TLorentzVector lv, Double_t R, Double_t Z);
     FillData(particle, particle_covariance)
 
 2) Create a vector of particles which shall be fitted
-    std::vector<KFitParticle> cands;
+    std::vector<KinFitParticle> cands;
     cands.push_back(particle);
 
 3) Initialize the KinFitter and fit
@@ -50,7 +50,7 @@ target_link_libraries(your_executable other_dependencies KinFit::KinFit ROOT::Co
     fitter.fit()
 
 4) Get the fit result
-    KFitParticle fcand = fitter.getDaughter(0);
+    KinFitParticle fcand = fitter.getDaughter(0);
 
 The procedure is illustrated in the example macro fit_toyMC.C in QA. An example input file is provided in QA/test_files/toy_montecarlo_rz_vtx.root.
 
@@ -58,9 +58,9 @@ The procedure is illustrated in the example macro fit_toyMC.C in QA. An example 
 
 The KFitAnalyzer can be used to automatically analyze a root file event by event, performing the selected fit. The best particle combination for each event according to fit probability is written to an output file.
 
-Input: A root file containing a TClonesArray of KFitParticles. Example: QA/test_files/input.root
+Input: A root file containing a TClonesArray of KinFitParticles. Example: QA/test_files/input.root
 
-Output: A root file containing a TClonesArray of KFitParticles, fit probability and chi2
+Output: A root file containing a TClonesArray of KinFitParticles, fit probability and chi2
 
 ### Usage
 

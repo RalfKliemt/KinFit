@@ -29,7 +29,7 @@
 #define KFITDECAYCANDFINDER_H
 
 // framework includes
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 
 // system includes
 #include <iostream>
@@ -41,7 +41,7 @@ using std::endl;
 class KFitDecayCandFinder
 {
 private:
-    std::vector<KFitParticle> fCands; // Vector of decay products
+    std::vector<KinFitParticle> fCands; // Vector of decay products
 
     TVector3 fPrimaryVertex; // Vector pointing to the primary vertex
     TVector3 fDecayVertex; // Vector pointing to the decay vertex
@@ -50,7 +50,7 @@ private:
     double fMomentumBeforeDecay; // Estimated momentum of the decay particle
     double fDecayCandMass; // Assuption for the mass of the decay particle
     
-    KFitParticle fDecayCand;
+    KinFitParticle fDecayCand;
 
     double fPrimVtxResX; // Primary vertex resolution in x-direction
     double fPrimVtxResY; // Primary vertex resolution in y-direction
@@ -98,7 +98,7 @@ public:
     * @param decVtxResY - decay vertex resolution in y-direction
     * @param decVtxResZ - decay vertex resolution in z-direction
     */
-    KFitDecayCandFinder(const std::vector<KFitParticle> &cands, double decayCandMass, TVector3 primaryVertex, TVector3 decayVertex, double primVtxResX, double primVtxResY, double primVtxResZ, double decVtxResX, double decVtxResY, double decVtxResZ);
+    KFitDecayCandFinder(const std::vector<KinFitParticle> &cands, double decayCandMass, TVector3 primaryVertex, TVector3 decayVertex, double primVtxResX, double primVtxResY, double primVtxResZ, double decVtxResX, double decVtxResY, double decVtxResZ);
     
     /** @brief Constructor
     * Decault vertex resolutions are used and lambda mass hypothesis
@@ -106,7 +106,7 @@ public:
     * @param primaryVertex - vector with primary vertex positions
     * @param decayVertex - vector with decay vertex positions
     */
-    KFitDecayCandFinder(const std::vector<KFitParticle> &cands, TVector3 primaryVertex, TVector3 decayVertex);
+    KFitDecayCandFinder(const std::vector<KinFitParticle> &cands, TVector3 primaryVertex, TVector3 decayVertex);
     
     /** Default Deconstructor **/
     ~KFitDecayCandFinder(){};
@@ -135,7 +135,7 @@ public:
 
     /** @brief Function that returns the decay candidate
     */
-    KFitParticle getDecayCand() { return fDecayCand; }
+    KinFitParticle getDecayCand() { return fDecayCand; }
 
     /** @brief Function that returns the covariance matrix of the decay candidate
     */

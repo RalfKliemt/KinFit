@@ -29,7 +29,7 @@
 #define KFITDECAYBUILDER_H
 
 // framework includes
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 
 #include "TString.h"
 
@@ -44,16 +44,16 @@ class KFitDecayBuilder
 {
 private:
     // Working Particles
-    std::vector<std::vector<KFitParticle>> fCands;  // Vector of vector of particle candidates for each PID
-    std::vector<KFitParticle> fFitCands;    // Vector of particles the fit should be performed on
+    std::vector<std::vector<KinFitParticle>> fCands;  // Vector of vector of particle candidates for each PID
+    std::vector<KinFitParticle> fFitCands;    // Vector of particles the fit should be performed on
 
-    std::vector<KFitParticle> fOutputCands; // Output particles after fitting
+    std::vector<KinFitParticle> fOutputCands; // Output particles after fitting
 
     // Fitter input variables
     TString fTask;  // Task to be performed
     std::vector<int> fPids;  // Vector of PIDs of all particles included in fit
     TLorentzVector fIniSys; // Four-vector as input to fit
-    KFitParticle fMother;   // Mother particle as input to fit
+    KinFitParticle fMother;   // Mother particle as input to fit
     double fMass;   // Mass as input to fit
 
     // For combinatorics
@@ -94,7 +94,7 @@ public:
     /** @brief Set input candidates
      * @param cands Vector of vector of particle candidates for each PID
     */
-    void setInputCands(std::vector<std::vector<KFitParticle>> cands) {fCands = cands; }
+    void setInputCands(std::vector<std::vector<KinFitParticle>> cands) {fCands = cands; }
 
     /** @brief Set beam + target 4-momentum
      * @param fIniSys beam + target 4-momentum
@@ -102,9 +102,9 @@ public:
     void setIniSys(TLorentzVector val) { fIniSys = val; }
 
     /** @brief Set mother particle
-     * @param fMother mother KFitParticle
+     * @param fMother mother KinFitParticle
     */
-    void setMother(KFitParticle val) { fMother = val; }
+    void setMother(KinFitParticle val) { fMother = val; }
 
     /** @brief Set input mass
      * @param fMass mass
@@ -118,7 +118,7 @@ public:
     void buildDecay();
 
     /** @brief Access fitted particles chosen */
-    void getFitCands(std::vector<KFitParticle> &cands) { cands = fOutputCands; }
+    void getFitCands(std::vector<KinFitParticle> &cands) { cands = fOutputCands; }
 
     /** @brief Returns chi2 of best combination */
     double getChi2() { return fBestChi2; }

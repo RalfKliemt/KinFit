@@ -21,14 +21,14 @@
  * @version v1.0.0
  * 
  * "User interface" class to automatically analyze and fit root file 
- * Particle candidates must be stored in a TClones array of KFitParticles
+ * Particle candidates must be stored in a TClones array of KinFitParticles
  *
  */
 
 #ifndef KFITANALYZER_H
 #define KFITANALYZER_H
 
-#include "KFitParticle.h"
+#include "KinFitParticle.h"
 
 // framework includes
 #include "TTree.h"
@@ -46,7 +46,7 @@ using std::endl;
 class KFitAnalyzer
 {
 private:
-    std::vector< std::vector<KFitParticle> > fCandsFit; // Vector of vector of particle candidates for each PID
+    std::vector< std::vector<KinFitParticle> > fCandsFit; // Vector of vector of particle candidates for each PID
     std::vector<int> fPids; // Vector of allPIDs of particles included in fit
     int fEvents;    // Number of events to be analyzed
 
@@ -54,7 +54,7 @@ private:
 
     //Read in data
     TTree *fTree;   // Input data tree
-    TClonesArray *fCands_in = new TClonesArray("KFitParticle"); // Input TClones array of KFitParticles
+    TClonesArray *fCands_in = new TClonesArray("KinFitParticle"); // Input TClones array of KinFitParticles
 
     //Output data
     TFile *foutFile;    // Output file
@@ -98,7 +98,7 @@ public:
      * @param mass optional, mass or missing mass of particle if needed for fit
      * @param lv optinal, if 4-vector input is needed for fit
     */
-    void doFitterTask(TString task, std::vector<int> pids, double mass=-1., TLorentzVector lv = TLorentzVector(), KFitParticle mother = KFitParticle());
+    void doFitterTask(TString task, std::vector<int> pids, double mass=-1., TLorentzVector lv = TLorentzVector(), KinFitParticle mother = KinFitParticle());
     //void addFitterTask(TString task, std::vector<int> primPids, std::vector<int> decayPids); // Jenny, for 3C fit
     //void addBuilderTask(TString task, std::vector<int> pids, TLorentzVector lv);
 

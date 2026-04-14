@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * KFitParticle.h
+ * KinFitParticle.h
  *
  *@updated 03.08.2023
  *@version v1.0.0 
@@ -24,8 +24,8 @@
  * as well as the covariance matrix
  */
 
-#ifndef KFITPARTICLE_H
-#define KFITPARTICLE_H
+#ifndef KINFITPARTICLE_H
+#define KINFITPARTICLE_H
 
 // ROOT includes
 #include <TMath.h>
@@ -33,13 +33,13 @@
 #include <TMatrixD.h>
 #include <TLorentzVector.h>
 
-class KFitParticle : public TLorentzVector
+class KinFitParticle : public TLorentzVector
 {
 
-    ClassDef(KFitParticle, 2);
+    ClassDef(KinFitParticle, 2);
 
 private:
-    TLorentzVector cand; // TLorentzVector the KFitParticle inherits from
+    TLorentzVector cand; // TLorentzVector the KinFitParticle inherits from
     double fMomentum; // Momentum [MeV/c]
     double fTheta; // Polar angle [rad]
     double fPhi; // Azimuthal angle [rad]
@@ -80,7 +80,7 @@ private:
     int fPid; // PID code for the particle spices
     int fTrackId; // Track id, can be used to differentiate different track types, e.g. reconstructed in different parts of the detector
 
-    /** Covariance matrix of the KFitParticle
+    /** Covariance matrix of the KinFitParticle
     * Diagonal entries correspond to the variances 
     * in the parameters in the following order
     * 
@@ -99,14 +99,14 @@ private:
 
 public:
     /** Default Constructor **/
-    KFitParticle(); 
+    KinFitParticle(); 
 
     /** @brief Constructor
     * @param cand - TLorentzVector with theta, phi and momentum set
     * @param R - Closest distance between particle cand and beam line
     * @param Z - Point along the beamline where the particle passes closest to it
     */
-    KFitParticle(TLorentzVector cand, double R, double Z);
+    KinFitParticle(TLorentzVector cand, double R, double Z);
 
     /** @brief Constructor
     * @param cand - TLorentzVector with theta, phi and momentum set
@@ -114,10 +114,10 @@ public:
     * @param Y - Starting Y-position of track
     * @param Z - Starting Z-position of track
     */
-    KFitParticle(TLorentzVector cand, double X, double Y, double Z);
+    KinFitParticle(TLorentzVector cand, double X, double Y, double Z);
     
     /** Default Destructor **/
-    ~KFitParticle(){};
+    ~KinFitParticle(){};
 
     void setMomentum(double val) { fMomentum = val; } // Sets the momentum [MeV/c]
     void setThetaRad(double val) { fTheta = val; cand.SetTheta(val); } // Sets the polar angle [radians]
@@ -200,4 +200,4 @@ public:
     int getSector() const { return fSector; } // Returns the sector
 };
 
-#endif /* KFITPARTICLE_H */
+#endif /* KINFITPARTICLE_H */
