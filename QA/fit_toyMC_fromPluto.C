@@ -17,17 +17,10 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TChain.h"
-#include "TClonesArray.h"
-#include "TCanvas.h"
 #include "TH1.h"
-#include "TH2.h"
-#include "TCutG.h"
 #include "TLorentzVector.h"
 
-#include <algorithm>
-#include <iomanip>
 #include <iostream>
-#include <map>
 #include <vector>
 
 #include "KinFitter.h"

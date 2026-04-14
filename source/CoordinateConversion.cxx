@@ -16,7 +16,6 @@
 
 // ROOT includes
 #include "CoordinateConversion.h"
-#include "KinFitParticle.h"
 
 /**
  * @file CoordinateConversion.cxx
