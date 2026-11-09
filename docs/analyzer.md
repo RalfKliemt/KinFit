@@ -1,0 +1,122 @@
+# Automated analysis: KFitAnalyzer and KFitDecayBuilder
+
+`KFitAnalyzer` runs one fit type over every event of a ROOT file. For each
+event it builds all combinations of the requested particles, fits each one,
+and writes the combination with the highest fit probability to an output
+tree.
+
+## Usage
+
+```cpp
+// analysis_user.C  (see examples/analysis_user.C)
+KFitAnalyzer analyzer("input.root", "fitted.root", 1000);   // nEvents, -1 = all
+
+std::vector<int> pids = {14, 11, 14, 9};   // particle species to combine
+TLorentzVector initial(0, 0, 5356.7, 2*938.272 + 4500.0);  // beam + target
+
+analyzer.doFitterTask("4C", pids, -1, initial);
+```
+
+Run it with:
+
+```bash
+root -l -e 'gSystem->Load("libKinFit")' 'analysis_user.C("input.root","fitted.root",1000)'
+```
+
+`doFitterTask` runs the event loop, writes the output file and closes it, so
+call it **once** per `KFitAnalyzer` object.
+
+### Tasks
+
+| `task` | Fit | Needs |
+| --- | --- | --- |
+| `"4C"` | `add4Constraint(lv)` | `lv` |
+| `"Mass"` | `addMassConstraint(mass)` | `mass` |
+| `"Vertex"` | `addVertexConstraint()` | – (uses the first two PIDs) |
+| `"MissingParticle"` or `"Mom"` | `addMissingParticleConstraint(lv, mass)` | `lv`, `mass` |
+| `"MissingMass"` or `"MM"` | `addMissingMassConstraint(lv, mass)` | `lv`, `mass` |
+| `"MassVtx"` | `addMassVtxConstraint(mass)` | `mass` |
+
+Check the constraint status in [kinfitter.md](kinfitter.md#constraints)
+first; `MissingMass` and `MassVtx` currently do not work. A 3C fit is not
+available here, and the `mother` argument of `doFitterTask` is not used.
+
+> **Warning:** an unknown task name prints "Task not available" and then
+> **aborts the program**, because the fitter has no constraint.
+
+## Input file
+
+| Item | Required value |
+| --- | --- |
+| Tree name | `data` |
+| Branch | `KinFitParticle`: a `TClonesArray` of `KinFitParticle` |
+| Per particle | four-vector with mass hypothesis, R, Z, 5×5 covariance, and `setPid()` |
+
+The PID is any integer code you choose, matched against the `pids` vector
+(the example uses GEANT3 codes: 14 = p, 9 = π⁻, 11 = K⁺).
+
+Writing such a file:
+
+```cpp
+TFile f("input.root", "RECREATE");
+TTree t("data", "input");
+TClonesArray *arr = new TClonesArray("KinFitParticle");
+t.Branch("KinFitParticle", &arr);
+
+for (/* events */) {
+  arr->Clear();
+  int n = 0;
+  for (/* tracks */) {
+    auto *p = new ((*arr)[n++]) KinFitParticle(lv, R, Z);
+    p->setCovariance(cov);
+    p->setPid(pid);
+  }
+  t.Fill();
+}
+t.Write();
+```
+
+## Combinatorics (KFitDecayBuilder)
+
+For each event:
+
+1. The tracks are sorted into one list per entry of `pids`, by matching
+   `getPid()`.
+2. Events with an empty list are skipped.
+3. All combinations (one track per entry) are formed. When the same PID
+   appears more than once, a track is never used twice in one combination.
+   The two orderings of identical particles are both fitted.
+4. Each combination is fitted. The one with the highest probability among
+   successful fits is kept.
+
+The number of combinations is the product of the list sizes, so it grows
+quickly with multiplicity.
+
+## Output file
+
+| Item | Content |
+| --- | --- |
+| Tree name | `data_fitted` |
+| `Event` (int) | entry number in the input tree |
+| `KinFitParticle` (`TClonesArray`) | fitted tracks of the best combination, in `pids` order, with PID, track id, R, Z and fitted (diagonal) covariance |
+| `Chi2`, `Prob` (double) | χ² and probability of the best combination |
+
+Only events with a successful fit (probability > 0) are written.
+
+## Known issues
+
+These are tracked in [TODO.md](../TODO.md) (phase 4):
+
+- The event loop starts at entry 1: **the first event is never analysed**.
+- Tracks with R or Z exactly 0 never converge, so such events are dropped
+  (see [kinfitter.md](kinfitter.md#settings)).
+- After the last combination, `KFitDecayBuilder::fillFitCands()` writes
+  outside its counter array (undefined behaviour).
+- Writing `KinFitParticle` in split mode gives the ROOT warning "Using split
+  mode on a class … with a custom Streamer" (inherited from
+  `TLorentzVector`). Reading back works.
+- Input and output files are opened without checks, and the input file is
+  never closed.
+- Despite the constructor documentation, file lists (`TChain`) are not
+  supported; only one file is read.
+- `doFitterTask` cannot be called twice (`finish()` closes the output file).

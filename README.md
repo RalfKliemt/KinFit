@@ -1,73 +1,59 @@
 # KinFit: A Kinematic Fitting Package for Hadron Physics Experiments
 
-**For a more detailed user's guide and description of the package see**
+KinFit is a C++/ROOT library for kinematic fitting of charged-particle tracks.
+It adjusts measured tracks within their uncertainties to fulfil physical
+constraints and returns the improved tracks, χ², fit probability and pulls.
+Constraints include four-momentum conservation, invariant mass, a missing
+particle and a common vertex.
+
+**Full documentation: [docs/](docs/README.md)**
 
 ## Installation
 
-1) Clone the repository
-
-    ```bash
-    git clone <https://github.com/KinFit/KinFit.git>
-    ```
-
-2) Build the library using cmake
-
-    ```bash
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX=/your_preferred_install_location
-    make
-    make install
-    ```
-
-3) Add library to rootlogon.C
-
-    ```C++
-    gSystem->Load("pathtoinstall/libKinFit.so")
-    ```
-
-KinFit depends on the ROOT libraries Core, Physics and Tree
-When properly installed, KinFit can be included and linked to other CMake projects by
-
-```txt
-find_package(KinFit REQUIRED)
-target_link_libraries(your_executable other_dependencies KinFit::KinFit ROOT::Core ROOT::Physics ROOT::Tree)
+```bash
+git clone https://github.com/KinFit/KinFit.git
+cd KinFit
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/your/install/prefix
+cmake --build build -j
+cmake --install build
 ```
 
-## Direct use of the fitter tools in your own analysis
+KinFit needs ROOT 6 (Core, Matrix, Physics, MathCore, RIO, Tree). Use it from
+CMake with
 
-1) Create KinFitParticles from your particle candidates
-    KinFitParticle particle(TLorentzVector lv, Double_t R, Double_t Z);
-    FillData(particle, particle_covariance)
+```cmake
+find_package(KinFit REQUIRED)
+target_link_libraries(your_executable PRIVATE KinFit::KinFit)
+```
 
-2) Create a vector of particles which shall be fitted
-    std::vector<KinFitParticle> cands;
-    cands.push_back(particle);
+or in ROOT with `gSystem->Load("/your/install/prefix/lib/libKinFit")`.
+See [docs/installation.md](docs/installation.md) for details.
 
-3) Initialize the KinFitter and fit
-    KinFitter fitter(cands);
-    fitter.addXXConstraint(arguments);
-    fitter.fit()
+## Usage in a nutshell
 
-4) Get the fit result
-    KinFitParticle fcand = fitter.getDaughter(0);
+```cpp
+KinFitParticle proton(lvProton, R1, Z1);   // TLorentzVector + R, Z of the track
+proton.setCovariance(cov1);                // 5x5 in (1/p, theta, phi, R, Z)
+KinFitParticle pion(lvPion, R2, Z2);
+pion.setCovariance(cov2);
 
-The procedure is illustrated in the example macro fit_toyMC.C in QA. An example input file is provided in QA/test_files/toy_montecarlo_rz_vtx.root.
+KinFitter fitter({proton, pion});
+fitter.addMassConstraint(1115.683);        // MeV/c^2
+if (fitter.fit()) {
+  KinFitParticle fittedProton = fitter.getDaughter(0);
+  double prob = fitter.getProb();
+}
+```
 
-## Automated analysis
+- Units, track parametrisation and covariance layout: [docs/conventions.md](docs/conventions.md)
+- All constraints and fit results: [docs/kinfitter.md](docs/kinfitter.md)
+- Vertex finding (straight lines and constant Bz) and decay candidates:
+  [docs/vertexing.md](docs/vertexing.md)
+- Automated event-by-event fitting of ROOT files with `KFitAnalyzer`:
+  [docs/analyzer.md](docs/analyzer.md)
+- Runnable examples: [docs/examples/](docs/examples/). Build them with
+  `-DKINFIT_BUILD_EXAMPLES=ON`.
 
-The KFitAnalyzer can be used to automatically analyze a root file event by event, performing the selected fit. The best particle combination for each event according to fit probability is written to an output file.
+## Python implementation
 
-Input: A root file containing a TClonesArray of KinFitParticles. Example: QA/test_files/input.root
-
-Output: A root file containing a TClonesArray of KinFitParticles, fit probability and chi2
-
-### Usage
-
-1) User uses the macro analysis_user.C to define input and output and the fit that should be performed.
-
-2) KFitAnalyzer object is created. User adds fitting tasks to it, defines PIDs of particles to be fitted.  
-
-3) KFitAnalyzer creates the output tree. The particle combination with the best probability is written there for each event.
-
-## [Python Implementation of the KinFit library](https://github.com/KinFit/PyKinFit)
+[PyKinFit](https://github.com/KinFit/PyKinFit)

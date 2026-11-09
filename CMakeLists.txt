@@ -46,6 +46,15 @@ set_target_properties(
              VERSION ${PROJECT_VERSION}
              PUBLIC_HEADER "${HFILES}")
 
+# Standalone examples in docs/examples (off by default)
+option(KINFIT_BUILD_EXAMPLES "Build the compiled examples in docs/examples" OFF)
+if(KINFIT_BUILD_EXAMPLES)
+  foreach(example toy_lambda_fit vertex_constB)
+    add_executable(${example} docs/examples/${example}.cxx)
+    target_link_libraries(${example} PRIVATE KinFit)
+  endforeach()
+endif()
+
 # Export the package for use from the build-tree (this registers the build-tree
 # with a global CMake-registry)
 export(PACKAGE ${PROJECT_NAME})

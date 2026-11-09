@@ -23,11 +23,13 @@
   - cmake .. -DCMAKE_INSTALL_PREFIX=<install-prefix>
   - make -j
   - make install
-- There is no automated unit test suite in this repository.
-- Validate behavior with the provided ROOT macros and examples:
-  - analysis_user.C
-  - QA/fit_toyMC_fromPluto.C
-- For usage and integration notes, link to README.md rather than duplicating setup text.
+- There is no automated unit test suite yet (planned in QA/ with CTest, see TODO.md).
+- Validate behavior with the examples in docs/examples/:
+  - toy_lambda_fit.cxx and vertex_constB.cxx are self-contained; build them with
+    -DKINFIT_BUILD_EXAMPLES=ON and run ./build/toy_lambda_fit, ./build/vertex_constB.
+  - analysis_user.C and fit_toyMC_fromPluto.C need external input files.
+- User documentation lives in docs/ (index: docs/README.md). Keep it in sync when
+  changing public behaviour; link to it rather than duplicating text.
 
 ## Conventions and Pitfalls
 - Do not hand-edit generated ROOT dictionary files (for example KinFitDict.cxx in build outputs).
