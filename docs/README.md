@@ -17,6 +17,7 @@ their covariances, χ², fit probability and pulls.
 | [vertexing.md](vertexing.md) | Vertex finding with straight lines or helices in constant Bz; building a decay candidate |
 | [analyzer.md](analyzer.md) | Automated event-by-event fitting of ROOT files with `KFitAnalyzer` |
 | [examples/](examples/) | Runnable examples |
+| [../QA/README.md](../QA/README.md) | The automated test suite |
 
 ## Classes at a glance
 

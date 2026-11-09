@@ -45,18 +45,22 @@ combining types (for example 4C + mass) silently gives wrong results.
 | `addMassConstraint(m)` | (Σpᵢ)² − m² = 0 (1) | – | 1 | all (or first *n*, see below) | ✅ verified |
 | `addVertexConstraint()` | (d₁ × d₂)·(B₁ − B₂) = 0 (1) | – | 1 | **first two** | ✅ verified |
 | `addMissingParticleConstraint(lv, m)` | P_init − Σpᵢ − p_miss = 0 with E_miss = √(p⃗²_miss + m²) (4) | p⃗_miss (3) | 1 | all, **at least two** | ✅ verified with 2 tracks |
-| `add3Constraint(mother)` | Σpᵢ − p_mother = 0 (4) | \|p_mother\| (1) | 3 | all daughters + mother | ⚠️ not yet verified |
-| `addMassVtxConstraint(m)` | mass (1) + vertex of first two (1) | – | 2 | all / first two | ❌ does not converge |
+| `add3Constraint(mother)` | Σpᵢ − p_mother = 0 (4) | \|p_mother\| (1) | 3 | all daughters + mother | ✅ verified |
+| `addMassVtxConstraint(m)` | mass (1) + vertex of first two (1) | – | 2 | all / first two | ❌ broken (converges only with exact input) |
 | `addMissingMassConstraint(lv, m)` | (P_init − Σpᵢ)² − m² = 0 (1) | – | 1 | all | ❌ broken |
 
-\* Status from toy Monte Carlo checks (smeared Λ → pπ⁻ tracks; ✅ = converges
-with flat probability). Automated tests follow in `QA/`; see
-[TODO.md](../TODO.md) for the open issues:
+\* Status from the QA suite ([QA/](../QA/README.md), `test_kinfitter`):
+✅ means that, with smeared Λ → pπ⁻ tracks, the fit converges, fulfils the
+constraint, gives pulls distributed as N(0, 1) and a flat probability, and
+that its analytic derivatives agree with finite differences. The open issues
+are listed in [TODO.md](../TODO.md):
 
 - **MissingMass:** the constraint function adds the measured momenta to the
   initial state instead of subtracting them, while its derivative subtracts
   them. The fit never converges.
-- **MassVtx:** converges in almost no events.
+- **MassVtx:** the derivative of the vertex equation has the wrong sign
+  (f uses B₂ − B₁, the Jacobian B₁ − B₂). The fit converges for exact input
+  only.
 - **MissingParticle with a single measured track:** the matrix D·V·Dᵀ is
   singular (rank ≤ 3 for a 4×4 matrix), so the fit returns `false`.
 

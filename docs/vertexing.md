@@ -125,7 +125,7 @@ KinFitter({p, π⁻}).add3Constraint(Λ) ──► fitted p, π⁻ and Λ
 > has known problems:
 >
 > - The flight line is anchored at the vertex difference vector instead of
->   the decay vertex.
+>   the decay vertex, so R and Z come out as ≈ 0.
 > - The covariance is built with inconsistent signs and square roots of
 >   correlations.
 > - The sign of R is taken from the primary vertex y coordinate.

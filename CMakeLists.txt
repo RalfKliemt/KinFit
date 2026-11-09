@@ -15,6 +15,13 @@ if(NOT ROOT_FOUND)
   message(FATAL_ERROR "ROOT is required but missing !")
 endif(NOT ROOT_FOUND)
 
+# AddressSanitizer build for debugging memory errors (e.g. with the QA suite)
+option(KINFIT_ENABLE_ASAN "Build with AddressSanitizer" OFF)
+if(KINFIT_ENABLE_ASAN)
+  add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+  add_link_options(-fsanitize=address)
+endif()
+
 # Core fitter (KinFitter, particles, vertexing) and analysis layer
 # (KFitAnalyzer, KFitDecayBuilder); headers and sources live side by side.
 set(CORE_CLASSES
@@ -68,6 +75,13 @@ if(KINFIT_BUILD_EXAMPLES)
     add_executable(${example} docs/examples/${example}.cxx)
     target_link_libraries(${example} PRIVATE KinFit)
   endforeach()
+endif()
+
+# QA test suite (CTest), see QA/CMakeLists.txt
+option(KINFIT_BUILD_TESTS "Build the QA test suite" ON)
+if(KINFIT_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(QA)
 endif()
 
 # Export the package for use from the build-tree (this registers the build-tree

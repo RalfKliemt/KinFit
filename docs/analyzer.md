@@ -110,8 +110,9 @@ These are tracked in [TODO.md](../TODO.md) (phase 4):
 - The event loop starts at entry 1: **the first event is never analysed**.
 - Tracks with R or Z exactly 0 never converge, so such events are dropped
   (see [kinfitter.md](kinfitter.md#settings)).
-- After the last combination, `KFitDecayBuilder::fillFitCands()` writes
-  outside its counter array (undefined behaviour).
+- After the last combination, `KFitDecayBuilder::fillFitCands()` reads and
+  writes `particleCounter[-1]`, a heap overflow in every event. It can crash
+  or corrupt memory depending on the platform (found with AddressSanitizer).
 - Writing `KinFitParticle` in split mode gives the ROOT warning "Using split
   mode on a class … with a custom Streamer" (inherited from
   `TLorentzVector`). Reading back works.

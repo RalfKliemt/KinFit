@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    # Official ROOT image (ROOT + compiler + CMake). Pin a specific tag such as
+    # rootproject/root:<version>-ubuntu24.04 for reproducible builds.
+    container: rootproject/root:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DKINFIT_BUILD_TESTS=ON -DKINFIT_BUILD_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build -j "$(nproc)"
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -j "$(nproc)"

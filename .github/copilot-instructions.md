@@ -26,7 +26,9 @@
   - cmake .. -DCMAKE_INSTALL_PREFIX=<install-prefix>
   - make -j
   - make install
-- There is no automated unit test suite yet (planned in QA/ with CTest, see TODO.md).
+- QA/ holds the CTest suite (see QA/README.md): `ctest --test-dir build --output-on-failure`.
+  Known bugs are tests listed under DISABLED in QA/CMakeLists.txt; when fixing one,
+  remove it from DISABLED and make it pass.
 - Validate behavior with the examples in docs/examples/:
   - toy_lambda_fit.cxx and vertex_constB.cxx are self-contained; build them with
     -DKINFIT_BUILD_EXAMPLES=ON and run ./build/toy_lambda_fit, ./build/vertex_constB.

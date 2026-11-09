@@ -27,7 +27,17 @@ package files to `<prefix>/lib/cmake/KinFit`.
 | Option | Default | Effect |
 | --- | --- | --- |
 | `KINFIT_BUILD_EXAMPLES` | `OFF` | Build `toy_lambda_fit` and `vertex_constB` from `docs/examples/` |
+| `KINFIT_BUILD_TESTS` | `ON` | Build the QA test suite (run with `ctest --test-dir build`) |
+| `KINFIT_ENABLE_ASAN` | `OFF` | Build with AddressSanitizer for debugging memory errors |
 | `CMAKE_INSTALL_PREFIX` | system default | Installation prefix |
+
+### Running the tests
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+See [QA/README.md](../QA/README.md) for details.
 
 ### After a ROOT upgrade
 
