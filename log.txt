@@ -1,0 +1,1031 @@
+2026-11-09T13:32:44.7520914Z Current runner version: '2.338.2'
+2026-11-09T13:32:44.7546932Z ##[group]Runner Image Provisioner
+2026-11-09T13:32:44.7547908Z Hosted Compute Agent
+2026-11-09T13:32:44.7548522Z Version: 20261028.624
+2026-11-09T13:32:44.7549270Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-09T13:32:44.7550039Z Build Date: 2026-10-28T21:51:42Z
+2026-11-09T13:32:44.7550855Z Worker ID: {4a140757-86f4-43bc-bb5f-1e0b8e003a41}
+2026-11-09T13:32:44.7551622Z Region: westcentralus
+2026-11-09T13:32:44.7552231Z Cloud: Azure
+2026-11-09T13:32:44.7553114Z ##[endgroup]
+2026-11-09T13:32:44.7554606Z ##[group]Operating System
+2026-11-09T13:32:44.7555298Z Ubuntu
+2026-11-09T13:32:44.7555968Z 26.04.1
+2026-11-09T13:32:44.7556518Z LTS
+2026-11-09T13:32:44.7557490Z ##[endgroup]
+2026-11-09T13:32:44.7558117Z ##[group]Runner Image
+2026-11-09T13:32:44.7558728Z Image: ubuntu-26.04
+2026-11-09T13:32:44.7559397Z Version: 20261101.186.1
+2026-11-09T13:32:44.7560689Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-09T13:32:44.7562581Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-09T13:32:44.7563611Z ##[endgroup]
+2026-11-09T13:32:44.7566990Z ##[group]GITHUB_TOKEN Permissions
+2026-11-09T13:32:44.7569379Z Actions: write
+2026-11-09T13:32:44.7570086Z ArtifactMetadata: write
+2026-11-09T13:32:44.7570737Z Attestations: write
+2026-11-09T13:32:44.7571417Z Checks: write
+2026-11-09T13:32:44.7572007Z CodeQuality: write
+2026-11-09T13:32:44.7572747Z Contents: write
+2026-11-09T13:32:44.7573438Z CopilotRequests: write
+2026-11-09T13:32:44.7574070Z Deployments: write
+2026-11-09T13:32:44.7574697Z Discussions: write
+2026-11-09T13:32:44.7575322Z Drives: write
+2026-11-09T13:32:44.7575872Z Issues: write
+2026-11-09T13:32:44.7576617Z Metadata: read
+2026-11-09T13:32:44.7577193Z Models: read
+2026-11-09T13:32:44.7577801Z Packages: write
+2026-11-09T13:32:44.7578410Z Pages: write
+2026-11-09T13:32:44.7579008Z PullRequests: write
+2026-11-09T13:32:44.7579723Z RepositoryProjects: write
+2026-11-09T13:32:44.7580390Z SecurityEvents: write
+2026-11-09T13:32:44.7581171Z Statuses: write
+2026-11-09T13:32:44.7581788Z VulnerabilityAlerts: read
+2026-11-09T13:32:44.7582554Z ##[endgroup]
+2026-11-09T13:32:44.7584867Z Secret source: Actions
+2026-11-09T13:32:44.7585847Z Cache mode: write
+2026-11-09T13:32:44.7586680Z Prepare workflow directory
+2026-11-09T13:32:44.8007880Z Prepare all required actions
+2026-11-09T13:32:44.8055454Z Getting action download info
+2026-11-09T13:32:45.0906642Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-09T13:32:45.2999453Z Complete job name: build-and-test
+2026-11-09T13:32:45.3621569Z ##[group]Checking docker version
+2026-11-09T13:32:45.3634558Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-11-09T13:32:45.4774709Z '1.54'
+2026-11-09T13:32:45.4791639Z Docker daemon API version: '1.54'
+2026-11-09T13:32:45.4792824Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-11-09T13:32:45.4987581Z '1.54'
+2026-11-09T13:32:45.5005358Z Docker client API version: '1.54'
+2026-11-09T13:32:45.5010372Z ##[endgroup]
+2026-11-09T13:32:45.5013606Z ##[group]Clean up resources from previous jobs
+2026-11-09T13:32:45.5018779Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=728b02"
+2026-11-09T13:32:45.5190803Z ##[command]/usr/bin/docker network prune --force --filter "label=728b02"
+2026-11-09T13:32:45.5346099Z ##[endgroup]
+2026-11-09T13:32:45.5346659Z ##[group]Create local container network
+2026-11-09T13:32:45.5356320Z ##[command]/usr/bin/docker network create --label 728b02 github_network_d1db6e0631d14c57af753f5c01e352bb
+2026-11-09T13:32:45.5817071Z 760f978e320cadc3763019282ffe1d91dca30c63005cb7d1b1bcb66ad2b6aaca
+2026-11-09T13:32:45.5841075Z ##[endgroup]
+2026-11-09T13:32:45.5865145Z ##[group]Starting job container
+2026-11-09T13:32:45.5886249Z ##[command]/usr/bin/docker pull rootproject/root:latest
+2026-11-09T13:32:46.0152045Z latest: Pulling from rootproject/root
+2026-11-09T13:32:46.3578078Z 9b965cd35928: Pulling fs layer
+2026-11-09T13:32:46.3579609Z 6067d778c04b: Pulling fs layer
+2026-11-09T13:32:46.3581095Z 4f4fb700ef54: Pulling fs layer
+2026-11-09T13:32:46.3582111Z 428493a7a313: Pulling fs layer
+2026-11-09T13:32:46.3583904Z 406cd22aeb87: Pulling fs layer
+2026-11-09T13:32:46.4059128Z 4f4fb700ef54: Already exists
+2026-11-09T13:32:46.6075404Z 428493a7a313: Download complete
+2026-11-09T13:32:46.9084882Z 9b965cd35928: Download complete
+2026-11-09T13:32:48.6053897Z 6067d778c04b: Download complete
+2026-11-09T13:32:48.6064529Z 4f4fb700ef54: Pull complete
+2026-11-09T13:32:48.6078634Z 428493a7a313: Pull complete
+2026-11-09T13:32:48.6094899Z 9b965cd35928: Pull complete
+2026-11-09T13:32:51.0058615Z 406cd22aeb87: Download complete
+2026-11-09T13:33:03.5087114Z 406cd22aeb87: Pull complete
+2026-11-09T13:33:10.2528185Z 6067d778c04b: Pull complete
+2026-11-09T13:33:10.2529007Z Digest: sha256:a2ab342848316c71b803b8cdfb1867b8fc29109671de2268640eb46567272bd0
+2026-11-09T13:33:10.2530122Z Status: Downloaded newer image for rootproject/root:latest
+2026-11-09T13:33:10.2533176Z docker.io/rootproject/root:latest
+2026-11-09T13:33:10.2656359Z ##[command]/usr/bin/docker create --name dd938360571c4282bd69913a98685289_rootprojectrootlatest_c31910 --label 728b02 --workdir /__w/KinFit/KinFit --network github_network_d1db6e0631d14c57af753f5c01e352bb  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work":"/__w" -v "/home/runner/actions-runner/cached/2.338.2/externals":"/__e":ro -v "/home/runner/work/_temp":"/__w/_temp" -v "/home/runner/work/_actions":"/__w/_actions" -v "/opt/hostedtoolcache":"/__t" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" rootproject/root:latest "-f" "/dev/null"
+2026-11-09T13:33:13.5223847Z cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a
+2026-11-09T13:33:13.5250608Z ##[command]/usr/bin/docker start cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a
+2026-11-09T13:33:13.7506541Z cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a
+2026-11-09T13:33:13.7540186Z ##[command]/usr/bin/docker ps --all --filter id=cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-11-09T13:33:13.7716897Z cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a Up Less than a second
+2026-11-09T13:33:13.7739695Z ##[command]/usr/bin/docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a
+2026-11-09T13:33:13.7875667Z HOME=/github/home
+2026-11-09T13:33:13.7876576Z GITHUB_ACTIONS=true
+2026-11-09T13:33:13.7877265Z CI=true
+2026-11-09T13:33:13.7877728Z PATH=/opt/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+2026-11-09T13:33:13.7878636Z LANG=C.UTF-8
+2026-11-09T13:33:13.7878977Z ROOTSYS=/opt/root
+2026-11-09T13:33:13.7879391Z PYTHONPATH=/opt/root/lib:
+2026-11-09T13:33:13.7879787Z CLING_STANDARD_PCH=none
+2026-11-09T13:33:13.7899192Z ##[endgroup]
+2026-11-09T13:33:13.7908438Z ##[group]Waiting for all services to be ready
+2026-11-09T13:33:13.7910012Z ##[endgroup]
+2026-11-09T13:33:13.8215426Z ##[group]Run actions/checkout@v4
+2026-11-09T13:33:13.8216082Z with:
+2026-11-09T13:33:13.8216307Z   repository: RalfKliemt/KinFit
+2026-11-09T13:33:13.8218798Z   token: ***
+2026-11-09T13:33:13.8219012Z   ssh-strict: true
+2026-11-09T13:33:13.8219223Z   ssh-user: git
+2026-11-09T13:33:13.8219454Z   persist-credentials: true
+2026-11-09T13:33:13.8219707Z   clean: true
+2026-11-09T13:33:13.8219919Z   sparse-checkout-cone-mode: true
+2026-11-09T13:33:13.8220172Z   fetch-depth: 1
+2026-11-09T13:33:13.8220366Z   fetch-tags: false
+2026-11-09T13:33:13.8220569Z   show-progress: true
+2026-11-09T13:33:13.8220775Z   lfs: false
+2026-11-09T13:33:13.8220959Z   submodules: false
+2026-11-09T13:33:13.8221167Z   set-safe-directory: true
+2026-11-09T13:33:13.8221647Z   allow-unsafe-pr-checkout: false
+2026-11-09T13:33:13.8222137Z ##[endgroup]
+2026-11-09T13:33:13.8285066Z ##[command]/usr/bin/docker exec  cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a sh -c "cat /etc/*release | grep ^ID"
+2026-11-09T13:33:14.2553375Z Syncing repository: RalfKliemt/KinFit
+2026-11-09T13:33:14.2554665Z ##[group]Getting Git version info
+2026-11-09T13:33:14.2555013Z Working directory is '/__w/KinFit/KinFit'
+2026-11-09T13:33:14.2555495Z [command]/usr/bin/git version
+2026-11-09T13:33:14.2560314Z git version 2.51.0
+2026-11-09T13:33:14.2583213Z ##[endgroup]
+2026-11-09T13:33:14.2600448Z Temporarily overriding HOME='/__w/_temp/5c64e451-6a0d-4f23-8229-827e772bd759' before making global git config changes
+2026-11-09T13:33:14.2601766Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-09T13:33:14.2605563Z [command]/usr/bin/git config --global --add safe.directory /__w/KinFit/KinFit
+2026-11-09T13:33:14.2639881Z Deleting the contents of '/__w/KinFit/KinFit'
+2026-11-09T13:33:14.2643932Z ##[group]Initializing the repository
+2026-11-09T13:33:14.2647704Z [command]/usr/bin/git init /__w/KinFit/KinFit
+2026-11-09T13:33:14.2695991Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-09T13:33:14.2697233Z hint: is subject to change. To configure the initial branch name to use in all
+2026-11-09T13:33:14.2698947Z hint: of your new repositories, which will suppress this warning, call:
+2026-11-09T13:33:14.2699799Z hint:
+2026-11-09T13:33:14.2700543Z hint: 	git config --global init.defaultBranch <name>
+2026-11-09T13:33:14.2701518Z hint:
+2026-11-09T13:33:14.2702158Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-09T13:33:14.2703538Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-09T13:33:14.2704276Z hint:
+2026-11-09T13:33:14.2704678Z hint: 	git branch -m <name>
+2026-11-09T13:33:14.2705087Z hint:
+2026-11-09T13:33:14.2705698Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-09T13:33:14.2706692Z Initialized empty Git repository in /__w/KinFit/KinFit/.git/
+2026-11-09T13:33:14.2713773Z [command]/usr/bin/git remote add origin https://github.com/RalfKliemt/KinFit
+2026-11-09T13:33:14.2741897Z ##[endgroup]
+2026-11-09T13:33:14.2742737Z ##[group]Disabling automatic garbage collection
+2026-11-09T13:33:14.2746595Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-09T13:33:14.2782049Z ##[endgroup]
+2026-11-09T13:33:14.2783212Z ##[group]Setting up auth
+2026-11-09T13:33:14.2789898Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-09T13:33:14.2821129Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-09T13:33:14.3117457Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-09T13:33:14.3147928Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-09T13:33:14.3442056Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-09T13:33:14.3554640Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-09T13:33:14.3786976Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-09T13:33:14.3825608Z ##[endgroup]
+2026-11-09T13:33:14.3826279Z ##[group]Fetching the repository
+2026-11-09T13:33:14.3837271Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d5352181e79e82a9dc2f47dea83606ed475cc32f:refs/remotes/origin/main
+2026-11-09T13:33:14.9060416Z From https://github.com/RalfKliemt/KinFit
+2026-11-09T13:33:14.9060914Z  * [new ref]         d5352181e79e82a9dc2f47dea83606ed475cc32f -> origin/main
+2026-11-09T13:33:14.9089743Z ##[endgroup]
+2026-11-09T13:33:14.9090159Z ##[group]Determining the checkout info
+2026-11-09T13:33:14.9092797Z ##[endgroup]
+2026-11-09T13:33:14.9098296Z [command]/usr/bin/git sparse-checkout disable
+2026-11-09T13:33:14.9140860Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-09T13:33:14.9170156Z ##[group]Checking out the ref
+2026-11-09T13:33:14.9180919Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-11-09T13:33:14.9270711Z Switched to a new branch 'main'
+2026-11-09T13:33:14.9274197Z branch 'main' set up to track 'origin/main'.
+2026-11-09T13:33:14.9279871Z ##[endgroup]
+2026-11-09T13:33:14.9316562Z [command]/usr/bin/git log -1 --format=%H
+2026-11-09T13:33:14.9341139Z d5352181e79e82a9dc2f47dea83606ed475cc32f
+2026-11-09T13:33:14.9603700Z ##[group]Run cmake -S . -B build -DKINFIT_BUILD_TESTS=ON -DKINFIT_BUILD_EXAMPLES=ON
+2026-11-09T13:33:14.9604403Z [36;1mcmake -S . -B build -DKINFIT_BUILD_TESTS=ON -DKINFIT_BUILD_EXAMPLES=ON[0m
+2026-11-09T13:33:14.9607439Z shell: sh -e {0}
+2026-11-09T13:33:14.9607674Z ##[endgroup]
+2026-11-09T13:33:15.0849434Z -- The CXX compiler identification is GNU 15.2.0
+2026-11-09T13:33:15.0935739Z -- Detecting CXX compiler ABI info
+2026-11-09T13:33:15.1808489Z -- Detecting CXX compiler ABI info - done
+2026-11-09T13:33:15.1957143Z -- Check for working CXX compiler: /usr/bin/c++ - skipped
+2026-11-09T13:33:15.1960574Z -- Detecting CXX compile features
+2026-11-09T13:33:15.1967730Z -- Detecting CXX compile features - done
+2026-11-09T13:33:15.4277810Z -- Found OpenMP_CXX: -fopenmp (found version "4.5")
+2026-11-09T13:33:15.4281020Z -- Found OpenMP: TRUE (found version "4.5")
+2026-11-09T13:33:15.4294088Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+2026-11-09T13:33:15.5316524Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+2026-11-09T13:33:15.5325976Z -- Found Threads: TRUE
+2026-11-09T13:33:15.5373095Z -- Found Vdt: /usr/include (found version "0.4")
+2026-11-09T13:33:15.5458815Z -- Configuring done (0.5s)
+2026-11-09T13:33:15.5657748Z -- Generating done (0.0s)
+2026-11-09T13:33:15.5661856Z -- Build files have been written to: /__w/KinFit/KinFit/build
+2026-11-09T13:33:15.5774072Z ##[group]Run cmake --build build -j "$(nproc)"
+2026-11-09T13:33:15.5774454Z [36;1mcmake --build build -j "$(nproc)"[0m
+2026-11-09T13:33:15.5774811Z shell: sh -e {0}
+2026-11-09T13:33:15.5775017Z ##[endgroup]
+2026-11-09T13:33:15.6710730Z [  3%] Generating KinFitDict.cxx, libKinFit_rdict.pcm, libKinFit.rootmap
+2026-11-09T13:33:18.4440267Z [ 11%] Building CXX object CMakeFiles/KinFit.dir/core/KinFitter.cxx.o
+2026-11-09T13:33:18.4443126Z [ 11%] Building CXX object CMakeFiles/KinFit.dir/core/KinFitParticle.cxx.o
+2026-11-09T13:33:18.4445055Z [ 14%] Building CXX object CMakeFiles/KinFit.dir/core/KFitVertexFinderConstB.cxx.o
+2026-11-09T13:33:18.4446054Z [ 18%] Building CXX object CMakeFiles/KinFit.dir/core/KFitVertexFinder.cxx.o
+2026-11-09T13:33:20.2024115Z [ 22%] Building CXX object CMakeFiles/KinFit.dir/core/KFitDecayCandFinder.cxx.o
+2026-11-09T13:33:20.2956465Z [ 25%] Building CXX object CMakeFiles/KinFit.dir/core/CoordinateConversion.cxx.o
+2026-11-09T13:33:20.3977612Z [ 29%] Building CXX object CMakeFiles/KinFit.dir/analysis/KFitAnalyzer.cxx.o
+2026-11-09T13:33:21.0983518Z [ 33%] Building CXX object CMakeFiles/KinFit.dir/analysis/KFitDecayBuilder.cxx.o
+2026-11-09T13:33:21.9829676Z [ 37%] Building CXX object CMakeFiles/KinFit.dir/KinFitDict.cxx.o
+2026-11-09T13:33:24.1848769Z [ 40%] Linking CXX shared library libKinFit.so
+2026-11-09T13:33:24.3570913Z [ 40%] Built target KinFit
+2026-11-09T13:33:24.3813650Z [ 51%] Building CXX object CMakeFiles/vertex_constB.dir/docs/examples/vertex_constB.cxx.o
+2026-11-09T13:33:24.3814947Z [ 51%] Building CXX object QA/CMakeFiles/test_particle.dir/test_particle.cxx.o
+2026-11-09T13:33:24.3816139Z [ 51%] Building CXX object CMakeFiles/toy_lambda_fit.dir/docs/examples/toy_lambda_fit.cxx.o
+2026-11-09T13:33:24.3817473Z [ 55%] Building CXX object QA/CMakeFiles/test_vertexfinder.dir/test_vertexfinder.cxx.o
+2026-11-09T13:33:26.3411715Z [ 59%] Linking CXX executable vertex_constB
+2026-11-09T13:33:26.3983095Z [ 62%] Linking CXX executable toy_lambda_fit
+2026-11-09T13:33:26.5406692Z [ 66%] Linking CXX executable test_vertexfinder
+2026-11-09T13:33:26.6765605Z [ 66%] Built target vertex_constB
+2026-11-09T13:33:26.7065318Z [ 70%] Building CXX object QA/CMakeFiles/test_kinfitter.dir/test_kinfitter.cxx.o
+2026-11-09T13:33:26.7107866Z [ 70%] Built target toy_lambda_fit
+2026-11-09T13:33:26.7375750Z [ 74%] Building CXX object QA/CMakeFiles/test_decaycandfinder.dir/test_decaycandfinder.cxx.o
+2026-11-09T13:33:26.8543664Z [ 74%] Built target test_vertexfinder
+2026-11-09T13:33:26.8821277Z [ 77%] Building CXX object QA/CMakeFiles/test_coordinateconversion.dir/test_coordinateconversion.cxx.o
+2026-11-09T13:33:27.0444344Z [ 81%] Linking CXX executable test_particle
+2026-11-09T13:33:27.3315609Z [ 81%] Built target test_particle
+2026-11-09T13:33:27.3624199Z [ 85%] Building CXX object QA/CMakeFiles/test_analyzer.dir/test_analyzer.cxx.o
+2026-11-09T13:33:28.9331828Z [ 88%] Linking CXX executable test_coordinateconversion
+2026-11-09T13:33:28.9698298Z [ 92%] Linking CXX executable test_decaycandfinder
+2026-11-09T13:33:29.1914796Z [ 92%] Built target test_coordinateconversion
+2026-11-09T13:33:29.2410405Z [ 92%] Built target test_decaycandfinder
+2026-11-09T13:33:29.3156840Z [ 96%] Linking CXX executable test_kinfitter
+2026-11-09T13:33:29.5144985Z [ 96%] Built target test_kinfitter
+2026-11-09T13:33:29.9224395Z [100%] Linking CXX executable test_analyzer
+2026-11-09T13:33:30.1045119Z [100%] Built target test_analyzer
+2026-11-09T13:33:30.1234012Z ##[group]Run ctest --test-dir build --output-on-failure -j "$(nproc)"
+2026-11-09T13:33:30.1234550Z [36;1mctest --test-dir build --output-on-failure -j "$(nproc)"[0m
+2026-11-09T13:33:30.1234982Z shell: sh -e {0}
+2026-11-09T13:33:30.1235176Z ##[endgroup]
+2026-11-09T13:33:30.1879404Z Internal ctest changing into directory: /__w/KinFit/KinFit/build
+2026-11-09T13:33:30.1880924Z Test project /__w/KinFit/KinFit/build
+2026-11-09T13:33:30.1898438Z       Start  1: test_particle.construct_from_R_Z
+2026-11-09T13:33:30.1909909Z       Start  2: test_particle.construct_from_point_gives_PCA
+2026-11-09T13:33:30.1921732Z       Start  3: test_particle.sign_of_R
+2026-11-09T13:33:30.1953341Z       Start  4: test_particle.covariance_5x5
+2026-11-09T13:33:30.2161309Z  1/58 Test  #3: test_particle.sign_of_R ......................................   Passed    0.02 sec
+2026-11-09T13:33:30.2167090Z       Start  5: test_particle.covariance_wrong_size_ignored
+2026-11-09T13:33:30.2177559Z  2/58 Test  #1: test_particle.construct_from_R_Z .............................   Passed    0.03 sec
+2026-11-09T13:33:30.2187847Z  3/58 Test  #2: test_particle.construct_from_point_gives_PCA .................   Passed    0.03 sec
+2026-11-09T13:33:30.2189300Z  4/58 Test  #4: test_particle.covariance_5x5 .................................   Passed    0.02 sec
+2026-11-09T13:33:30.2190454Z       Start  6: test_particle.io_roundtrip_tclonesarray
+2026-11-09T13:33:30.2195979Z       Start  7: test_vertexfinder.lines_exact_intersection
+2026-11-09T13:33:30.2233445Z       Start  8: test_vertexfinder.lines_parallel_tracks_fail_cleanly
+2026-11-09T13:33:30.2444165Z  5/58 Test  #5: test_particle.covariance_wrong_size_ignored ..................   Passed    0.03 sec
+2026-11-09T13:33:30.2451017Z       Start  9: test_vertexfinder.helix_exact_vertex
+2026-11-09T13:33:30.2452447Z  6/58 Test  #8: test_vertexfinder.lines_parallel_tracks_fail_cleanly .........   Passed    0.02 sec
+2026-11-09T13:33:30.2453525Z       Start 10: test_vertexfinder.helix_low_pt_loopers
+2026-11-09T13:33:30.2491231Z  7/58 Test  #7: test_vertexfinder.lines_exact_intersection ...................   Passed    0.03 sec
+2026-11-09T13:33:30.2492597Z       Start 11: test_vertexfinder.helix_negative_field
+2026-11-09T13:33:30.2755740Z  8/58 Test #11: test_vertexfinder.helix_negative_field .......................   Passed    0.03 sec
+2026-11-09T13:33:30.2757506Z       Start 12: test_vertexfinder.helix_zero_field_equals_lines
+2026-11-09T13:33:30.2778359Z  9/58 Test  #9: test_vertexfinder.helix_exact_vertex .........................   Passed    0.04 sec
+2026-11-09T13:33:30.2786628Z       Start 13: test_vertexfinder.helix_neutral_tracks_are_lines
+2026-11-09T13:33:30.2805814Z 10/58 Test #10: test_vertexfinder.helix_low_pt_loopers .......................   Passed    0.04 sec
+2026-11-09T13:33:30.2814368Z       Start 14: test_vertexfinder.helix_refit_after_setters
+2026-11-09T13:33:30.3047731Z 11/58 Test #13: test_vertexfinder.helix_neutral_tracks_are_lines .............   Passed    0.03 sec
+2026-11-09T13:33:30.3050637Z       Start 15: test_vertexfinder.helix_parallel_tracks_fail_cleanly
+2026-11-09T13:33:30.3068913Z 12/58 Test #12: test_vertexfinder.helix_zero_field_equals_lines ..............   Passed    0.03 sec
+2026-11-09T13:33:30.3073162Z 13/58 Test #14: test_vertexfinder.helix_refit_after_setters ..................   Passed    0.03 sec
+2026-11-09T13:33:30.3076175Z       Start 16: test_kinfitter.exact_4C
+2026-11-09T13:33:30.3094456Z       Start 17: test_kinfitter.exact_Mass
+2026-11-09T13:33:30.3344609Z 14/58 Test #15: test_vertexfinder.helix_parallel_tracks_fail_cleanly .........   Passed    0.03 sec
+2026-11-09T13:33:30.3345892Z       Start 18: test_kinfitter.exact_Vertex
+2026-11-09T13:33:30.3393992Z 15/58 Test #17: test_kinfitter.exact_Mass ....................................   Passed    0.03 sec
+2026-11-09T13:33:30.3395203Z       Start 19: test_kinfitter.exact_MassVtx
+2026-11-09T13:33:30.3667452Z 16/58 Test #18: test_kinfitter.exact_Vertex ..................................   Passed    0.03 sec
+2026-11-09T13:33:30.3677378Z       Start 20: test_kinfitter.exact_MissingParticle
+2026-11-09T13:33:30.3727062Z 17/58 Test #19: test_kinfitter.exact_MassVtx .................................   Passed    0.03 sec
+2026-11-09T13:33:30.3735901Z       Start 21: test_kinfitter.exact_3C
+2026-11-09T13:33:30.3826387Z 18/58 Test #16: test_kinfitter.exact_4C ......................................   Passed    0.07 sec
+2026-11-09T13:33:30.3843819Z       Start 22: test_kinfitter.pulls_4C
+2026-11-09T13:33:30.4010289Z 19/58 Test #20: test_kinfitter.exact_MissingParticle .........................   Passed    0.03 sec
+2026-11-09T13:33:30.4014133Z       Start 23: test_kinfitter.pulls_Mass
+2026-11-09T13:33:30.4088565Z 20/58 Test #21: test_kinfitter.exact_3C ......................................   Passed    0.03 sec
+2026-11-09T13:33:30.4089857Z       Start 24: test_kinfitter.pulls_Vertex
+2026-11-09T13:33:30.4564626Z 21/58 Test #22: test_kinfitter.pulls_4C ......................................   Passed    0.07 sec
+2026-11-09T13:33:30.4565960Z       Start 25: test_kinfitter.pulls_MissingParticle
+2026-11-09T13:33:30.4714639Z 22/58 Test #23: test_kinfitter.pulls_Mass ....................................   Passed    0.07 sec
+2026-11-09T13:33:30.4716357Z       Start 26: test_kinfitter.pulls_3C
+2026-11-09T13:33:30.4855114Z 23/58 Test #24: test_kinfitter.pulls_Vertex ..................................   Passed    0.08 sec
+2026-11-09T13:33:30.4864252Z       Start 27: test_kinfitter.jacobian_4C
+2026-11-09T13:33:30.5181244Z 24/58 Test #27: test_kinfitter.jacobian_4C ...................................   Passed    0.03 sec
+2026-11-09T13:33:30.5182793Z       Start 28: test_kinfitter.jacobian_Mass
+2026-11-09T13:33:30.5429280Z 25/58 Test #25: test_kinfitter.pulls_MissingParticle .........................   Passed    0.09 sec
+2026-11-09T13:33:30.5430221Z       Start 29: test_kinfitter.jacobian_Vertex
+2026-11-09T13:33:30.5479051Z 26/58 Test #28: test_kinfitter.jacobian_Mass .................................   Passed    0.03 sec
+2026-11-09T13:33:30.5481844Z       Start 30: test_kinfitter.jacobian_MissingParticle
+2026-11-09T13:33:30.5724503Z 27/58 Test #29: test_kinfitter.jacobian_Vertex ...............................   Passed    0.03 sec
+2026-11-09T13:33:30.5733621Z       Start 31: test_kinfitter.jacobian_3C
+2026-11-09T13:33:30.5769129Z 28/58 Test #30: test_kinfitter.jacobian_MissingParticle ......................   Passed    0.03 sec
+2026-11-09T13:33:30.5771897Z       Start 32: test_kinfitter.pull_of_unconstrained_parameter
+2026-11-09T13:33:30.5812893Z 29/58 Test #26: test_kinfitter.pulls_3C ......................................   Passed    0.11 sec
+2026-11-09T13:33:30.5815750Z       Start 33: test_kinfitter.mass_exclusive_candidates
+2026-11-09T13:33:30.6043077Z 30/58 Test #32: test_kinfitter.pull_of_unconstrained_parameter ...............   Passed    0.03 sec
+2026-11-09T13:33:30.6053649Z       Start 34: test_kinfitter.missing_particle_single_track_fails_cleanly
+2026-11-09T13:33:30.6072685Z 31/58 Test #31: test_kinfitter.jacobian_3C ...................................   Passed    0.03 sec
+2026-11-09T13:33:30.6080535Z 32/58 Test #33: test_kinfitter.mass_exclusive_candidates .....................   Passed    0.03 sec
+2026-11-09T13:33:30.6085155Z       Start 35: test_kinfitter.single_iteration_returns_true
+2026-11-09T13:33:30.6101317Z       Start 36: test_kinfitter.exact_MissingMass
+2026-11-09T13:33:30.6107211Z 33/58 Test #36: test_kinfitter.exact_MissingMass .............................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6110986Z       Start 37: test_kinfitter.pulls_MissingMass
+2026-11-09T13:33:30.6118732Z 34/58 Test #37: test_kinfitter.pulls_MissingMass .............................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6125249Z       Start 38: test_kinfitter.jacobian_MissingMass
+2026-11-09T13:33:30.6132820Z 35/58 Test #38: test_kinfitter.jacobian_MissingMass ..........................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6140266Z       Start 39: test_kinfitter.pulls_MassVtx
+2026-11-09T13:33:30.6148878Z 36/58 Test #39: test_kinfitter.pulls_MassVtx .................................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6156639Z       Start 40: test_kinfitter.jacobian_MassVtx
+2026-11-09T13:33:30.6164753Z 37/58 Test #40: test_kinfitter.jacobian_MassVtx ..............................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6172148Z       Start 41: test_kinfitter.converges_with_zero_parameters
+2026-11-09T13:33:30.6180757Z 38/58 Test #41: test_kinfitter.converges_with_zero_parameters ................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6188764Z       Start 42: test_decaycandfinder.momentum_from_daughter_energies
+2026-11-09T13:33:30.6373426Z 39/58 Test #35: test_kinfitter.single_iteration_returns_true .................   Passed    0.03 sec
+2026-11-09T13:33:30.6375405Z       Start 43: test_decaycandfinder.direction_from_vertices
+2026-11-09T13:33:30.6487839Z 40/58 Test #42: test_decaycandfinder.momentum_from_daughter_energies .........   Passed    0.03 sec
+2026-11-09T13:33:30.6515616Z       Start 44: test_decaycandfinder.covariance_accessors_agree
+2026-11-09T13:33:30.6695259Z 41/58 Test #43: test_decaycandfinder.direction_from_vertices .................   Passed    0.03 sec
+2026-11-09T13:33:30.6697845Z       Start 45: test_decaycandfinder.covariance_symmetric_positive
+2026-11-09T13:33:30.6762668Z 42/58 Test  #6: test_particle.io_roundtrip_tclonesarray ......................   Passed    0.46 sec
+2026-11-09T13:33:30.6764898Z       Start 46: test_decaycandfinder.usable_as_3C_mother
+2026-11-09T13:33:30.6798326Z 43/58 Test #44: test_decaycandfinder.covariance_accessors_agree ..............***Failed    0.03 sec
+2026-11-09T13:33:30.6801514Z [ RUN  ] covariance_accessors_agree
+2026-11-09T13:33:30.6812228Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:86: a(i, j) = -nan, b(i, j) = -nan, |diff| = nan > 0
+2026-11-09T13:33:30.6814120Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:86: a(i, j) = -nan, b(i, j) = -nan, |diff| = nan > 0
+2026-11-09T13:33:30.6815876Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:86: a(i, j) = -nan, b(i, j) = -nan, |diff| = nan > 0
+2026-11-09T13:33:30.6817017Z [ FAIL ] covariance_accessors_agree
+2026-11-09T13:33:30.6817510Z 
+2026-11-09T13:33:30.6817945Z       Start 47: test_decaycandfinder.R_Z_of_flight_line
+2026-11-09T13:33:30.6819016Z 44/58 Test #47: test_decaycandfinder.R_Z_of_flight_line ......................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.6820466Z       Start 48: test_coordinateconversion.sph_to_cart
+2026-11-09T13:33:30.7057636Z 45/58 Test #45: test_decaycandfinder.covariance_symmetric_positive ...........***Failed    0.03 sec
+2026-11-09T13:33:30.7059904Z [ RUN  ] covariance_symmetric_positive
+2026-11-09T13:33:30.7061167Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7062867Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7064639Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7066248Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7067652Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7069196Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 5.79533e-15
+2026-11-09T13:33:30.7077565Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7079293Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7084189Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7085977Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7087394Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7088778Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7090529Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7091931Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7093533Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7095034Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7096749Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.1055e-14
+2026-11-09T13:33:30.7098287Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7101331Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7103003Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7108018Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7110822Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7112482Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7114026Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7115618Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7117098Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7118429Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7119813Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.70312e-14
+2026-11-09T13:33:30.7121677Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7123403Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7124882Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7126494Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7127934Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7129330Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7130832Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7132515Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7134130Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7135625Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7137305Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 9.06874e-15
+2026-11-09T13:33:30.7139140Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7141149Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7142882Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7144303Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7145697Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7146683Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7147555Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7148417Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7149236Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7150014Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7150839Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.14105e-14
+2026-11-09T13:33:30.7151680Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7152910Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7154304Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7155503Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7156682Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7157840Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7159070Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7160750Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7161722Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7162760Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7164007Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.37164e-14
+2026-11-09T13:33:30.7165250Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7166433Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7167612Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7168731Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7169823Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7170930Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7172096Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7173535Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7174939Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7176143Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7177402Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.39704e-15
+2026-11-09T13:33:30.7178697Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7179988Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7181127Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7182442Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7183529Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7184618Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7185765Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7186975Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7188131Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7189201Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7190424Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.59498e-15
+2026-11-09T13:33:30.7191680Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7193077Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7194236Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7195396Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7196895Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7198098Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7199341Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7200628Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7201874Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7203424Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7204676Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.96427e-15
+2026-11-09T13:33:30.7205955Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7207193Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7208338Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7209434Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7210817Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7212008Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7213408Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7214659Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7215876Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7217085Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7218369Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 6.53391e-15
+2026-11-09T13:33:30.7219657Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7220838Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7221987Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7223351Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7224563Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7225699Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7226812Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7228091Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7229353Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7230557Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7231800Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.17497e-14
+2026-11-09T13:33:30.7233544Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7234688Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7235789Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7236922Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7238080Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7239335Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7240543Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7241716Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7243113Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7244428Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7245701Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.88985e-15
+2026-11-09T13:33:30.7246994Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7248363Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7249420Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7250612Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7251811Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7253288Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7254577Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7255890Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7257175Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7258336Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7259587Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 4.08151e-15
+2026-11-09T13:33:30.7260819Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7261944Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7263112Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7264237Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7265401Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7266616Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7268013Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7269727Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7271443Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7272835Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7274106Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.81827e-15
+2026-11-09T13:33:30.7275397Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7276605Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7277754Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7278891Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7280016Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7281176Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7282548Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7283734Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7284930Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7286413Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7287562Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.61149e-14
+2026-11-09T13:33:30.7288704Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7289840Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7291009Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7292195Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7293626Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7294801Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7296063Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7297316Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7298524Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7299689Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7300832Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.50902e-15
+2026-11-09T13:33:30.7301996Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7303330Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7304463Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7305553Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7306718Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7308217Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7309471Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7310797Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7312050Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7313492Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7314789Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.72119e-14
+2026-11-09T13:33:30.7316070Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7317274Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7348458Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7349693Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7350893Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7353504Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7354807Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7356132Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7357375Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7358575Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7359848Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 8.1036e-15
+2026-11-09T13:33:30.7361145Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7362526Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7363767Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7364976Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7366170Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7367402Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7368669Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7369954Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7371228Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7372722Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7374010Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.27563e-15
+2026-11-09T13:33:30.7375311Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7376786Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7378043Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7379241Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7380385Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7381566Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7382997Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7384268Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7385516Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7386723Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7387997Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.80261e-15
+2026-11-09T13:33:30.7389269Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7390463Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7391876Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7393346Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7394565Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7395762Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7397017Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7398331Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7399591Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7400799Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7402055Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 8.72791e-15
+2026-11-09T13:33:30.7403672Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7404828Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7405915Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7407109Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7408258Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7409391Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7410597Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7411833Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7413219Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7414631Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7415840Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.73203e-15
+2026-11-09T13:33:30.7417127Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7418300Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7419463Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7420636Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7421770Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7423152Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7424435Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7425694Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7426858Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7428049Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7429512Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.4263e-15
+2026-11-09T13:33:30.7430744Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7431722Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7432943Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7434013Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7435139Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7436240Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7437456Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7438760Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7440006Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7441178Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7442574Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.44888e-15
+2026-11-09T13:33:30.7443919Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7445173Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7446359Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7447531Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7448702Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7449874Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7451366Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7452912Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7454169Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7455370Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7456646Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 5.79057e-15
+2026-11-09T13:33:30.7457923Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7459086Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7460243Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7461397Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7462866Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7463998Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7465458Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7466785Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7468048Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7469223Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7470503Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.75637e-15
+2026-11-09T13:33:30.7471829Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7473173Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7474340Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7475490Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7476613Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7477829Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7479108Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7480397Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7481566Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7483003Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7484304Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.07971e-14
+2026-11-09T13:33:30.7485563Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7486721Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7487914Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7489349Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7490444Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7491578Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7492803Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7494078Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7495335Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7496537Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7497787Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.77732e-14
+2026-11-09T13:33:30.7499035Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7500288Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7501473Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7503094Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7504362Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7505559Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7506874Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7508153Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7509414Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7510638Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7511916Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.33332e-15
+2026-11-09T13:33:30.7513415Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7514596Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7515734Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7516917Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7518117Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7519322Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7520579Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7521896Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7523357Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7524619Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7526154Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.00589e-14
+2026-11-09T13:33:30.7527506Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7528701Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7529860Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7531079Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7532491Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7533732Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7534986Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7536282Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7537382Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7538500Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7539987Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.09056e-14
+2026-11-09T13:33:30.7541248Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7542642Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7543852Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7545057Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7546240Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7547442Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7548703Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7549994Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7551253Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7552668Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7553962Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.08853e-14
+2026-11-09T13:33:30.7555227Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7556479Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7557675Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7558872Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7560028Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7561218Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7562681Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7564231Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7565472Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7566678Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7567952Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 5.13698e-15
+2026-11-09T13:33:30.7569196Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7570405Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7571556Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7572873Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7574034Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7575244Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7576496Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7578093Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7579492Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7580772Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7582061Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.19026e-15
+2026-11-09T13:33:30.7583616Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7584812Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7586044Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7587230Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7588411Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7589595Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7590859Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7592147Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7596354Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7597621Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7598951Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 4.46862e-15
+2026-11-09T13:33:30.7600222Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7601385Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7602899Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7604474Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7605945Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7607247Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7608526Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7609726Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7610912Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7612099Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7619802Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 6.26495e-15
+2026-11-09T13:33:30.7621153Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7622538Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7623706Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7624862Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7626386Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7627576Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7628824Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7630142Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7631373Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7632899Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7634213Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.07391e-14
+2026-11-09T13:33:30.7635652Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7636864Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7638040Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7639220Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7640497Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7641713Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7643297Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7644544Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7645815Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7647030Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7648319Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.75734e-15
+2026-11-09T13:33:30.7649856Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7651060Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7652194Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7653510Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7654729Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7655940Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7657187Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7658474Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7659740Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7660982Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7662509Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.34891e-15
+2026-11-09T13:33:30.7664072Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7665304Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7666417Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7667543Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7668676Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7669750Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7670983Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7672505Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7673799Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7674999Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7676281Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 6.81581e-15
+2026-11-09T13:33:30.7677545Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7678715Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7679883Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7680971Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7682082Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7683376Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7684514Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7685827Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7687365Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7688481Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7689684Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.54725e-14
+2026-11-09T13:33:30.7690969Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7692180Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7693605Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7694827Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7696246Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7697475Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7698780Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7700130Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7701561Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7703011Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7704271Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 1.78819e-14
+2026-11-09T13:33:30.7705538Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7706778Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7707912Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7709003Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7710002Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7711057Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7712219Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7713609Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7714789Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7715924Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7717081Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 4.0552e-15
+2026-11-09T13:33:30.7718314Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7719452Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7720566Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7721674Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7722836Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7724093Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7725285Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7726504Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7727637Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7728844Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7730145Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.44767e-15
+2026-11-09T13:33:30.7731421Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7732751Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7733926Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7735116Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7736279Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7737687Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7738902Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7740149Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7741357Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7742733Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7743935Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.53768e-15
+2026-11-09T13:33:30.7745140Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7746215Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7747337Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7748455Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7749464Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7750616Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7751820Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7753299Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7754522Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7755853Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7757109Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 2.73231e-14
+2026-11-09T13:33:30.7758393Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7759861Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7761039Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7762178Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7763542Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7764722Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7765954Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7767288Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7768482Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7769654Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7770898Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 9.75957e-15
+2026-11-09T13:33:30.7772134Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7773567Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7775003Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7776196Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7777430Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7778642Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7779876Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7781071Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7782529Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7783772Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7785019Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.85632e-15
+2026-11-09T13:33:30.7786275Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7787496Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7788674Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7789826Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7790926Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7791975Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7793434Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7794691Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7795903Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7797302Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7798498Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 4.98433e-15
+2026-11-09T13:33:30.7799801Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7800989Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7802140Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7803580Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7804787Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7806008Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7807339Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7808627Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > nan
+2026-11-09T13:33:30.7809845Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7811241Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = 0, cov(c, r) = 0, |diff| = 0 > nan
+2026-11-09T13:33:30.7812686Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:108: cov(r, c) = -nan, cov(c, r) = -nan, |diff| = nan > 3.63598e-14
+2026-11-09T13:33:30.7813986Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7815187Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7816354Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7817543Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7818738Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:114: CHECK(ev_(k) >= -1e-12 * std::abs(ev_(0)))
+2026-11-09T13:33:30.7819601Z [ FAIL ] covariance_symmetric_positive
+2026-11-09T13:33:30.7819928Z 
+2026-11-09T13:33:30.7820199Z       Start 49: test_coordinateconversion.cart_to_sph_forward
+2026-11-09T13:33:30.7821072Z 46/58 Test #48: test_coordinateconversion.sph_to_cart ........................   Passed    0.03 sec
+2026-11-09T13:33:30.7821997Z       Start 50: test_coordinateconversion.cart_to_sph_backward
+2026-11-09T13:33:30.7823171Z 47/58 Test #50: test_coordinateconversion.cart_to_sph_backward ...............***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.7824236Z       Start 51: test_coordinateconversion.errors_sph_to_cart
+2026-11-09T13:33:30.7825184Z 48/58 Test #51: test_coordinateconversion.errors_sph_to_cart .................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.7826122Z       Start 52: test_analyzer.analyzer_mass_fit_output
+2026-11-09T13:33:30.7827024Z 49/58 Test #49: test_coordinateconversion.cart_to_sph_forward ................   Passed    0.05 sec
+2026-11-09T13:33:30.7827881Z       Start 53: test_analyzer.analyzer_event_limit
+2026-11-09T13:33:30.9034691Z 50/58 Test #34: test_kinfitter.missing_particle_single_track_fails_cleanly ...   Passed    0.30 sec
+2026-11-09T13:33:30.9054906Z       Start 54: test_analyzer.builder_selects_true_combination
+2026-11-09T13:33:30.9103906Z 51/58 Test #54: test_analyzer.builder_selects_true_combination ...............***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.9131230Z       Start 55: test_analyzer.builder_no_double_use
+2026-11-09T13:33:30.9155090Z 52/58 Test #55: test_analyzer.builder_no_double_use ..........................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.9161105Z       Start 56: test_analyzer.analyzer_processes_first_event
+2026-11-09T13:33:30.9162448Z 53/58 Test #56: test_analyzer.analyzer_processes_first_event .................***Not Run (Disabled)   0.00 sec
+2026-11-09T13:33:30.9163195Z       Start 57: example.toy_lambda_fit
+2026-11-09T13:33:30.9494590Z 54/58 Test #46: test_decaycandfinder.usable_as_3C_mother .....................***Failed    0.27 sec
+2026-11-09T13:33:30.9496077Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9497293Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9498162Z [ RUN  ] usable_as_3C_mother
+2026-11-09T13:33:30.9499005Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9499853Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9500731Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9501546Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9502646Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9503437Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9504291Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9505194Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9506354Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9507194Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9508034Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9508859Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9509725Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9510521Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9511365Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9512208Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9513249Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9514074Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9515043Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9515900Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9516772Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9517610Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9518473Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9519301Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9520167Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9521001Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9521865Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9543139Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9543982Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9544783Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9545613Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9546428Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9547615Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9548457Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9549345Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9550212Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9551093Z Error in <TDecompLU::DecomposeLUCrout>: matrix is singular
+2026-11-09T13:33:30.9551954Z Error in <TDecompLU::InvertLU>: matrix is singular, 0 diag elements < tolerance of 2.2204e-16
+2026-11-09T13:33:30.9552909Z   converged 0/20, <chi2> = 0
+2026-11-09T13:33:30.9553577Z   FAILED /__w/KinFit/KinFit/QA/test_decaycandfinder.cxx:139: CHECK(nConverged == 20)
+2026-11-09T13:33:30.9554295Z [ FAIL ] usable_as_3C_mother
+2026-11-09T13:33:30.9554559Z 
+2026-11-09T13:33:30.9554734Z       Start 58: example.vertex_constB
+2026-11-09T13:33:30.9585949Z 55/58 Test #57: example.toy_lambda_fit .......................................   Passed    0.05 sec
+2026-11-09T13:33:30.9783876Z 56/58 Test #58: example.vertex_constB ........................................   Passed    0.03 sec
+2026-11-09T13:33:31.5780182Z 57/58 Test #52: test_analyzer.analyzer_mass_fit_output .......................Subprocess aborted***Exception:   0.87 sec
+2026-11-09T13:33:31.5782635Z Warning in <TTree::Bronch>: Using split mode on a class: KinFitParticle with a custom Streamer
+2026-11-09T13:33:31.5783807Z [ RUN  ] analyzer_mass_fit_output
+2026-11-09T13:33:31.5784998Z Warning in <TTree::Bronch>: Using split mode on a class: KinFitParticle with a custom Streamer
+2026-11-09T13:33:31.5787414Z /usr/include/c++/15/bits/stl_vector.h:1263: constexpr std::vector<_Tp, _Alloc>::reference std::vector<_Tp, _Alloc>::operator[](size_type) [with _Tp = int; _Alloc = std::allocator<int>; reference = int&; size_type = long unsigned int]: Assertion '__n < this->size()' failed.
+2026-11-09T13:33:31.5791032Z 
+2026-11-09T13:33:31.5868495Z 58/58 Test #53: test_analyzer.analyzer_event_limit ...........................Subprocess aborted***Exception:   0.83 sec
+2026-11-09T13:33:31.5869271Z Warning in <TTree::Bronch>: Using split mode on a class: KinFitParticle with a custom Streamer
+2026-11-09T13:33:31.5869731Z [ RUN  ] analyzer_event_limit
+2026-11-09T13:33:31.5870157Z Warning in <TTree::Bronch>: Using split mode on a class: KinFitParticle with a custom Streamer
+2026-11-09T13:33:31.5871521Z /usr/include/c++/15/bits/stl_vector.h:1263: constexpr std::vector<_Tp, _Alloc>::reference std::vector<_Tp, _Alloc>::operator[](size_type) [with _Tp = int; _Alloc = std::allocator<int>; reference = int&; size_type = long unsigned int]: Assertion '__n < this->size()' failed.
+2026-11-09T13:33:31.5873091Z 
+2026-11-09T13:33:31.5873168Z 
+2026-11-09T13:33:31.5874204Z 89% tests passed, 5 tests failed out of 46
+2026-11-09T13:33:31.5874610Z 
+2026-11-09T13:33:31.5874776Z Label Time Summary:
+2026-11-09T13:33:31.5875209Z analysis    =   1.69 sec*proc (5 tests)
+2026-11-09T13:33:31.5875703Z core        =   2.50 sec*proc (51 tests)
+2026-11-09T13:33:31.5876196Z example     =   0.08 sec*proc (2 tests)
+2026-11-09T13:33:31.5876682Z fitter      =   1.18 sec*proc (26 tests)
+2026-11-09T13:33:31.5877150Z io          =   2.28 sec*proc (11 tests)
+2026-11-09T13:33:31.5877626Z vertex      =   0.66 sec*proc (15 tests)
+2026-11-09T13:33:31.5877947Z 
+2026-11-09T13:33:31.5878107Z Total Test time (real) =   1.40 sec
+2026-11-09T13:33:31.5878410Z 
+2026-11-09T13:33:31.5878580Z The following tests did not run:
+2026-11-09T13:33:31.5879154Z 	 36 - test_kinfitter.exact_MissingMass (Disabled)
+2026-11-09T13:33:31.5879737Z 	 37 - test_kinfitter.pulls_MissingMass (Disabled)
+2026-11-09T13:33:31.5880329Z 	 38 - test_kinfitter.jacobian_MissingMass (Disabled)
+2026-11-09T13:33:31.5880686Z 	 39 - test_kinfitter.pulls_MassVtx (Disabled)
+2026-11-09T13:33:31.5881024Z 	 40 - test_kinfitter.jacobian_MassVtx (Disabled)
+2026-11-09T13:33:31.5881397Z 	 41 - test_kinfitter.converges_with_zero_parameters (Disabled)
+2026-11-09T13:33:31.5882119Z 	 47 - test_decaycandfinder.R_Z_of_flight_line (Disabled)
+2026-11-09T13:33:31.5882894Z 	 50 - test_coordinateconversion.cart_to_sph_backward (Disabled)
+2026-11-09T13:33:31.5883327Z 	 51 - test_coordinateconversion.errors_sph_to_cart (Disabled)
+2026-11-09T13:33:31.5884030Z 	 54 - test_analyzer.builder_selects_true_combination (Disabled)
+2026-11-09T13:33:31.5884656Z 	 55 - test_analyzer.builder_no_double_use (Disabled)
+2026-11-09T13:33:31.5885239Z 	 56 - test_analyzer.analyzer_processes_first_event (Disabled)
+2026-11-09T13:33:31.5885492Z 
+2026-11-09T13:33:31.5885606Z The following tests FAILED:
+2026-11-09T13:33:31.5885961Z 	 44 - test_decaycandfinder.covariance_accessors_agree (Failed) core vertex
+2026-11-09T13:33:31.5886466Z 	 45 - test_decaycandfinder.covariance_symmetric_positive (Failed) core vertex
+2026-11-09T13:33:31.5886940Z 	 46 - test_decaycandfinder.usable_as_3C_mother (Failed) core vertex
+2026-11-09T13:33:31.5887407Z 	 52 - test_analyzer.analyzer_mass_fit_output (Subprocess aborted) analysis io
+2026-11-09T13:33:31.5887892Z 	 53 - test_analyzer.analyzer_event_limit (Subprocess aborted) analysis io
+2026-11-09T13:33:31.5888275Z Errors while running CTest
+2026-11-09T13:33:31.5968989Z ##[error]Process completed with exit code 8.
+2026-11-09T13:33:31.6183607Z Post job cleanup.
+2026-11-09T13:33:31.6197065Z ##[command]/usr/bin/docker exec  cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a sh -c "cat /etc/*release | grep ^ID"
+2026-11-09T13:33:31.8740918Z [command]/usr/bin/git version
+2026-11-09T13:33:31.8781697Z git version 2.51.0
+2026-11-09T13:33:31.8829043Z Temporarily overriding HOME='/__w/_temp/cc0d7feb-0e6e-4c0a-a9a5-c55a6b6db3a2' before making global git config changes
+2026-11-09T13:33:31.8830495Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-09T13:33:31.8834975Z [command]/usr/bin/git config --global --add safe.directory /__w/KinFit/KinFit
+2026-11-09T13:33:31.8878022Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-09T13:33:31.8921959Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-09T13:33:31.9264599Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-09T13:33:31.9298204Z http.https://github.com/.extraheader
+2026-11-09T13:33:31.9313576Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-09T13:33:31.9357876Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-09T13:33:31.9686606Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-09T13:33:31.9728643Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-09T13:33:32.0231240Z Stop and remove container: dd938360571c4282bd69913a98685289_rootprojectrootlatest_c31910
+2026-11-09T13:33:32.0236561Z ##[command]/usr/bin/docker rm --force cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a
+2026-11-09T13:33:32.1511021Z cc1611def0d8dd8171a7ff6bb7725bb2c11386552ae4e70c2459b8360f06f47a
+2026-11-09T13:33:32.1546403Z Remove container network: github_network_d1db6e0631d14c57af753f5c01e352bb
+2026-11-09T13:33:32.1551214Z ##[command]/usr/bin/docker network rm github_network_d1db6e0631d14c57af753f5c01e352bb
+2026-11-09T13:33:32.2277672Z github_network_d1db6e0631d14c57af753f5c01e352bb
+2026-11-09T13:33:32.2360612Z Cleaning up orphan processes
+2026-11-09T13:33:32.2772042Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

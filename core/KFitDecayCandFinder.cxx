@@ -16,6 +16,8 @@
 
 #include "KFitDecayCandFinder.h"
 
+#include <cmath>
+
 /**
  * @file KFitDecayCandFinder.cxx
  * @brief Implementation of decay-candidate kinematics and covariance estimate.
@@ -125,7 +127,7 @@ void KFitDecayCandFinder::calculateDecayCand() {
   TVector3 cross = vtx_geom_dir.Cross(geom_dir_Z);
   TVector3 diff = vtx_geom_base - geom_base_Z;
 
-  double valR = abs(diff.Dot(cross) / (cross.Mag()));
+  double valR = std::abs(diff.Dot(cross) / (cross.Mag()));
 
   if (primaryVertex.Y() < 0) {
     valR = -1 * valR;
@@ -184,11 +186,11 @@ void KFitDecayCandFinder::calculateDecayCand() {
   double dr_dz = z_vertex / r;
 
   double dtheta_dx = x_vertex * z_vertex /
-                     (r * r * r * std::sqrt(abs(1 - z_vertex / (r * r))));
+                     (r * r * r * std::sqrt(std::abs(1 - z_vertex / (r * r))));
   double dtheta_dy = y_vertex * z_vertex /
-                     (r * r * r * std::sqrt(abs(1 - z_vertex / (r * r))));
+                     (r * r * r * std::sqrt(std::abs(1 - z_vertex / (r * r))));
   double dtheta_dz = (1 / r - z_vertex * z_vertex / (r * r * r)) /
-                     std::sqrt(abs(1 - z_vertex * z_vertex / (r * r)));
+                     std::sqrt(std::abs(1 - z_vertex * z_vertex / (r * r)));
 
   // double sigma_theta =std::sqrt(dtheta_dx * dtheta_dx * sigma_x * sigma_x +
   // dtheta_dy * dtheta_dy * sigma_y * sigma_y + dtheta_dz * dtheta_dz * sigma_z

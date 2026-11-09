@@ -70,6 +70,3 @@ Notes:
 
 - On macOS, ROOT's TBB library crashes at program exit under ASan. The test
   executables therefore end with `_Exit()` in ASan builds.
-- Until the `KFitDecayBuilder` heap overflow is fixed, the two enabled
-  analyzer tests fail under ASan. In normal builds the stray write happens to
-  be harmless.

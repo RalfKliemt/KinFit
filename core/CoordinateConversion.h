@@ -227,10 +227,10 @@ public:
     // R and Y - same sign
     /*
     if(Px > 0){
-        R = ((abs((cross.Dot(diff))))/(cross.Mag()));
+        R = ((std::abs((cross.Dot(diff))))/(cross.Mag()));
     }
     else if(Px < 0){
-        R = -((abs((cross.Dot(diff))))/(cross.Mag()));
+        R = -((std::abs((cross.Dot(diff))))/(cross.Mag()));
     }
     */
 
@@ -391,7 +391,7 @@ public:
   TVector3 cross = trackdist.Cross(beamdist);
   TVector3 diff = trackbase-beambase;
 
-  R = ((abs((cross.Dot(diff))))/(cross.Mag()));
+  R = ((std::abs((cross.Dot(diff))))/(cross.Mag()));
 
       ;}
   */

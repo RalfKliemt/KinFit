@@ -75,11 +75,9 @@ kinfit_add_test(test_coordinateconversion
 
 kinfit_add_test(test_analyzer
   LABELS analysis io
-  CASES analyzer_mass_fit_output analyzer_event_limit
+  CASES builder_selects_true_combination builder_no_double_use
+        analyzer_mass_fit_output analyzer_event_limit
   DISABLED
-        # fillFitCands() writes particleCounter[-1] after the last
-        # combination (heap overflow, crashes depending on memory layout)
-        builder_selects_true_combination builder_no_double_use
         # event loop starts at entry 1
         analyzer_processes_first_event)
 

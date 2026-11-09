@@ -1,4 +1,4 @@
-build/
+build*/
 .cache/
 compile_flags.txt
 TODO.md

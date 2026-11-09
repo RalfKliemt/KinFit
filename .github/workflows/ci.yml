@@ -12,7 +12,7 @@ jobs:
     # rootproject/root:<version>-ubuntu24.04 for reproducible builds.
     container: rootproject/root:latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Configure
         run: cmake -S . -B build -DKINFIT_BUILD_TESTS=ON -DKINFIT_BUILD_EXAMPLES=ON

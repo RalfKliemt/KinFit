@@ -187,10 +187,12 @@ void KFitDecayBuilder::fillFitCands() {
       a = 1e6;
     }
   }
-  particleCounter[a]++;
-  if (fVerbose > 1)
-    std::cout << "particle counter " << a << " is " << particleCounter[a]
-              << " now" << std::endl;
+  if (a >= 0) { // a < 0: all combinations done; do not write before the start
+    particleCounter[a]++;
+    if (fVerbose > 1)
+      std::cout << "particle counter " << a << " is " << particleCounter[a]
+                << " now" << std::endl;
+  }
   fCombiCounter++;
 
   if (doubleParticle && (fCombiCounter < fTotalCombis))
