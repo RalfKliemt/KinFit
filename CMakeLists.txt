@@ -18,11 +18,13 @@ endif(NOT ROOT_FOUND)
 set(SRCFILES
     source/KinFitter.cxx source/KinFitParticle.cxx source/KFitAnalyzer.cxx
     source/KFitDecayBuilder.cxx source/KFitDecayCandFinder.cxx
-    source/KFitVertexFinder.cxx source/CoordinateConversion.cxx) # source/hvertextools.cxx)
+    source/KFitVertexFinder.cxx source/KFitVertexFinderConstB.cxx
+    source/CoordinateConversion.cxx) # source/hvertextools.cxx)
 set(HFILES
     include/KinFitter.h include/KinFitParticle.h include/KFitAnalyzer.h
     include/KFitDecayBuilder.h include/KFitDecayCandFinder.h
-    include/KFitVertexFinder.h include/CoordinateConversion.h) # include/hvertextools.h)
+    include/KFitVertexFinder.h include/KFitVertexFinderConstB.h
+    include/CoordinateConversion.h) # include/hvertextools.h)
 
 # cmake-format: off
 root_generate_dictionary(KinFitDict ${HFILES}
