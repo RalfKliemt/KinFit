@@ -15,21 +15,36 @@ if(NOT ROOT_FOUND)
   message(FATAL_ERROR "ROOT is required but missing !")
 endif(NOT ROOT_FOUND)
 
-set(SRCFILES
-    source/KinFitter.cxx source/KinFitParticle.cxx source/KFitAnalyzer.cxx
-    source/KFitDecayBuilder.cxx source/KFitDecayCandFinder.cxx
-    source/KFitVertexFinder.cxx source/KFitVertexFinderConstB.cxx
-    source/CoordinateConversion.cxx) # source/hvertextools.cxx)
-set(HFILES
-    include/KinFitter.h include/KinFitParticle.h include/KFitAnalyzer.h
-    include/KFitDecayBuilder.h include/KFitDecayCandFinder.h
-    include/KFitVertexFinder.h include/KFitVertexFinderConstB.h
-    include/CoordinateConversion.h) # include/hvertextools.h)
+# Core fitter (KinFitter, particles, vertexing) and analysis layer
+# (KFitAnalyzer, KFitDecayBuilder); headers and sources live side by side.
+set(CORE_CLASSES
+    KinFitter KinFitParticle KFitVertexFinder KFitVertexFinderConstB
+    KFitDecayCandFinder CoordinateConversion)
+set(ANALYSIS_CLASSES KFitAnalyzer KFitDecayBuilder)
+
+set(SRCFILES)
+set(HFILES)
+set(DICT_HEADERS)
+foreach(cls ${CORE_CLASSES})
+  list(APPEND SRCFILES core/${cls}.cxx)
+  list(APPEND HFILES core/${cls}.h)
+  list(APPEND DICT_HEADERS ${cls}.h)
+endforeach()
+foreach(cls ${ANALYSIS_CLASSES})
+  list(APPEND SRCFILES analysis/${cls}.cxx)
+  list(APPEND HFILES analysis/${cls}.h)
+  list(APPEND DICT_HEADERS ${cls}.h)
+endforeach()
+
+# The dictionary refers to headers by bare file name (as they are installed),
+# so rootcling needs both source directories on its include path.
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core
+                    ${CMAKE_CURRENT_SOURCE_DIR}/analysis)
 
 # cmake-format: off
-root_generate_dictionary(KinFitDict ${HFILES}
+root_generate_dictionary(KinFitDict ${DICT_HEADERS}
   MODULE ${PROJECT_NAME}
-  LINKDEF include/FitterLinkDef.h)
+  LINKDEF FitterLinkDef.h)
 # cmake-format: on
 add_library(KinFit SHARED ${SRCFILES} KinFitDict.cxx)
 add_library(KinFit::KinFit ALIAS KinFit)
@@ -37,8 +52,8 @@ target_link_libraries(KinFit ROOT::Core ROOT::Matrix ROOT::Physics ROOT::MathCor
 target_include_directories(
   KinFit
   PUBLIC $<INSTALL_INTERFACE:include>
-         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/core>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/analysis>)
 
 set_target_properties(
   ${PROJECT_NAME}

@@ -1,11 +1,14 @@
 # Project Guidelines
 
 ## Code Style
-- Preserve the existing split between public headers in include/ and implementations in source/.
+- Headers and sources live side by side: core/ holds the fitter (KinFitter, KinFitParticle,
+  vertex finders, KFitDecayCandFinder, CoordinateConversion), analysis/ holds the
+  event-loop layer (KFitAnalyzer, KFitDecayBuilder). Include headers by bare file name.
 - Keep ROOT reflection/IO hooks intact for TObject-based classes:
   - Keep ClassDef(...) in headers.
   - Keep matching ClassImp(...) in source files.
-  - Keep include/FitterLinkDef.h in sync when classes are added/removed.
+  - Keep FitterLinkDef.h (repo root) and the class lists in CMakeLists.txt in sync when
+    classes are added/removed.
 - Follow the existing naming style: private data members use the f prefix (for example fChi2, fCands).
 - Prefer small, local edits over broad refactors in matrix-heavy fitter logic.
 
