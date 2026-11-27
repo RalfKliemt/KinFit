@@ -56,6 +56,34 @@ KinFitParticle::KinFitParticle() : TLorentzVector() {
   fCov.ResizeTo(5, 5);
 }
 
+KinFitParticle KinFitParticle::fromNeutralHit(double E, double mass,
+                                              const TVector3 &hit,
+                                              const TMatrixD &cov,
+                                              const TVector3 &origin) {
+  const double p2 = E * E - mass * mass;
+  const double p = p2 > 0 ? std::sqrt(p2) : 0.;
+  TVector3 dir = hit - origin;
+  dir = dir.Mag2() > 0 ? dir.Unit() : TVector3(0, 0, 1);
+  TLorentzVector lv;
+  lv.SetVectM(p * dir, mass);
+  KinFitParticle n(lv, 0., 0.);
+  n.fIsNeutralHit = true;
+  n.fCharge = 0;
+  n.setHit(hit);
+  n.setVertexX(origin.X());
+  n.setVertexY(origin.Y());
+  n.setVertexZ(origin.Z());
+  // R, Z of the line origin -> hit (not used by the fit, for completeness)
+  const double sp = std::sin(n.fPhi), cp = std::cos(n.fPhi);
+  const double st = std::sin(n.fTheta), ct = std::cos(n.fTheta);
+  n.fR = -origin.X() * sp + origin.Y() * cp;
+  n.fZ = origin.Z();
+  if (std::abs(st) > 1e-12)
+    n.fZ -= ct / st * (origin.X() * cp + origin.Y() * sp);
+  n.setCovariance(cov);
+  return n;
+}
+
 void KinFitParticle::setCovariance(const TMatrixD &cov) {
   // HADES default track parametrization
   // 0 = 1/p
@@ -71,6 +99,14 @@ void KinFitParticle::setCovariance(const TMatrixD &cov) {
   // 3 = x (vertex x position)
   // 4 = y (vertex y position)
   // 5 = z (vertex z position)
+
+  if (fIsNeutralHit && cov.GetNrows() == 4 && cov.GetNcols() == 4) {
+    // (E, X, Y, Z); the fifth parameter slot is unused
+    fCov.ResizeTo(5, 5);
+    fCov.Zero();
+    fCov.SetSub(0, 0, cov);
+    return;
+  }
 
   if (cov.GetNoElements() == 5 * 5) {
     fCov.ResizeTo(5, 5);

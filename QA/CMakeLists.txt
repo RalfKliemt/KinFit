@@ -29,7 +29,7 @@ kinfit_add_test(test_particle
   LABELS core io
   CASES construct_from_R_Z construct_from_point_gives_PCA sign_of_R
         covariance_5x5 covariance_wrong_size_ignored io_roundtrip_tclonesarray
-        construct_from_point_has_5x5_covariance construct_from_point_along_z setters_store_values)
+        construct_from_point_has_5x5_covariance construct_from_point_along_z neutral_hit setters_store_values)
 
 kinfit_add_test(test_field
   LABELS core field

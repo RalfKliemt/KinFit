@@ -137,6 +137,34 @@ KF_TEST(setters_store_values) {
   KF_CHECK_NEAR(p.getRapidity(), 0.75, 0);
 }
 
+// Neutral measured by energy and hit: direction hit - origin, 4x4
+// covariance padded to 5x5 in (E, X, Y, Z, -) ordering.
+KF_TEST(neutral_hit) {
+  TMatrixD cov(4, 4);
+  for (int i = 0; i < 4; ++i)
+    cov(i, i) = (i + 1) * (i + 1);
+  cov(0, 1) = cov(1, 0) = 0.5;
+  const TVector3 origin(1, 2, 3), hit(101, 2, 1003);
+  const KinFitParticle g = KinFitParticle::fromNeutralHit(500., 0., hit, cov,
+                                                          origin);
+  KF_CHECK(g.isNeutralHit());
+  KF_CHECK_NEAR(g.E(), 500., 1e-9);
+  KF_CHECK_NEAR(g.M2() / (g.E() * g.E()), 0., 1e-12);
+  KF_CHECK_NEAR(g.Vect().Unit().Dot((hit - origin).Unit()), 1., 1e-12);
+  KF_CHECK_NEAR((g.getHit() - hit).Mag(), 0, 0);
+  KF_CHECK_NEAR(g.getVertexZ(), 3., 0);
+  KF_CHECK(g.getCharge() == 0);
+  const TMatrixD &c = g.getCovariance();
+  KF_CHECK(c.GetNrows() == 5);
+  KF_CHECK_NEAR(c(3, 3), 16., 0);
+  KF_CHECK_NEAR(c(1, 0), 0.5, 0);
+  KF_CHECK_NEAR(c(4, 4), 0., 0);
+  // massive neutral: |p| = sqrt(E^2 - m^2)
+  const KinFitParticle n = KinFitParticle::fromNeutralHit(1500., 939.565,
+                                                          hit, cov);
+  KF_CHECK_NEAR(n.P(), std::sqrt(1500. * 1500. - 939.565 * 939.565), 1e-9);
+}
+
 KF_TEST(io_roundtrip_tclonesarray) {
   const char *fname = "test_particle_io.root";
   TRandom3 rnd(2);
