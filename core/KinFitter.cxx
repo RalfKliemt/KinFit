@@ -714,7 +714,7 @@ Bool_t KinFitter::fit() {
   }
 
   if (fVerbose > 0) {
-    cout << " Exit iterations" << endl;
+    std::cout << " Exit iterations" << std::endl;
   }
 
   // --- Covariance of the fitted parameters ---
@@ -757,7 +757,7 @@ Bool_t KinFitter::fit() {
   // Pulls
   // -----------------------------------------
   if (fVerbose > 1) {
-    cout << " Calculate pulls" << endl;
+    std::cout << " Calculate pulls" << std::endl;
   }
   fPull.assign(fyDim, -10000.);
   for (int b = 0; b < fyDim; b++) {
@@ -778,7 +778,7 @@ Bool_t KinFitter::fit() {
 
 void KinFitter::updateDaughters() {
   if (fVerbose > 1) {
-    cout << " Update daughters" << endl;
+    std::cout << " Update daughters" << std::endl;
   }
   for (int val = 0; val < fN; ++val) {
     KinFitParticle &cand = fCands[val];
@@ -805,7 +805,7 @@ void KinFitter::updateDaughters() {
 
 void KinFitter::updateMother() {
   if (fVerbose > 1) {
-    cout << " Update mother" << endl;
+    std::cout << " Update mother" << std::endl;
   }
 
   KinFitParticle &mother = fMother;

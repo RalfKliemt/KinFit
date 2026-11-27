@@ -36,9 +36,6 @@
 #include <iostream>
 #include <vector>
 
-using std::cout;
-using std::endl;
-
 class KinFitDecayBuilder {
 private:
   // Working Particles

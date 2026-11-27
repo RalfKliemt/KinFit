@@ -34,9 +34,6 @@
 #include <iostream>
 #include <vector>
 
-using std::cout;
-using std::endl;
-
 class KinFitDecayCandFinder {
 private:
   std::vector<KinFitParticle> fCands; // Vector of decay products

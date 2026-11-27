@@ -5,12 +5,13 @@ on:
     branches: [main]
   pull_request:
 
+# Official ROOT image (ROOT + compiler + CMake), pinned by digest to the
+# image of the last known-good run (both jobs). To update: run once with
+# rootproject/root:latest and take the "Digest:" line of the pull step.
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    # Official ROOT image (ROOT + compiler + CMake). Pin a specific tag such as
-    # rootproject/root:<version>-ubuntu24.04 for reproducible builds.
-    container: rootproject/root:latest
+    container: rootproject/root:latest@sha256:a2ab342848316c71b803b8cdfb1867b8fc29109671de2268640eb46567272bd0
     steps:
       - uses: actions/checkout@v5
 
@@ -22,3 +23,21 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure -j "$(nproc)"
+
+  asan:
+    runs-on: ubuntu-latest
+    container: rootproject/root:latest@sha256:a2ab342848316c71b803b8cdfb1867b8fc29109671de2268640eb46567272bd0
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure
+        run: cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DKINFIT_ENABLE_ASAN=ON
+
+      - name: Build
+        run: cmake --build build-asan -j "$(nproc)"
+
+      # Leak checking is off: ROOT/cling keep global allocations until exit.
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+        run: ctest --test-dir build-asan --output-on-failure -j "$(nproc)"

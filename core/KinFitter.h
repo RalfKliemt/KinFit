@@ -35,37 +35,8 @@
 #include "TObject.h"
 
 // system includes
-#include <iomanip>
 #include <iostream>
 #include <vector>
-
-using std::cout;
-using std::endl;
-
-const double pi2 = TMath::PiOver2();
-
-template <typename T> void Print(T const &matrix) {
-  int nrows = matrix.GetNrows();
-  int ncols = matrix.GetNcols();
-
-  cout << "shape(" << nrows << "," << ncols << ")" << endl;
-
-  for (int i = 0; i < nrows; i++) {
-    for (int j = 0; j < ncols; j++) {
-      double element = matrix(i, j);
-      if (TMath::Abs(element) < 1e-10)
-        element = 0.;
-      if (element >= 0.)
-        cout << " " << std::fixed << std::setw(8) << std::scientific << element
-             << " ";
-      else
-        cout << std::fixed << std::setw(8) << std::scientific << element << " ";
-    }
-    cout << endl;
-  }
-
-  cout << endl;
-}
 
 class KinFitter : public TObject {
 private:
@@ -263,21 +234,23 @@ public:
    * @param val Index of daughter particle.
    * @return Updated daughter particle.
    */
-  KinFitParticle getDaughter(int val) { return fCands[val]; }
+  const KinFitParticle &getDaughter(int val) const {
+    return fCands.at(val); // throws std::out_of_range
+  }
   /** @brief Return all fitted daughter particles.
    * @param daughters Output vector filled with all fitted daughters.
    */
-  void getDaughters(std::vector<KinFitParticle> &daughters) {
+  void getDaughters(std::vector<KinFitParticle> &daughters) const {
     daughters = fCands;
   }
   /** @brief Return fitted mother particle.
    * @return Fitted mother particle.
    */
-  KinFitParticle getMother() { return fMother; }
+  const KinFitParticle &getMother() const { return fMother; }
   /** @brief Return fitted missing particle four-vector if available.
    * @return Missing daughter four-vector.
    */
-  TLorentzVector getMissingDaughter() { return fMissDaughter; }
+  const TLorentzVector &getMissingDaughter() const { return fMissDaughter; }
 
 private:
   void updateDaughters();

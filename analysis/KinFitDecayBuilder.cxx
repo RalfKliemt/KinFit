@@ -115,15 +115,6 @@ Bool_t KinFitDecayBuilder::doFit() {
     Fitter.addMissingParticleConstraint(fIniSys, fMass);
   else if (fTask == "Mass") {
     Fitter.addMassConstraint(fMass);
-    /*
-    cout << "constraint added, Mass = " << fMass << endl;
-    cout << "proton momentum = " << fFitCands[0].getMomentum() << endl;
-    cout << "pion momentum = " << fFitCands[1].getMomentum() << endl;
-    TMatrixD cov_p = fFitCands[0].getCovariance();
-    TMatrixD cov_pi = fFitCands[1].getCovariance();
-    cout << "proton momentum error = " << cov_p(0,0) << endl;
-    cout << "pion momentum error = " << cov_pi(0,0) << endl;
-    */
   } else {
     std::cerr << "KinFitDecayBuilder: task \"" << fTask << "\" not available"
               << std::endl;

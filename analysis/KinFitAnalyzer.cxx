@@ -94,7 +94,7 @@ void KinFitAnalyzer::selectCandidates() {
 
 void KinFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
                                 double mass, TLorentzVector lv,
-                                KinFitParticle mother) {
+                                KinFitParticle /*mother: unused, no 3C task*/) {
   if (fVerbose > 0) {
     std::cout << " ----------- KinFitAnalyzer::selectCandidates() -----------"
               << std::endl;
@@ -183,7 +183,7 @@ void KinFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
     if (fitted_cands->GetEntries() > 0)
       fitted_cands->Clear();
     if (Prob > 0) {
-      for (int k = 0; k < result.size(); k++) {
+      for (size_t k = 0; k < result.size(); k++) {
         // Copy everything (charge, MC truth, ...), not only p, R, Z, cov.
         new (fit_arrayRef[ii]) KinFitParticle(result[k]);
         ii++;
@@ -192,7 +192,7 @@ void KinFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
       fTree_out->Fill();
       fitted_cands->Clear();
     } else {
-      cout << "no candidate found" << endl;
+      std::cout << "no candidate found" << std::endl;
       continue;
     }
 

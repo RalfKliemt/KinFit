@@ -26,8 +26,8 @@
 KinFitDecayCandFinder::KinFitDecayCandFinder(
     const std::vector<KinFitParticle> &cands, TVector3 primaryVertex,
     TVector3 decayVertex)
-    : fCands(cands), fVerbose(0), fMomentumBeforeDecay(-1.),
-      fPrimaryVertex(primaryVertex), fDecayVertex(decayVertex),
+    : fCands(cands), fPrimaryVertex(primaryVertex), fDecayVertex(decayVertex),
+      fVerbose(0), fMomentumBeforeDecay(-1.),
       fDecayCandMass(1115.683), fPrimVtxResX(1.78590), fPrimVtxResY(1.75516),
       fPrimVtxResZ(3.00431), fDecVtxResX(5.75369), fDecVtxResY(5.57198),
       fDecVtxResZ(10.2602) {
@@ -44,8 +44,8 @@ KinFitDecayCandFinder::KinFitDecayCandFinder(
     TVector3 primaryVertex, TVector3 decayVertex, double primVtxResX,
     double primVtxResY, double primVtxResZ, double decVtxResX,
     double decVtxResY, double decVtxResZ)
-    : fCands(cands), fVerbose(0), fMomentumBeforeDecay(-1.),
-      fPrimaryVertex(primaryVertex), fDecayVertex(decayVertex),
+    : fCands(cands), fPrimaryVertex(primaryVertex), fDecayVertex(decayVertex),
+      fVerbose(0), fMomentumBeforeDecay(-1.),
       fDecayCandMass(DecayCandMass), fPrimVtxResX(primVtxResX),
       fPrimVtxResY(primVtxResY), fPrimVtxResZ(primVtxResZ),
       fDecVtxResX(decVtxResX), fDecVtxResY(decVtxResY),

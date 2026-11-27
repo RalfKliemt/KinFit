@@ -42,9 +42,6 @@
 #include <memory>
 #include <vector>
 
-using std::cout;
-using std::endl;
-
 class KinFitAnalyzer {
 private:
   std::vector<std::vector<KinFitParticle>>
