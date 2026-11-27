@@ -25,6 +25,7 @@
 // Physics: Lambda -> p pi- from a displaced vertex (see ToyTracks.h).
 
 #include "KinFitTest.h"
+#include "JacobianCheck.h"
 #include "ToyTracks.h"
 
 #include "KinFitter.h"
@@ -314,71 +315,6 @@ void runPulls(C c) {
   }
 }
 
-/** Measured-parameter vector y and unmeasured xi as KinFitter builds them. */
-void fitterVectors(C c, const Scenario &s, TMatrixD &y, TMatrixD &xi) {
-  const TMatrixD yDaughters = toy::parameterVector(s.cands);
-  y.ResizeTo(yDaughters);
-  y = yDaughters;
-  xi.ResizeTo(1, 1);
-  xi.Zero();
-  if (c == C::ThreeC) {
-    const int n = y.GetNrows();
-    y.ResizeTo(n + 4, 1);
-    y(n + 0, 0) = s.mother.Theta();
-    y(n + 1, 0) = s.mother.Phi();
-    y(n + 2, 0) = s.mother.getR();
-    y(n + 3, 0) = s.mother.getZ();
-    xi(0, 0) = 1.0 / s.mother.P();
-  }
-  if (c == C::MissingParticle) {
-    xi.ResizeTo(3, 1);
-    const TLorentzVector miss = s.init - sum(s.cands);
-    xi(0, 0) = miss.Px();
-    xi(1, 0) = miss.Py();
-    xi(2, 0) = miss.Pz();
-  }
-}
-
-/** Compare an analytic Jacobian with central finite differences of f. */
-void compareJacobian(const char *what, const TMatrixD &analytic,
-                     const std::function<TMatrixD(const TMatrixD &)> &f,
-                     const TMatrixD &x0) {
-  const TMatrixD f0 = f(x0);
-  KF_CHECK(analytic.GetNrows() == f0.GetNrows());
-  KF_CHECK(analytic.GetNcols() == x0.GetNrows());
-  if (analytic.GetNrows() != f0.GetNrows() ||
-      analytic.GetNcols() != x0.GetNrows())
-    return;
-
-  int nBad = 0;
-  for (int k = 0; k < x0.GetNrows(); ++k) {
-    const double h = 1e-6 * std::max(std::abs(x0(k, 0)), 1e-3);
-    TMatrixD xp(x0), xm(x0);
-    xp(k, 0) += h;
-    xm(k, 0) -= h;
-    const TMatrixD fp = f(xp), fm = f(xm);
-    for (int r = 0; r < f0.GetNrows(); ++r) {
-      // Scale: largest analytic entry of this row (derivatives of one
-      // constraint share its units).
-      double scale = 0;
-      for (int cc = 0; cc < analytic.GetNcols(); ++cc)
-        scale = std::max(scale, std::abs(analytic(r, cc)));
-      const double numeric = (fp(r, 0) - fm(r, 0)) / (2 * h);
-      const double tol = 1e-5 * std::max(scale, 1e-12) +
-                         1e-6 * std::abs(numeric);
-      if (std::abs(numeric - analytic(r, k)) > tol) {
-        if (++nBad <= 5)
-          kftest::info("%s: d f[%d] / d x[%d]: analytic %.6g, numeric %.6g",
-                       what, r, k, analytic(r, k), numeric);
-      }
-    }
-  }
-  if (nBad)
-    kftest::reportFailure(__FILE__, __LINE__,
-                          std::string(what) + ": " + std::to_string(nBad) +
-                              " Jacobian entries differ");
-}
-
 void runJacobian(C c) {
   TRandom3 rnd(300);
   for (int ev = 0; ev < 5; ++ev) {
@@ -386,12 +322,13 @@ void runJacobian(C c) {
     KinFitter fitter(s.cands);
     addConstraint(fitter, c, s);
     TMatrixD y, xi;
-    fitterVectors(c, s, y, xi);
+    KF_CHECK(fitter.getStartValues(y, xi));
 
     compareJacobian("Feta", fitter.Feta_eval(y, xi),
                     [&](const TMatrixD &yy) { return fitter.f_eval(yy, xi); },
                     y);
-    if (c == C::ThreeC || c == C::MissingParticle)
+    if (c == C::ThreeC || c == C::MissingParticle || c == C::Vertex ||
+        c == C::MassVtx)
       compareJacobian(
           "Fxi", fitter.Fxi_eval(y, xi),
           [&](const TMatrixD &xx) { return fitter.f_eval(y, xx); }, xi);
@@ -612,7 +549,7 @@ KF_TEST(jacobian_Mass_three_particles) {
     KinFitter fitter(s.cands);
     fitter.addMassConstraint(1500.);
     TMatrixD y, xi;
-    fitterVectors(C::Mass, s, y, xi);
+    KF_CHECK(fitter.getStartValues(y, xi));
     compareJacobian("Feta", fitter.Feta_eval(y, xi),
                     [&](const TMatrixD &yy) { return fitter.f_eval(yy, xi); },
                     y);
@@ -671,8 +608,8 @@ KF_TEST(vertex_plus_mass) {
   KF_CHECK(nConverged == 20);
 }
 
-// No constraint / two exclusive constraint types: fit() returns false
-// (used to abort() resp. silently use only the last one).
+// No constraint / two exclusive kinematic constraint types / 3C + vertex:
+// fit() returns false (used to abort() resp. silently use only the last one).
 KF_TEST(invalid_configuration_returns_false) {
   TRandom3 rnd(903);
   Scenario s = makeScenario(C::FourC, true, rnd);
@@ -680,8 +617,14 @@ KF_TEST(invalid_configuration_returns_false) {
   KF_CHECK(!none.fit());
   KinFitter both(s.cands);
   both.add4Constraint(s.init);
-  both.addVertexConstraint();
+  both.addMissingMassConstraint(s.init, 100.);
   KF_CHECK(!both.fit());
+  // 3C cannot be combined with the common vertex
+  Scenario s3 = makeScenario(C::ThreeC, true, rnd);
+  KinFitter threeC(s3.cands);
+  threeC.add3Constraint(s3.mother);
+  threeC.addCommonVertexConstraint();
+  KF_CHECK(!threeC.fit());
 }
 
 // NDF = number of equations - number of unmeasured parameters.

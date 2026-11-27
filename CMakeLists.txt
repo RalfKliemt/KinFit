@@ -49,7 +49,7 @@ set(CORE_CLASSES
 set(ANALYSIS_CLASSES KinFitAnalyzer KinFitDecayBuilder)
 # Internal helpers of KinFitter: compiled into the library, but neither
 # installed nor part of the ROOT dictionary.
-set(INTERNAL_CLASSES KinFitFourMomentum KinFitTrackKinematics KinFitTrackLine)
+set(INTERNAL_CLASSES KinFitFourMomentum KinFitTrackKinematics)
 
 set(SRCFILES)
 set(HFILES)

@@ -17,12 +17,14 @@
 #include "KinFitter.h"
 #include "KinFitFourMomentum.h"
 #include "KinFitTrackKinematics.h"
-#include "KinFitTrackLine.h"
+#include "KinFitTrajectory.h"
+#include "KinFitVertexFinderField.h"
 #include "RtypesCore.h"
 
 #include <TVector2.h>
 
 #include <cmath>
+#include <limits>
 #include <numeric>
 
 /**
@@ -112,66 +114,69 @@ void normaliseAngles(double &theta, double &phi, double &R, TMatrixD &cov) {
 } // namespace
 
 // Main KinFitter constructor.
-KinFitter::KinFitter(const std::vector<KinFitParticle> &cands) : fCands(cands) {
-  if (fVerbose > 0) {
-    std::cout << "--------------- KinFitter::KinFitter() -----------------"
-              << std::endl;
-  }
-
+KinFitter::KinFitter(const std::vector<KinFitParticle> &cands)
+    : fCands(cands), fCandsIn(cands) {
   // fN is the number of daughters, e.g. (Lambda -> p pi-) gives n=2.
   fN = fCands.size();
-  fyDim = fN * cov_dim; // Dimension of full covariance matrix (number of
-                        // measured variables x cov_dim)
-  fMassVec.clear();
+  fyDim = fN * cov_dim; // 5 parameters per particle
 
   y.ResizeTo(fyDim, 1);
   x.ResizeTo(1, 1);
   V.ResizeTo(fyDim, fyDim);
   Vx.ResizeTo(1, 1);
-
   y.Zero();
   x.Zero();
   V.Zero();
   Vx.Zero();
 
-  // set 'y=alpha' measurements
-  // and the covariance
-  for (int ix = 0; ix < fN; ix++) {
-    KinFitParticle cand = fCands[ix];
-    y(0 + ix * cov_dim, 0) = 1. / cand.P();
-    y(1 + ix * cov_dim, 0) = cand.Theta();
-    y(2 + ix * cov_dim, 0) = cand.Phi();
-    y(3 + ix * cov_dim, 0) = cand.getR();
-    y(4 + ix * cov_dim, 0) = cand.getZ();
-    fM.push_back(cand.M());
+  for (int ix = 0; ix < fN; ix++)
+    fillParticle(ix);
+}
 
-    TMatrixD covariance = cand.getCovariance();
-    V(0 + ix * cov_dim, 0 + ix * cov_dim) = covariance(0, 0);
-    V(1 + ix * cov_dim, 0 + ix * cov_dim) = covariance(1, 0);
-    V(2 + ix * cov_dim, 0 + ix * cov_dim) = covariance(2, 0);
-    V(3 + ix * cov_dim, 0 + ix * cov_dim) = covariance(3, 0);
-    V(4 + ix * cov_dim, 0 + ix * cov_dim) = covariance(4, 0);
-    V(0 + ix * cov_dim, 1 + ix * cov_dim) = covariance(0, 1);
-    V(1 + ix * cov_dim, 1 + ix * cov_dim) = covariance(1, 1);
-    V(2 + ix * cov_dim, 1 + ix * cov_dim) = covariance(2, 1);
-    V(3 + ix * cov_dim, 1 + ix * cov_dim) = covariance(3, 1);
-    V(4 + ix * cov_dim, 1 + ix * cov_dim) = covariance(4, 1);
-    V(0 + ix * cov_dim, 2 + ix * cov_dim) = covariance(0, 2);
-    V(1 + ix * cov_dim, 2 + ix * cov_dim) = covariance(1, 2);
-    V(2 + ix * cov_dim, 2 + ix * cov_dim) = covariance(2, 2);
-    V(3 + ix * cov_dim, 2 + ix * cov_dim) = covariance(3, 2);
-    V(4 + ix * cov_dim, 2 + ix * cov_dim) = covariance(4, 2);
-    V(0 + ix * cov_dim, 3 + ix * cov_dim) = covariance(0, 3);
-    V(1 + ix * cov_dim, 3 + ix * cov_dim) = covariance(1, 3);
-    V(2 + ix * cov_dim, 3 + ix * cov_dim) = covariance(2, 3);
-    V(3 + ix * cov_dim, 3 + ix * cov_dim) = covariance(3, 3);
-    V(4 + ix * cov_dim, 3 + ix * cov_dim) = covariance(4, 3);
-    V(0 + ix * cov_dim, 4 + ix * cov_dim) = covariance(0, 4);
-    V(1 + ix * cov_dim, 4 + ix * cov_dim) = covariance(1, 4);
-    V(2 + ix * cov_dim, 4 + ix * cov_dim) = covariance(2, 4);
-    V(3 + ix * cov_dim, 4 + ix * cov_dim) = covariance(3, 4);
-    V(4 + ix * cov_dim, 4 + ix * cov_dim) = covariance(4, 4);
+void KinFitter::fillParticle(int ix) {
+  const KinFitParticle &cand = fCands[ix];
+  const int o = ix * cov_dim;
+  const bool neutral = cand.isNeutralHit();
+  if (neutral) { // (E, X, Y, Z, unused)
+    const TVector3 hit = cand.getHit();
+    y(o + 0, 0) = cand.E();
+    y(o + 1, 0) = hit.X();
+    y(o + 2, 0) = hit.Y();
+    y(o + 3, 0) = hit.Z();
+    y(o + 4, 0) = 0.;
+  } else { // (1/p, theta, phi, R, Z)
+    y(o + 0, 0) = 1. / cand.P();
+    y(o + 1, 0) = cand.Theta();
+    y(o + 2, 0) = cand.Phi();
+    y(o + 3, 0) = cand.getR();
+    y(o + 4, 0) = cand.getZ();
   }
+  const double m2 = cand.M2();
+  fM.push_back(m2 > 0 ? std::sqrt(m2) : 0.);
+  fIsNeutral.push_back(neutral);
+  fCharge.push_back(neutral ? 0. : cand.getCharge());
+
+  // Production point of a neutral hit when no vertex is fitted: the
+  // particle's vertex if set, else the origin.
+  TVector3 origin;
+  if (cand.getVertexX() > -1e8 && cand.getVertexY() > -1e8 &&
+      cand.getVertexZ() > -1e8)
+    origin.SetXYZ(cand.getVertexX(), cand.getVertexY(), cand.getVertexZ());
+  fOrigin.push_back(origin);
+
+  // Reference axis for the two vertex residual directions: the coordinate
+  // axis least aligned with the measured direction (fixed during the fit).
+  const TVector3 dir = neutral ? TVector3(0, 0, 1) : cand.Vect().Unit();
+  const double ax = std::abs(dir.X()), ay = std::abs(dir.Y()),
+               az = std::abs(dir.Z());
+  fVtxAxis.push_back(ax <= ay && ax <= az   ? TVector3(1, 0, 0)
+                     : ay <= ax && ay <= az ? TVector3(0, 1, 0)
+                                            : TVector3(0, 0, 1));
+
+  const TMatrixD &covariance = cand.getCovariance();
+  for (size_t i = 0; i < cov_dim; ++i)
+    for (size_t j = 0; j < cov_dim; ++j)
+      V(i + o, j + o) = covariance(i, j);
 }
 
 void KinFitter::addMassConstraint(double mass) {
@@ -182,8 +187,7 @@ void KinFitter::addMassConstraint(double mass) {
   }
 
   // One equation per call; the particles selected with setUseCandInFit()
-  // since the previous call belong to this constraint. fMass is left alone:
-  // it belongs to MassVtx/MissingMass, which may be combined with this.
+  // since the previous call belong to this constraint.
   fMassFitPair.push_back(fFlexiParticlesInFit);
   fFlexiParticlesInFit.clear();
   fMassVec.push_back(mass);
@@ -203,14 +207,19 @@ void KinFitter::addMissingMassConstraint(TLorentzVector lv, double mass) {
 }
 
 void KinFitter::addMassVtxConstraint(double mass) {
-  if (fVerbose > 0) {
-    std::cout
-        << "--------------- KinFitter::addMassVtxConstraint() -----------------"
-        << std::endl;
-  }
+  addCommonVertexConstraint();
+  addMassConstraint(mass);
+}
 
-  fMass = mass;
-  fMassVtxConstraint = true;
+void KinFitter::addVertexConstraint() { addCommonVertexConstraint(); }
+
+void KinFitter::addCommonVertexConstraint() {
+  if (fVerbose > 0) {
+    std::cout << "--------------- KinFitter::addCommonVertexConstraint() "
+                 "-----------------"
+              << std::endl;
+  }
+  fCommonVertex = true;
 }
 
 void KinFitter::add4Constraint(TLorentzVector lv) {
@@ -220,7 +229,6 @@ void KinFitter::add4Constraint(TLorentzVector lv) {
   }
 
   fInit = lv;
-
   f4Constraint = true;
 }
 
@@ -230,78 +238,32 @@ void KinFitter::add3Constraint(KinFitParticle mother) {
               << std::endl;
   }
 
-  fyDim = (fN + 1) * cov_dim -
-          1; // Dimension of full covariance matrix (number of measured
-             // variables x cov_dim). Mother momentum is not measured
-
+  // Daughters keep their 5 parameters; the mother adds (theta, phi, R, Z),
+  // its 1/p is unmeasured.
+  fyDim = (fN + 1) * cov_dim - 1;
   y.ResizeTo(fyDim, 1);
   V.ResizeTo(fyDim, fyDim);
-
-  y.Zero();
-  V.Zero();
-
-  fM.clear();
-
-  // Set y to measurements and the covariance, set mass
-  for (int ix = 0; ix < fN; ix++) // for daughters
-  {
-    KinFitParticle cand = fCands[ix];
-
-    y(0 + ix * cov_dim, 0) = 1. / cand.P();
-    y(1 + ix * cov_dim, 0) = cand.Theta();
-    y(2 + ix * cov_dim, 0) = cand.Phi();
-    y(3 + ix * cov_dim, 0) = cand.getR();
-    y(4 + ix * cov_dim, 0) = cand.getZ();
-    fM.push_back(cand.M());
-
-    // Full 5x5 block (only the diagonal was used before).
-    const TMatrixD &covariance = cand.getCovariance();
-    for (size_t i = 0; i < cov_dim; ++i)
-      for (size_t j = 0; j < cov_dim; ++j)
-        V(i + ix * cov_dim, j + ix * cov_dim) = covariance(i, j);
+  for (int i = fN * cov_dim; i < fyDim; ++i) {
+    y(i, 0) = 0.;
+    for (int j = 0; j < fyDim; ++j)
+      V(i, j) = V(j, i) = 0.;
   }
 
   fMother = mother;
-
   y(fN * cov_dim, 0) = fMother.Theta();
   y(1 + fN * cov_dim, 0) = fMother.Phi();
   y(2 + fN * cov_dim, 0) = fMother.getR();
   y(3 + fN * cov_dim, 0) = fMother.getZ();
+  fM.resize(fN);
   fM.push_back(fMother.M());
 
-  TMatrixD covariance = fMother.getCovariance();
-
-  if (fVerbose > 0) {
-    std::cout << "Decaying Particle Covariance: " << covariance(0, 0) << " "
-              << covariance(1, 1) << " " << covariance(2, 2) << " "
-              << covariance(3, 3) << " " << covariance(4, 4) << std::endl;
-  }
-
-  // Mother (theta, phi, R, Z) block: rows/columns 1..4 of its covariance,
-  // with all correlations (only the diagonal and theta-phi were used before).
+  // Mother (theta, phi, R, Z) block: rows/columns 1..4 of its covariance.
+  const TMatrixD &covariance = fMother.getCovariance();
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j)
       V(i + fN * cov_dim, j + fN * cov_dim) = covariance(i + 1, j + 1);
 
-  if (fVerbose > 0) {
-    std::cout << "Fitter" << std::endl;
-    std::cout << "Diag elements: " << V(0 + fN * cov_dim, 0 + fN * cov_dim)
-              << " " << V(1 + fN * cov_dim, 1 + fN * cov_dim) << std::endl;
-    std::cout << "Off diag elements: " << V(0 + fN * cov_dim, 1 + fN * cov_dim)
-              << " " << V(1 + fN * cov_dim, 0 + fN * cov_dim) << std::endl;
-  }
-
   f3Constraint = true;
-}
-
-void KinFitter::addVertexConstraint() {
-  if (fVerbose > 0) {
-    std::cout
-        << "--------------- KinFitter::addVertexConstraint() -----------------"
-        << std::endl;
-  }
-
-  fVtxConstraint = true;
 }
 
 // Configure fit with one missing particle.
@@ -316,51 +278,19 @@ void KinFitter::addMissingParticleConstraint(TLorentzVector lv, double mass) {
   fMassMissingParticle = mass;
 
   if (fN == 1) {
-    // With one measured track the 4x4 matrix D V D^T has rank <= 3 (only
-    // 1/p, theta, phi enter), so the 4C + 3 unknowns formulation cannot be
-    // solved. Eliminating p_miss gives the equivalent single equation
-    // (P_init - p)^2 = m^2, i.e. the missing-mass constraint (NDF = 1 in both).
+    // With one measured particle the 4x4 matrix D V D^T has rank <= 3, so
+    // the 4C + 3 unknowns formulation cannot be solved. Eliminating p_miss
+    // gives the equivalent single equation (P_init - p)^2 = m^2, i.e. the
+    // missing-mass constraint (NDF = 1 in both forms).
     fMass = mass;
     fMissingMassConstraint = true;
     fMissingFromMissingMass = true;
     return;
   }
 
-  x.ResizeTo(3, 1);
-  Vx.ResizeTo(3, 3);
-  x.Zero();
-  Vx.Zero();
-
-  if (!fMissingParticleConstraint)
-    fM.push_back(fMassMissingParticle);
-
+  fM.resize(fN);
+  fM.push_back(fMassMissingParticle);
   fMissingParticleConstraint = true;
-}
-
-TMatrixD KinFitter::calcMissingMom(const TMatrixD &m_iter) {
-  if (fVerbose > 0) {
-    std::cout << "--------------- KinFitter::calcMissingMom() -----------------"
-              << std::endl;
-  }
-
-  TMatrixD xi(3, 1); // was TMatrix = TMatrixF: float precision
-
-  xi(0, 0) = fInit.Px();
-  xi(1, 0) = fInit.Py();
-  xi(2, 0) = fInit.Pz();
-
-  for (int q = 0; q < fN; q++) {
-    xi(0, 0) -= 1. / m_iter(0 + q * cov_dim, 0) *
-                std::sin(m_iter(1 + q * cov_dim, 0)) *
-                std::cos(m_iter(2 + q * cov_dim, 0));
-    xi(1, 0) -= 1. / m_iter(0 + q * cov_dim, 0) *
-                std::sin(m_iter(1 + q * cov_dim, 0)) *
-                std::sin(m_iter(2 + q * cov_dim, 0));
-    xi(2, 0) -=
-        1. / m_iter(0 + q * cov_dim, 0) * std::cos(m_iter(1 + q * cov_dim, 0));
-  }
-
-  return xi;
 }
 
 std::vector<int> KinFitter::massParticles(size_t k) const {
@@ -372,7 +302,7 @@ std::vector<int> KinFitter::massParticles(size_t k) const {
   return idx;
 }
 
-int KinFitter::nUnmeasured() const {
+int KinFitter::nBaseUnmeasured() const {
   if (f3Constraint)
     return 1; // 1/p of the mother
   if (fMissingParticleConstraint)
@@ -380,49 +310,210 @@ int KinFitter::nUnmeasured() const {
   return 0;
 }
 
-// Evaluate constraint equations.
+int KinFitter::nUnmeasured() const {
+  return nBaseUnmeasured() + (fCommonVertex ? 3 : 0);
+}
+
+int KinFitter::nCharged() const {
+  int n = 0;
+  for (int q = 0; q < fN; ++q)
+    n += !fIsNeutral[q];
+  return n;
+}
+
+bool KinFitter::transportToVertex() const {
+  if (!fCommonVertex || !fField)
+    return false;
+  // a uniform zero field is a straight line: nothing to transport
+  return !(fField->isUniform() && fField->getField(0., 0., 0.).Mag2() == 0);
+}
+
+TVector3 KinFitter::momentumAtVertex(const double eta[5], int q,
+                                     const TVector3 &v, double *sInOut) const {
+  const KinFitTrajectory t = KinFitTrajectory::fromTrackParameters(
+      eta[0], eta[1], eta[2], eta[3], eta[4], fCharge[q], fField.get());
+  KinFitTrajectory::Vec pos, dir;
+  // warm start from a nearby solution (finite differences); NaN = none
+  const double s = t.closestApproach({v.X(), v.Y(), v.Z()}, pos, dir,
+                                     sInOut ? *sInOut
+                                            : std::numeric_limits<double>::quiet_NaN());
+  if (sInOut)
+    *sInOut = s;
+  const double p = 1. / eta[0];
+  return TVector3(p * dir[0], p * dir[1], p * dir[2]);
+}
+
+std::vector<KinFitTrackKinematics>
+KinFitter::kinematics(const TMatrixD &m, const TMatrixD &xi,
+                      bool derivatives) const {
+  const bool useVertex = fCommonVertex && xi.GetNrows() >= vertexOffset() + 3;
+  TVector3 v;
+  if (useVertex)
+    v.SetXYZ(xi(vertexOffset(), 0), xi(vertexOffset() + 1, 0),
+             xi(vertexOffset() + 2, 0));
+  const bool transport = useVertex && transportToVertex();
+  std::vector<KinFitTrackKinematics> k(fN);
+  for (int q = 0; q < fN; q++) {
+    if (fIsNeutral[q]) {
+      k[q] = KinFitTrackKinematics::neutralHit(m, q * cov_dim, fM[q],
+                                               useVertex ? v : fOrigin[q]);
+      continue;
+    }
+    k[q] = KinFitTrackKinematics(m, q * cov_dim, fM[q]);
+    if (!transport || fCharge[q] == 0)
+      continue;
+    // In a field the momentum direction changes along the track: momentum
+    // conservation holds at the vertex, so use the momentum at the closest
+    // approach to the vertex (|p| and E unchanged). Derivatives by central
+    // differences.
+    double eta[5];
+    for (int j = 0; j < 5; ++j)
+      eta[j] = m(j + q * cov_dim, 0);
+    double s0 = std::numeric_limits<double>::quiet_NaN();
+    const TVector3 p = momentumAtVertex(eta, q, v, &s0);
+    k[q].px = p.X();
+    k[q].py = p.Y();
+    k[q].pz = p.Z();
+    if (!derivatives)
+      continue;
+    for (int j = 0; j < 5; ++j) {
+      const double h = j == 0   ? 1e-6 * std::abs(eta[0])
+                       : j <= 2 ? 1e-6
+                                : 1e-4;
+      double ep[5], em[5];
+      std::copy(eta, eta + 5, ep);
+      std::copy(eta, eta + 5, em);
+      ep[j] += h;
+      em[j] -= h;
+      double sp = s0, sm = s0;
+      const TVector3 dp = (momentumAtVertex(ep, q, v, &sp) -
+                           momentumAtVertex(em, q, v, &sm)) *
+                          (0.5 / h);
+      for (int i = 0; i < 3; ++i)
+        k[q].dEta[i][j] = dp[i];
+    }
+    for (int j = 0; j < 3; ++j) {
+      TVector3 vp(v), vm(v);
+      vp[j] += 1e-4;
+      vm[j] -= 1e-4;
+      double sp = s0, sm = s0;
+      const TVector3 dp = (momentumAtVertex(eta, q, vp, &sp) -
+                           momentumAtVertex(eta, q, vm, &sm)) *
+                          (0.5 / 1e-4);
+      for (int i = 0; i < 3; ++i)
+        k[q].dVtx[i][j] = dp[i];
+    }
+  }
+  return k;
+}
+
+void KinFitter::vertexResiduals(const double eta[5], int q, const TVector3 &v,
+                                double res[2], double *sInOut) const {
+  const KinFitTrajectory t = KinFitTrajectory::fromTrackParameters(
+      eta[0], eta[1], eta[2], eta[3], eta[4], fCharge[q], fField.get());
+  KinFitTrajectory::Vec pos, dir;
+  const KinFitTrajectory::Vec vv = {v.X(), v.Y(), v.Z()};
+  // warm start from a nearby solution (finite differences); NaN = none
+  const double s =
+      t.closestApproach(vv, pos, dir,
+                        sInOut ? *sInOut
+                               : std::numeric_limits<double>::quiet_NaN());
+  if (sInOut)
+    *sInOut = s;
+  // Distance vector at the point of closest approach (perpendicular to the
+  // track), in two directions e1 = dir x a / |.|, e2 = dir x e1.
+  const TVector3 &a = fVtxAxis[q];
+  double e1[3] = {dir[1] * a.Z() - dir[2] * a.Y(), dir[2] * a.X() - dir[0] * a.Z(),
+                  dir[0] * a.Y() - dir[1] * a.X()};
+  const double n1 = std::sqrt(e1[0] * e1[0] + e1[1] * e1[1] + e1[2] * e1[2]);
+  for (double &c : e1)
+    c /= n1;
+  const double e2[3] = {dir[1] * e1[2] - dir[2] * e1[1],
+                        dir[2] * e1[0] - dir[0] * e1[2],
+                        dir[0] * e1[1] - dir[1] * e1[0]};
+  const double d[3] = {pos[0] - vv[0], pos[1] - vv[1], pos[2] - vv[2]};
+  res[0] = d[0] * e1[0] + d[1] * e1[1] + d[2] * e1[2];
+  res[1] = d[0] * e2[0] + d[1] * e2[1] + d[2] * e2[2];
+}
+
+bool KinFitter::startValues(TMatrixD &xi0) const {
+  xi0.ResizeTo(std::max(nUnmeasured(), 1), 1);
+  xi0.Zero();
+  if (fCommonVertex) {
+    // Unweighted vertex of all charged tracks in the field
+    const KinFitVertexFinderField finder(fCandsIn, fField.get());
+    TVector3 v;
+    if (finder.isValid())
+      v = finder.getVertex();
+    else if (nCharged() == 1) { // one track: its reference point
+      for (int q = 0; q < fN; ++q)
+        if (!fIsNeutral[q])
+          v.SetXYZ(-y(3 + q * cov_dim, 0) * std::sin(y(2 + q * cov_dim, 0)),
+                   y(3 + q * cov_dim, 0) * std::cos(y(2 + q * cov_dim, 0)),
+                   y(4 + q * cov_dim, 0));
+    } else if (nCharged() > 1)
+      return false; // e.g. parallel tracks
+    for (int j = 0; j < 3; ++j)
+      xi0(vertexOffset() + j, 0) = v[j];
+  }
+  if (f3Constraint)
+    xi0(0, 0) = 1. / fMother.P();
+  if (fMissingParticleConstraint) {
+    const std::vector<KinFitTrackKinematics> k = kinematics(y, xi0);
+    xi0(0, 0) = fInit.Px();
+    xi0(1, 0) = fInit.Py();
+    xi0(2, 0) = fInit.Pz();
+    for (int q = 0; q < fN; q++) {
+      xi0(0, 0) -= k[q].px;
+      xi0(1, 0) -= k[q].py;
+      xi0(2, 0) -= k[q].pz;
+    }
+  }
+  return true;
+}
+
+bool KinFitter::getStartValues(TMatrixD &yOut, TMatrixD &xiOut) const {
+  yOut.ResizeTo(y);
+  yOut = y;
+  return startValues(xiOut);
+}
+
+namespace {
+/** Number of rows of the kinematic constraint. */
+int nBaseRows(bool missingMass, bool fourRows) {
+  return missingMass ? 1 : (fourRows ? 4 : 0);
+}
+// Finite-difference steps for the vertex Jacobians: 1/p (relative), angles
+// [rad], lengths [mm]; neutral hits never enter the vertex rows.
+constexpr double kStepInvPRel = 1e-6, kStepAngle = 1e-6, kStepLength = 1e-4;
+} // namespace
+
+// Evaluate constraint equations: [kinematic rows][mass rows][vertex rows].
 TMatrixD KinFitter::f_eval(const TMatrixD &m_iter, const TMatrixD &xi_iter) {
   if (fVerbose > 0) {
     std::cout << "--------------- KinFitter::f_eval() -----------------"
               << std::endl;
   }
 
-  std::vector<KinFitTrackKinematics> k(fN);
-  for (int q = 0; q < fN; q++)
-    k[q] = KinFitTrackKinematics(m_iter, q * cov_dim, fM[q]);
-
-  TMatrixD d;
-
-  // Invariant mass + vertex constraint
-  if (fMassVtxConstraint) {
-    d.ResizeTo(2, 1);
-    KinFitFourMomentum P;
-    for (int q = 0; q < fN; q++)
-      P.add(k[q]);
-    d(0, 0) = P.m2() - fMass * fMass;
-    d(1, 0) = KinFitTrackLine::vertexConstraint(
-        KinFitTrackLine(m_iter, 0, k[0]), KinFitTrackLine(m_iter, cov_dim, k[1]));
-  }
+  const std::vector<KinFitTrackKinematics> k =
+      kinematics(m_iter, xi_iter, false);
+  const bool fourRows = f3Constraint || f4Constraint || fMissingParticleConstraint;
+  const int nVtxRows = fCommonVertex ? 2 * nCharged() : 0;
+  const int nRows = nBaseRows(fMissingMassConstraint, fourRows) +
+                    (int)fMassVec.size() + nVtxRows;
+  TMatrixD d(std::max(nRows, 1), 1);
+  int row = 0;
 
   // Missing mass constraint: (P_init - sum p_i)^2 - m^2
   if (fMissingMassConstraint) {
-    d.ResizeTo(1, 1);
     KinFitFourMomentum P(fInit);
     for (int q = 0; q < fN; q++)
       P.add(k[q], -1.);
-    d(0, 0) = P.m2() - fMass * fMass;
-  }
-
-  // Vertex constraint
-  if (fVtxConstraint) {
-    d.ResizeTo(1, 1);
-    d(0, 0) = KinFitTrackLine::vertexConstraint(
-        KinFitTrackLine(m_iter, 0, k[0]), KinFitTrackLine(m_iter, cov_dim, k[1]));
+    d(row++, 0) = P.m2() - fMass * fMass;
   }
 
   // Four-momentum constraints: sum p_i - (mother | initial system - missing)
-  if (f3Constraint || f4Constraint || fMissingParticleConstraint) {
-    d.ResizeTo(4, 1);
+  if (fourRows) {
     KinFitFourMomentum P;
     for (int q = 0; q < fN; q++)
       P.add(k[q]);
@@ -448,22 +539,33 @@ TMatrixD KinFitter::f_eval(const TMatrixD &m_iter, const TMatrixD &xi_iter) {
         P.E += std::sqrt(mx * mx + my * my + mz * mz + fM[fN] * fM[fN]);
       }
     }
-    d(0, 0) = P.px;
-    d(1, 0) = P.py;
-    d(2, 0) = P.pz;
-    d(3, 0) = P.E;
+    d(row++, 0) = P.px;
+    d(row++, 0) = P.py;
+    d(row++, 0) = P.pz;
+    d(row++, 0) = P.E;
   }
 
-  // Mass constraints: one row E^2 - p^2 - m^2 per addMassConstraint() call,
-  // appended to the rows of the other constraint (if any).
-  if (fMassConstraint) {
-    const int row0 = d.GetNrows();
-    d.ResizeTo(row0 + (int)fMassVec.size(), 1);
-    for (size_t c = 0; c < fMassVec.size(); ++c) {
-      KinFitFourMomentum P;
-      for (int q : massParticles(c))
-        P.add(k[q]);
-      d(row0 + c, 0) = P.m2() - fMassVec[c] * fMassVec[c];
+  // Mass constraints: one row E^2 - p^2 - m^2 per addMassConstraint() call.
+  for (size_t c = 0; c < fMassVec.size(); ++c) {
+    KinFitFourMomentum P;
+    for (int q : massParticles(c))
+      P.add(k[q]);
+    d(row++, 0) = P.m2() - fMassVec[c] * fMassVec[c];
+  }
+
+  // Common vertex: two residuals per charged track
+  if (fCommonVertex) {
+    const int vo = vertexOffset();
+    const TVector3 v(xi_iter(vo, 0), xi_iter(vo + 1, 0), xi_iter(vo + 2, 0));
+    for (int q = 0; q < fN; ++q) {
+      if (fIsNeutral[q])
+        continue;
+      double eta[5], res[2];
+      for (int j = 0; j < 5; ++j)
+        eta[j] = m_iter(j + q * cov_dim, 0);
+      vertexResiduals(eta, q, v, res);
+      d(row++, 0) = res[0];
+      d(row++, 0) = res[1];
     }
   }
 
@@ -478,89 +580,88 @@ TMatrixD KinFitter::Feta_eval(const TMatrixD &m_iter, const TMatrixD &xi_iter) {
               << std::endl;
   }
 
-  std::vector<KinFitTrackKinematics> k(fN);
-  for (int q = 0; q < fN; q++)
-    k[q] = KinFitTrackKinematics(m_iter, q * cov_dim, fM[q]);
-
-  TMatrixD H;
-  double dInvP, dTheta, dPhi;
-
-  if (fMassVtxConstraint) {
-    H.ResizeTo(2, fyDim);
-    H.Zero();
-    KinFitFourMomentum P;
-    for (int q = 0; q < fN; q++)
-      P.add(k[q]);
-    for (int q = 0; q < fN; q++) {
-      k[q].massDerivatives(P, 1., dInvP, dTheta, dPhi);
-      H(0, 0 + q * cov_dim) = dInvP;
-      H(0, 1 + q * cov_dim) = dTheta;
-      H(0, 2 + q * cov_dim) = dPhi;
-    }
-    KinFitTrackLine::vertexJacobian(H, 1, KinFitTrackLine(m_iter, 0, k[0]), 0,
-                                    KinFitTrackLine(m_iter, cov_dim, k[1]),
-                                    cov_dim);
-  }
+  const std::vector<KinFitTrackKinematics> k = kinematics(m_iter, xi_iter);
+  const bool fourRows = f3Constraint || f4Constraint || fMissingParticleConstraint;
+  const int nVtxRows = fCommonVertex ? 2 * nCharged() : 0;
+  const int nRows = nBaseRows(fMissingMassConstraint, fourRows) +
+                    (int)fMassVec.size() + nVtxRows;
+  TMatrixD H(std::max(nRows, 1), fyDim);
+  int row = 0;
+  double de[5], dv[3];
 
   if (fMissingMassConstraint) {
-    H.ResizeTo(1, fyDim);
-    H.Zero();
     KinFitFourMomentum P(fInit);
     for (int q = 0; q < fN; q++)
       P.add(k[q], -1.);
     for (int q = 0; q < fN; q++) {
-      k[q].massDerivatives(P, -1., dInvP, dTheta, dPhi);
-      H(0, 0 + q * cov_dim) = dInvP;
-      H(0, 1 + q * cov_dim) = dTheta;
-      H(0, 2 + q * cov_dim) = dPhi;
+      k[q].massDerivatives(P, -1., de, dv);
+      for (int j = 0; j < 5; ++j)
+        H(row, j + q * cov_dim) = de[j];
     }
+    ++row;
   }
 
-  if (fVtxConstraint) {
-    H.ResizeTo(1, fyDim);
-    H.Zero();
-    KinFitTrackLine::vertexJacobian(H, 0, KinFitTrackLine(m_iter, 0, k[0]), 0,
-                                    KinFitTrackLine(m_iter, cov_dim, k[1]),
-                                    cov_dim);
-  }
-
-  if (f3Constraint || f4Constraint || fMissingParticleConstraint) {
-    H.ResizeTo(4, fyDim);
-    H.Zero();
+  if (fourRows) {
     for (int q = 0; q < fN; q++)
-      k[q].momentumJacobian(H, q * cov_dim);
+      for (int r = 0; r < 4; ++r)
+        for (int j = 0; j < 5; ++j)
+          H(row + r, j + q * cov_dim) = k[q].dEta[r][j];
     if (f3Constraint) { // mother theta, phi enter with -1/xi
       const double p = 1. / xi_iter(0, 0);
       const double th = m_iter(0 + fN * cov_dim, 0);
       const double ph = m_iter(1 + fN * cov_dim, 0);
       const double st = std::sin(th), ct = std::cos(th);
       const double sp = std::sin(ph), cp = std::cos(ph);
-      H(0, fN * cov_dim) = -p * ct * cp;
-      H(1, fN * cov_dim) = -p * ct * sp;
-      H(2, fN * cov_dim) = p * st;
-      H(0, 1 + fN * cov_dim) = p * st * sp;
-      H(1, 1 + fN * cov_dim) = -p * st * cp;
+      H(row + 0, fN * cov_dim) = -p * ct * cp;
+      H(row + 1, fN * cov_dim) = -p * ct * sp;
+      H(row + 2, fN * cov_dim) = p * st;
+      H(row + 0, 1 + fN * cov_dim) = p * st * sp;
+      H(row + 1, 1 + fN * cov_dim) = -p * st * cp;
     }
+    row += 4;
   }
 
-  // Mass constraints (see f_eval).
-  if (fMassConstraint) {
-    const int row0 = H.GetNrows();
-    H.ResizeTo(row0 + (int)fMassVec.size(), fyDim);
-    for (size_t c = 0; c < fMassVec.size(); ++c) {
-      const int row = row0 + c;
-      for (int col = 0; col < fyDim; ++col)
-        H(row, col) = 0.;
-      const std::vector<int> idx = massParticles(c);
-      KinFitFourMomentum P;
-      for (int q : idx)
-        P.add(k[q]);
-      for (int q : idx) {
-        k[q].massDerivatives(P, 1., dInvP, dTheta, dPhi);
-        H(row, 0 + q * cov_dim) = dInvP;
-        H(row, 1 + q * cov_dim) = dTheta;
-        H(row, 2 + q * cov_dim) = dPhi;
+  for (size_t c = 0; c < fMassVec.size(); ++c) {
+    const std::vector<int> idx = massParticles(c);
+    KinFitFourMomentum P;
+    for (int q : idx)
+      P.add(k[q]);
+    for (int q : idx) {
+      k[q].massDerivatives(P, 1., de, dv);
+      for (int j = 0; j < 5; ++j)
+        H(row, j + q * cov_dim) = de[j];
+    }
+    ++row;
+  }
+
+  // Vertex rows: central differences of the residuals of each track (the
+  // closest approach in a general field has no closed form).
+  if (fCommonVertex) {
+    const int vo = vertexOffset();
+    const TVector3 v(xi_iter(vo, 0), xi_iter(vo + 1, 0), xi_iter(vo + 2, 0));
+    for (int q = 0; q < fN; ++q) {
+      if (fIsNeutral[q])
+        continue;
+      double eta[5];
+      for (int j = 0; j < 5; ++j)
+        eta[j] = m_iter(j + q * cov_dim, 0);
+      const double s0 = std::numeric_limits<double>::quiet_NaN();
+      for (int j = 0; j < 5; ++j) {
+        const double h = j == 0   ? kStepInvPRel * std::abs(eta[0])
+                         : j <= 2 ? kStepAngle
+                                  : kStepLength;
+        double ep[5], em[5], rp[2], rm[2];
+        std::copy(eta, eta + 5, ep);
+        std::copy(eta, eta + 5, em);
+        ep[j] += h;
+        em[j] -= h;
+        double sp = s0, sm = s0;
+        vertexResiduals(ep, q, v, rp, &sp);
+        vertexResiduals(em, q, v, rm, &sm);
+        H(row, j + q * cov_dim) = (rp[0] - rm[0]) / (2 * h);
+        H(row + 1, j + q * cov_dim) = (rp[1] - rm[1]) / (2 * h);
       }
+      row += 2;
     }
   }
 
@@ -568,69 +669,103 @@ TMatrixD KinFitter::Feta_eval(const TMatrixD &m_iter, const TMatrixD &xi_iter) {
 }
 
 // Jacobian (derivative of constraint equations with respect to unmeasured
-// variables)
+// variables): columns [kinematic unknowns][vertex].
 TMatrixD KinFitter::Fxi_eval(const TMatrixD &m_iter, const TMatrixD &xi_iter) {
   if (fVerbose > 0) {
     std::cout << "--------------- KinFitter::Fxi_eval() -----------------"
               << std::endl;
   }
 
-  if (fVerbose > 4) {
-    // m_iter.Print();
+  const int nXi = nUnmeasured();
+  if (nXi == 0)
+    return TMatrixD();
+  const std::vector<KinFitTrackKinematics> k = kinematics(m_iter, xi_iter);
+  const bool fourRows = f3Constraint || f4Constraint || fMissingParticleConstraint;
+  const int nVtxRows = fCommonVertex ? 2 * nCharged() : 0;
+  const int nRows = nBaseRows(fMissingMassConstraint, fourRows) +
+                    (int)fMassVec.size() + nVtxRows;
+  const int vo = vertexOffset();
+  TMatrixD H(std::max(nRows, 1), nXi);
+  int row = 0;
+  double de[5], dv[3];
 
-    // xi_iter.Print();
+  if (fMissingMassConstraint) {
+    if (fCommonVertex) {
+      KinFitFourMomentum P(fInit);
+      for (int q = 0; q < fN; q++)
+        P.add(k[q], -1.);
+      for (int q = 0; q < fN; q++) {
+        k[q].massDerivatives(P, -1., de, dv);
+        for (int j = 0; j < 3; ++j)
+          H(row, vo + j) += dv[j];
+      }
+    }
+    ++row;
   }
 
-  // std::cout << "CovDim: " << cov_dim << std::endl;
-  // std::cout << "fN: " << fN << std::endl;
-
-  TMatrixD H;
-
-  if (f3Constraint) {
-    H.ResizeTo(4, 1);
-    H.Zero();
-
-    // d(1/p)
-    H(0, 0) = 1. / std::pow(xi_iter(0, 0), 2) *
-              std::sin(m_iter(0 + fN * cov_dim, 0)) *
-              std::cos(m_iter(1 + fN * cov_dim, 0));
-    H(1, 0) = 1. / std::pow(xi_iter(0, 0), 2) *
-              std::sin(m_iter(0 + fN * cov_dim, 0)) *
-              std::sin(m_iter(1 + fN * cov_dim, 0));
-    H(2, 0) =
-        1. / std::pow(xi_iter(0, 0), 2) * std::cos(m_iter(0 + fN * cov_dim, 0));
-    H(3, 0) = 1. / std::pow(xi_iter(0, 0), 3) * 1. /
-              sqrt(pow(1. / xi_iter(0, 0), 2) + std::pow(fM[fN], 2));
+  if (fourRows) {
+    if (f3Constraint) { // d/d(1/p) of the mother term
+      const double xi = xi_iter(0, 0);
+      const double th = m_iter(0 + fN * cov_dim, 0);
+      const double ph = m_iter(1 + fN * cov_dim, 0);
+      H(row + 0, 0) = 1. / (xi * xi) * std::sin(th) * std::cos(ph);
+      H(row + 1, 0) = 1. / (xi * xi) * std::sin(th) * std::sin(ph);
+      H(row + 2, 0) = 1. / (xi * xi) * std::cos(th);
+      H(row + 3, 0) = 1. / (xi * xi * xi) /
+                      std::sqrt(1. / (xi * xi) + fM[fN] * fM[fN]);
+    }
+    if (fMissingParticleConstraint) {
+      const double mx = xi_iter(0, 0), my = xi_iter(1, 0), mz = xi_iter(2, 0);
+      const double E = std::sqrt(mx * mx + my * my + mz * mz + fM[fN] * fM[fN]);
+      H(row + 0, 0) = H(row + 1, 1) = H(row + 2, 2) = 1.;
+      H(row + 3, 0) = mx / E;
+      H(row + 3, 1) = my / E;
+      H(row + 3, 2) = mz / E;
+    }
+    if (fCommonVertex) // neutral hits: direction depends on the vertex
+      for (int q = 0; q < fN; q++)
+        for (int r = 0; r < 4; ++r)
+          for (int j = 0; j < 3; ++j)
+            H(row + r, vo + j) += k[q].dVtx[r][j];
+    row += 4;
   }
 
-  if (fMissingParticleConstraint) {
-    // std::cout << "xi_iter: " << xi_iter(0, 0) << " " << xi_iter(1, 0) << " "
-    // << xi_iter(2, 0) << std::endl;
-
-    H.ResizeTo(4, 3);
-    H.Zero();
-
-    H(0, 0) = 1;
-    H(1, 1) = 1;
-    H(2, 2) = 1;
-
-    H(3, 0) = xi_iter(0, 0) /
-              sqrt(pow(xi_iter(0, 0), 2) + std::pow(xi_iter(1, 0), 2) +
-                   std::pow(xi_iter(2, 0), 2) + std::pow(fM[fN], 2));
-    H(3, 1) = xi_iter(1, 0) /
-              sqrt(pow(xi_iter(0, 0), 2) + std::pow(xi_iter(1, 0), 2) +
-                   std::pow(xi_iter(2, 0), 2) + std::pow(fM[fN], 2));
-    H(3, 2) = xi_iter(2, 0) /
-              sqrt(pow(xi_iter(0, 0), 2) + std::pow(xi_iter(1, 0), 2) +
-                   std::pow(xi_iter(2, 0), 2) + std::pow(fM[fN], 2));
+  for (size_t c = 0; c < fMassVec.size(); ++c) {
+    if (fCommonVertex) {
+      const std::vector<int> idx = massParticles(c);
+      KinFitFourMomentum P;
+      for (int q : idx)
+        P.add(k[q]);
+      for (int q : idx) {
+        k[q].massDerivatives(P, 1., de, dv);
+        for (int j = 0; j < 3; ++j)
+          H(row, vo + j) += dv[j];
+      }
+    }
+    ++row;
   }
-  // Mass constraints do not depend on the unmeasured parameters: zero rows.
-  if (fMassConstraint && H.GetNoElements() > 0) {
-    const int row0 = H.GetNrows();
-    H.ResizeTo(row0 + (int)fMassVec.size(), H.GetNcols());
-    for (int r = row0; r < H.GetNrows(); ++r)
-      for (int c = 0; c < H.GetNcols(); ++c)
-        H(r, c) = 0.;
+
+  if (fCommonVertex) {
+    const TVector3 v(xi_iter(vo, 0), xi_iter(vo + 1, 0), xi_iter(vo + 2, 0));
+    for (int q = 0; q < fN; ++q) {
+      if (fIsNeutral[q])
+        continue;
+      double eta[5];
+      for (int j = 0; j < 5; ++j)
+        eta[j] = m_iter(j + q * cov_dim, 0);
+      const double s0 = std::numeric_limits<double>::quiet_NaN();
+      for (int j = 0; j < 3; ++j) {
+        TVector3 vp(v), vm(v);
+        vp[j] += kStepLength;
+        vm[j] -= kStepLength;
+        double rp[2], rm[2], sp = s0, sm = s0;
+        vertexResiduals(eta, q, vp, rp, &sp);
+        vertexResiduals(eta, q, vm, rm, &sm);
+        H(row, vo + j) = (rp[0] - rm[0]) / (2 * kStepLength);
+        H(row + 1, vo + j) = (rp[1] - rm[1]) / (2 * kStepLength);
+      }
+      row += 2;
+    }
   }
 
   return H;
@@ -640,15 +775,14 @@ Bool_t KinFitter::fit() {
 
   if (fVerbose > 0) {
     std::cout << " ----------- KinFitter::fit() -----------" << std::endl;
-    std::cout << "Vertex constraint set: " << fVtxConstraint << std::endl;
+    std::cout << "Common vertex constraint set: " << fCommonVertex
+              << std::endl;
     std::cout << "3C set: " << f3Constraint << std::endl;
     std::cout << "4C set: " << f4Constraint << std::endl;
     std::cout << "Momentum constraint set: " << fMissingParticleConstraint
               << std::endl;
     std::cout << "Mass constraint set: " << fMassConstraint << std::endl;
     std::cout << "Missing Mass constraint set: " << fMissingMassConstraint
-              << std::endl;
-    std::cout << "Mass + Vertex constraint set: " << fMassVtxConstraint
               << std::endl;
     std::cout << "" << std::endl;
   }
@@ -658,21 +792,22 @@ Bool_t KinFitter::fit() {
 
   // --- Configuration checks (used to abort() or silently overwrite d) ---
   const int nBase = int(f3Constraint) + int(f4Constraint) +
-                    int(fVtxConstraint) + int(fMissingParticleConstraint) +
-                    int(fMissingMassConstraint) + int(fMassVtxConstraint);
-  if (nBase == 0 && !fMassConstraint) {
+                    int(fMissingParticleConstraint) +
+                    int(fMissingMassConstraint);
+  if (nBase == 0 && !fMassConstraint && !fCommonVertex) {
     std::cerr << "KinFitter::fit(): no constraint added" << std::endl;
     return kFALSE;
   }
   if (nBase > 1) {
-    std::cerr << "KinFitter::fit(): 3C, 4C, Vertex, MassVtx, MissingMass and "
-                 "MissingParticle are exclusive (mass constraints can be "
+    std::cerr << "KinFitter::fit(): 3C, 4C, MissingMass and MissingParticle "
+                 "are exclusive (common-vertex and mass constraints can be "
                  "added to any of them)"
               << std::endl;
     return kFALSE;
   }
-  if ((fVtxConstraint || fMassVtxConstraint) && fN < 2) {
-    std::cerr << "KinFitter::fit(): vertex constraint needs two particles"
+  if (f3Constraint && fCommonVertex) {
+    std::cerr << "KinFitter::fit(): 3C cannot be combined with the common "
+                 "vertex constraint"
               << std::endl;
     return kFALSE;
   }
@@ -688,11 +823,12 @@ Bool_t KinFitter::fit() {
   const TMatrixD alpha0(y); // measured values, kept unchanged
   const TMatrixD V0(V);     // their covariance
   TMatrixD alpha(alpha0);
-  TMatrixD xi0(x);
-  if (f3Constraint)
-    xi0(0, 0) = 1. / fMother.P();
-  if (fMissingParticleConstraint)
-    assign(xi0, calcMissingMom(alpha0));
+  TMatrixD xi0;
+  if (!startValues(xi0)) {
+    std::cerr << "KinFitter::fit(): no start vertex (parallel tracks?)"
+              << std::endl;
+    return kFALSE;
+  }
   TMatrixD xi(xi0), neu_xi(xi0);
   double chi2 = 1e6;
 
@@ -772,7 +908,10 @@ Bool_t KinFitter::fit() {
     }
     if (hasXi) {
       for (int i = 0; i < xi.GetNrows(); i++) {
-        const double scale = std::abs(xi0(i, 0));
+        // relative change; vertex coordinates on a scale of at least 1 mm
+        const bool isVertex = fCommonVertex && i >= vertexOffset();
+        const double scale = isVertex ? std::max(std::abs(xi0(i, 0)), 1.)
+                                      : std::abs(xi0(i, 0));
         if (scale > 0) {
           const double dx = (neu_xi(i, 0) - xi(i, 0)) / scale;
           alphaNorm += dx * dx;
@@ -834,28 +973,24 @@ Bool_t KinFitter::fit() {
   assign(x, xi);
   if (fMissingParticleConstraint) {
     fMissDaughter.SetXYZM(x(0, 0), x(1, 0), x(2, 0), fM[fN]);
-    assign(fVMiss, Vx);
+    assign(fVMiss, Vx.GetSub(0, 2, 0, 2));
+  }
+  if (fCommonVertex) {
+    const int vo = vertexOffset();
+    fVertex.SetXYZ(x(vo, 0), x(vo + 1, 0), x(vo + 2, 0));
+    assign(fVertexCov, Vx.GetSub(vo, vo + 2, vo, vo + 2));
   }
   if (fMissingFromMissingMass) {
-    // p_miss = P_init - p of the single track; its covariance follows from
-    // the fitted (1/p, theta, phi) block of that track.
-    const double p = 1. / alpha(0, 0), th = alpha(1, 0), ph = alpha(2, 0);
-    const double st = std::sin(th), ct = std::cos(th);
-    const double sp = std::sin(ph), cp = std::cos(ph);
-    const TVector3 pTrack(p * st * cp, p * st * sp, p * ct);
-    fMissDaughter.SetVectM(fInit.Vect() - pTrack, fMass);
-    TMatrixD J(3, 3); // d(p_miss)/d(1/p, theta, phi) = -d(p_track)/d(...)
-    J(0, 0) = p * p * st * cp;
-    J(1, 0) = p * p * st * sp;
-    J(2, 0) = p * p * ct;
-    J(0, 1) = -p * ct * cp;
-    J(1, 1) = -p * ct * sp;
-    J(2, 1) = p * st;
-    J(0, 2) = p * st * sp;
-    J(1, 2) = -p * st * cp;
-    J(2, 2) = 0;
-    const TMatrixD Vtrack = fVFit.GetSub(0, 2, 0, 2);
-    assign(fVMiss, J * Vtrack * TMatrixD(TMatrixD::kTransposed, J));
+    // p_miss = P_init - p of the single particle; its covariance from the
+    // fitted parameter block of that particle.
+    const KinFitTrackKinematics k = kinematics(alpha, xi)[0];
+    fMissDaughter.SetVectM(fInit.Vect() - TVector3(k.px, k.py, k.pz), fMass);
+    TMatrixD J(3, cov_dim);
+    for (int i = 0; i < 3; ++i)
+      for (size_t j = 0; j < cov_dim; ++j)
+        J(i, j) = -k.dEta[i][j];
+    const TMatrixD Vpart = fVFit.GetSub(0, cov_dim - 1, 0, cov_dim - 1);
+    assign(fVMiss, J * Vpart * TMatrixD(TMatrixD::kTransposed, J));
   }
   fChi2 = chi2;
   fProb = TMath::Prob(chi2, fNdf);
@@ -889,16 +1024,37 @@ void KinFitter::updateDaughters() {
   }
   for (int val = 0; val < fN; ++val) {
     KinFitParticle &cand = fCands[val];
-    const double p = 1. / fYFit(0 + val * cov_dim, 0);
-    double theta = fYFit(1 + val * cov_dim, 0);
-    double phi = fYFit(2 + val * cov_dim, 0);
-    double R = fYFit(3 + val * cov_dim, 0);
+    const int o = val * cov_dim;
 
     // Full 5x5 block of the fitted covariance.
     TMatrixD cov(cov_dim, cov_dim);
     for (size_t i = 0; i < cov_dim; ++i)
       for (size_t j = 0; j < cov_dim; ++j)
-        cov(i, j) = fVFit(i + val * cov_dim, j + val * cov_dim);
+        cov(i, j) = fVFit(i + o, j + o);
+
+    if (fIsNeutral[val]) {
+      // (E, X, Y, Z): direction from the fitted vertex (or fixed origin)
+      const TVector3 origin = fCommonVertex ? fVertex : fOrigin[val];
+      const TVector3 hit(fYFit(o + 1, 0), fYFit(o + 2, 0), fYFit(o + 3, 0));
+      const double E = fYFit(o, 0);
+      const double p2 = E * E - fM[val] * fM[val];
+      cand.SetVectM((p2 > 0 ? std::sqrt(p2) : 0.) * (hit - origin).Unit(),
+                    fM[val]);
+      cand.setMomentum(cand.P());
+      cand.setThetaRad(cand.Theta());
+      cand.setPhiRad(cand.Phi());
+      cand.setHit(hit);
+      cand.setVertexX(origin.X());
+      cand.setVertexY(origin.Y());
+      cand.setVertexZ(origin.Z());
+      cand.setCovariance(cov);
+      continue;
+    }
+
+    const double p = 1. / fYFit(0 + o, 0);
+    double theta = fYFit(1 + o, 0);
+    double phi = fYFit(2 + o, 0);
+    double R = fYFit(3 + o, 0);
     // The fit works with unwrapped angles (pulls stay correct); only the
     // returned track is brought back to the standard ranges.
     normaliseAngles(theta, phi, R, cov);
@@ -910,8 +1066,21 @@ void KinFitter::updateDaughters() {
     cand.setThetaRad(theta);
     cand.setPhiRad(phi);
     cand.setR(R);
-    cand.setZ(fYFit(4 + val * cov_dim, 0));
+    cand.setZ(fYFit(4 + o, 0));
     cand.setCovariance(cov);
+    if (transportToVertex() && fCharge[val] != 0) {
+      // four-momentum at the fitted vertex (track parameters stay at the
+      // reference point), so that daughters add up to the mother
+      double eta[5];
+      for (int j = 0; j < 5; ++j)
+        eta[j] = fYFit(j + o, 0);
+      cand.SetVectM(momentumAtVertex(eta, val, fVertex), fM[val]);
+    }
+    if (fCommonVertex) {
+      cand.setVertexX(fVertex.X());
+      cand.setVertexY(fVertex.Y());
+      cand.setVertexZ(fVertex.Z());
+    }
   }
 }
 

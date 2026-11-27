@@ -27,6 +27,7 @@
 #pragma once
 
 // framework includes
+#include "KinFitField.h"
 #include "KinFitParticle.h"
 
 // ROOT includes
@@ -36,6 +37,7 @@
 
 // system includes
 #include <iostream>
+#include <memory>
 #include <vector>
 
 class KinFitter : public TObject {
@@ -57,7 +59,9 @@ private:
   int fIteration = 0;      // Iterations needed until convergence
   int fN;                  // Number of input candidates
   int fyDim;               // Dimension of y
-  std::vector<KinFitParticle> fCands; // Vector of input candidates
+  std::vector<KinFitParticle> fCands; // Vector of input candidates (fitted
+                                      // values after fit())
+  std::vector<KinFitParticle> fCandsIn; //! measured input (start values)
   KinFitParticle fMother;             // Decaying particle
   TLorentzVector fMissDaughter;       // Missing decay product
   std::vector<double> fMassVec; // One mass per addMassConstraint() call
@@ -69,11 +73,11 @@ private:
   double fMass = 99999.9;                // Mass used for constraint
   double fMassMissingParticle = 99999.9; // Mass used for constraint
 
-  // Constraints, true if constraint is set, only one at a time
+  // Constraints: at most one of 3C, 4C, MissingMass, MissingParticle;
+  // common vertex and mass constraints can be added on top
   bool fMassConstraint = false;
   bool fMissingMassConstraint = false;
-  bool fMassVtxConstraint = false;
-  bool fVtxConstraint = false;
+  bool fCommonVertex = false;
   bool f3Constraint = false;
   bool f4Constraint = false;
   bool fMissingParticleConstraint = false;
@@ -95,7 +99,40 @@ private:
 
   int fNExclusive = -1;
 
-  TMatrixD calcMissingMom(const TMatrixD &m_iter);
+  // Vertexing / field
+  std::shared_ptr<const KinFitField> fField; //! nullptr = B = 0
+  std::vector<char> fIsNeutral;     // particle q is a neutral hit
+  std::vector<double> fCharge;      // charge of particle q
+  std::vector<TVector3> fOrigin;    // production point of neutral hits
+                                    // (used without common vertex)
+  std::vector<TVector3> fVtxAxis;   //! reference axis of the vertex residuals
+  TVector3 fVertex;                 // fitted common vertex
+  TMatrixD fVertexCov;              //! its 3x3 covariance
+
+  /** Fill y and V for particle ix from fCands[ix]. */
+  void fillParticle(int ix);
+  /** Kinematics of all particles at (m, xi). */
+  std::vector<class KinFitTrackKinematics>
+  kinematics(const TMatrixD &m, const TMatrixD &xi,
+             bool derivatives = true) const;
+  /** True if charged tracks are transported to the fitted vertex (common
+   * vertex in a non-zero field). */
+  bool transportToVertex() const;
+  /** Momentum of charged particle q at its closest approach to v. */
+  TVector3 momentumAtVertex(const double eta[5], int q, const TVector3 &v,
+                            double *sInOut = nullptr) const;
+  /** Vertex residuals (2) of charged particle q with parameters eta[5]. */
+  void vertexResiduals(const double eta[5], int q, const TVector3 &v,
+                       double res[2], double *sInOut = nullptr) const;
+  /** Unknowns of the kinematic constraint (3C: 1, MissingParticle: 3). */
+  int nBaseUnmeasured() const;
+  /** Row of the vertex in xi (only with the common vertex constraint). */
+  int vertexOffset() const { return nBaseUnmeasured(); }
+  /** Number of charged (vertex-constraining) particles. */
+  int nCharged() const;
+  /** Start values of the unknowns; false if no start vertex was found. */
+  bool startValues(TMatrixD &xi0) const;
+
 
   /** Particles entering mass constraint k (explicit selection, else the
    * first fNExclusive particles, else all). */
@@ -144,7 +181,9 @@ public:
   void
   add4Constraint(TLorentzVector lv); // 4-momentum constraint of final state
                                      // particles to the initial system, lv
-  void addVertexConstraint();        // Geometrical vertex constraint
+  /** @brief Common vertex of all charged tracks (equivalent to
+   * addCommonVertexConstraint(); used to be the first two tracks only). */
+  void addVertexConstraint();
   void addMissingParticleConstraint(
       TLorentzVector lv,
       double
@@ -157,9 +196,21 @@ public:
       TLorentzVector lv,
       double mass); // Constrains all final state particles to the initial
                     // system, lv, and a missing mass , m
-  void addMassVtxConstraint(
-      double mass); // Constrains all particles to a common vertex and a mass,
-                    // m, of a decaying particle
+  /** @brief Common vertex of all charged tracks + invariant mass of all
+   * particles (= addCommonVertexConstraint() + addMassConstraint(mass)). */
+  void addMassVtxConstraint(double mass);
+
+  /** @brief All charged tracks come from one common vertex, which is fitted
+   * (getVertex(), getVertexCovariance()). Two equations per charged track
+   * (closest approach of its trajectory in the field to the vertex), three
+   * unknowns. Neutral hits get their direction from (hit - vertex). Can be
+   * combined with 4C, MissingMass, MissingParticle and mass constraints (not
+   * with 3C). */
+  void addCommonVertexConstraint();
+
+  /** @brief Magnetic field for the track model (copied). Default: B = 0
+   * (straight lines). Units: Tesla, mm, MeV/c. */
+  void setField(const KinFitField &field) { fField.reset(field.clone()); }
 
   /** @brief Mass constraints without explicit selection use only the first
    * `number` particles. */
@@ -264,9 +315,19 @@ public:
    * by (theta, phi, R, Z) of the mother. */
   const TMatrixD &getFittedCovariance() const { return fVFit; }
 
+  /** @brief Common-vertex fit: fitted vertex [mm]. */
+  const TVector3 &getVertex() const { return fVertex; }
+  /** @brief Common-vertex fit: 3x3 covariance of the fitted vertex. */
+  const TMatrixD &getVertexCovariance() const { return fVertexCov; }
+
+  /** @brief Measured parameters and start values of the unknowns as used by
+   * fit() (for diagnostics and tests of f_eval / Feta_eval / Fxi_eval).
+   * @return false if no start vertex could be found. */
+  bool getStartValues(TMatrixD &yOut, TMatrixD &xiOut) const;
+
 private:
   void updateDaughters();
   void updateMother();
 
-  ClassDef(KinFitter, 2)
+  ClassDef(KinFitter, 3)
 };

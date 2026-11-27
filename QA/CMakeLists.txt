@@ -67,6 +67,15 @@ kinfit_add_test(test_kinfitter
         vertex_plus_mass invalid_configuration_returns_false ndf_per_constraint
         covariance_symmetric_and_refit_stable)
 
+kinfit_add_test(test_vertexfit
+  LABELS core fitter vertex field
+  CASES exact_B0 exact_Bz exact_By exact_ByZ exact_ByXZ exact_function
+        pulls_B0 pulls_Bz pulls_By pulls_ByZ pulls_ByXZ pulls_function
+        jacobian_B0 jacobian_Bz jacobian_ByZ jacobian_function
+        neutral_4C_vertex_Bz neutral_4C_vertex_ByZ jacobian_neutral_4C_vertex
+        neutral_mass_fixed_origin legacy_vertex_uses_all_tracks
+        lambda_mass_vertex_ByZ)
+
 kinfit_add_test(test_decaycandfinder
   LABELS core vertex
   CASES momentum_from_daughter_energies direction_from_vertices
