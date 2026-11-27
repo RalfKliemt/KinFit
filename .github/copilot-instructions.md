@@ -9,6 +9,11 @@
   - Keep matching ClassImp(...) in source files.
   - Keep FitterLinkDef.h (repo root) and the class lists in CMakeLists.txt in sync when
     classes are added/removed.
+- Every class is named KinFit* and lives in its own KinFitXxx.h / KinFitXxx.cxx pair named
+  after the class.
+- Internal helpers of KinFitter (KinFitFourMomentum, KinFitTrackKinematics, KinFitTrackLine)
+  are listed in INTERNAL_CLASSES in CMakeLists.txt: compiled into the library, but neither
+  installed nor in the ROOT dictionary.
 - Follow the existing naming style: private data members use the f prefix (for example fChi2, fCands).
 - Prefer small, local edits over broad refactors in matrix-heavy fitter logic.
 
