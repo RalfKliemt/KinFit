@@ -29,6 +29,7 @@ package files to `<prefix>/lib/cmake/KinFit`.
 | `KINFIT_BUILD_EXAMPLES` | `OFF` | Build `toy_lambda_fit` and `vertex_constB` from `docs/examples/` |
 | `KINFIT_BUILD_TESTS` | `ON` | Build the QA test suite (run with `ctest --test-dir build`) |
 | `KINFIT_ENABLE_ASAN` | `OFF` | Build with AddressSanitizer for debugging memory errors |
+| `KINFIT_WARNINGS_AS_ERRORS` | `OFF` | Treat compiler warnings (`-Wall -Wextra`, KinFit code only) as errors; on in CI |
 | `CMAKE_INSTALL_PREFIX` | system default | Installation prefix |
 
 ### Running the tests

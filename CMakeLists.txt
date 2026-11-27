@@ -24,6 +24,14 @@ if(NOT ROOT_FOUND)
   message(FATAL_ERROR "ROOT is required but missing !")
 endif(NOT ROOT_FOUND)
 
+# Warnings for KinFit's own code (ROOT headers are system headers and do not
+# count). CI turns them into errors.
+option(KINFIT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+add_compile_options(-Wall -Wextra)
+if(KINFIT_WARNINGS_AS_ERRORS)
+  add_compile_options(-Werror)
+endif()
+
 # AddressSanitizer build for debugging memory errors (e.g. with the QA suite)
 option(KINFIT_ENABLE_ASAN "Build with AddressSanitizer" OFF)
 if(KINFIT_ENABLE_ASAN)
