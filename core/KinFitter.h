@@ -130,8 +130,12 @@ private:
   int vertexOffset() const { return nBaseUnmeasured(); }
   /** Number of charged (vertex-constraining) particles. */
   int nCharged() const;
-  /** Start values of the unknowns; false if no start vertex was found. */
-  bool startValues(TMatrixD &xi0) const;
+  /** Start values of the unknowns; false if no start vertex was found.
+   * variant 0: vertex from KinFitVertexFinderField; 1: mean of the charged
+   * tracks' reference points (second try, see fit()). */
+  bool startValues(TMatrixD &xi0, int variant = 0) const;
+  /** The iteration from the start values xi0. */
+  Bool_t fitFrom(const TMatrixD &xi0);
 
 
   /** Particles entering mass constraint k (explicit selection, else the

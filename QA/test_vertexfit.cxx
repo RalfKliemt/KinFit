@@ -278,6 +278,9 @@ void runNeutral4C(F fld) {
   }
   checkProb((std::string("p pi- gamma 4C+vertex ") + name(fld)).c_str(), nConv,
             nEvents, prob);
+  // nearly collinear p pi- pairs used to fail or end in a wrong minimum
+  // (second start value in fit())
+  KF_CHECK(nConv == nEvents);
   const char *gn[4] = {"gamma E", "gamma X", "gamma Y", "gamma Z"};
   for (int i = 0; i < 4; ++i)
     checkPull(gn[i], par.s[10 + i]);

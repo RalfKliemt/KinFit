@@ -72,6 +72,7 @@ KinFitVertexFinderField::KinFitVertexFinderField(
     t[i] = traj[i].getReferenceDirection();
   }
   TVector3 v;
+  fHasEstimate = true;
   if (!solveLines(r, t, v)) {
     v.SetXYZ(0, 0, 0);
     for (const TVector3 &ri : r)
@@ -83,8 +84,10 @@ KinFitVertexFinderField::KinFitVertexFinderField(
     for (int i = 0; i < fNTracks; ++i)
       traj[i].closestApproach(v, r[i], t[i]);
     TVector3 vNew;
-    if (!solveLines(r, t, vNew))
+    if (!solveLines(r, t, vNew)) {
+      fVertex = v; // last estimate
       return;
+    }
     const double shift = (vNew - v).Mag();
     v = vNew;
     if (shift < tolerance) {

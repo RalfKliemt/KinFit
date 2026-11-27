@@ -436,23 +436,28 @@ void KinFitter::vertexResiduals(const double eta[5], int q, const TVector3 &v,
   res[1] = d[0] * e2[0] + d[1] * e2[1] + d[2] * e2[2];
 }
 
-bool KinFitter::startValues(TMatrixD &xi0) const {
+bool KinFitter::startValues(TMatrixD &xi0, int variant) const {
   xi0.ResizeTo(std::max(nUnmeasured(), 1), 1);
   xi0.Zero();
   if (fCommonVertex) {
-    // Unweighted vertex of all charged tracks in the field
-    const KinFitVertexFinderField finder(fCandsIn, fField.get());
-    TVector3 v;
-    if (finder.isValid())
-      v = finder.getVertex();
-    else if (nCharged() == 1) { // one track: its reference point
-      for (int q = 0; q < fN; ++q)
-        if (!fIsNeutral[q])
-          v.SetXYZ(-y(3 + q * cov_dim, 0) * std::sin(y(2 + q * cov_dim, 0)),
-                   y(3 + q * cov_dim, 0) * std::cos(y(2 + q * cov_dim, 0)),
-                   y(4 + q * cov_dim, 0));
-    } else if (nCharged() > 1)
-      return false; // e.g. parallel tracks
+    // Mean of the charged tracks' reference points (near the beam axis)
+    TVector3 centroid;
+    for (int q = 0; q < fN; ++q)
+      if (!fIsNeutral[q])
+        centroid += TVector3(
+            -y(3 + q * cov_dim, 0) * std::sin(y(2 + q * cov_dim, 0)),
+            y(3 + q * cov_dim, 0) * std::cos(y(2 + q * cov_dim, 0)),
+            y(4 + q * cov_dim, 0));
+    if (nCharged() > 0)
+      centroid *= 1. / nCharged();
+    TVector3 v = centroid;
+    if (variant == 0) {
+      // Unweighted vertex of all charged tracks in the field; a
+      // non-converged estimate is still a usable start value
+      const KinFitVertexFinderField finder(fCandsIn, fField.get());
+      if (finder.hasEstimate())
+        v = finder.getVertex();
+    }
     for (int j = 0; j < 3; ++j)
       xi0(vertexOffset() + j, 0) = v[j];
   }
@@ -787,9 +792,6 @@ Bool_t KinFitter::fit() {
     std::cout << "" << std::endl;
   }
 
-  fConverged = false;
-  fIteration = 0;
-
   // --- Configuration checks (used to abort() or silently overwrite d) ---
   const int nBase = int(f3Constraint) + int(f4Constraint) +
                     int(fMissingParticleConstraint) +
@@ -819,16 +821,47 @@ Bool_t KinFitter::fit() {
         return kFALSE;
       }
 
+  TMatrixD xi0;
+  startValues(xi0, 0);
+  Bool_t ok = fitFrom(xi0);
+
+  // Common vertex: nearly collinear tracks determine the vertex poorly along
+  // their direction, and a far-off start value can end in a wrong local
+  // minimum (probability ~ 0). Retry once from the mean of the tracks'
+  // reference points and keep the better result.
+  if (fCommonVertex && (!ok || fProb < 1e-6)) {
+    TMatrixD alt;
+    startValues(alt, 1);
+    double shift = 0;
+    for (int j = 0; j < 3; ++j)
+      shift += std::pow(alt(vertexOffset() + j, 0) - xi0(vertexOffset() + j, 0),
+                        2);
+    if (shift > 1e-6) {
+      const KinFitter first(*this);
+      const Bool_t ok2 = fitFrom(alt);
+      if (ok2 && (!ok || fProb > first.fProb)) {
+        ok = ok2;
+        if (fVerbose > 0)
+          std::cout << "KinFitter::fit(): second start value gave prob "
+                    << fProb << " (first " << first.fProb << ")" << std::endl;
+      } else {
+        *this = first;
+      }
+    }
+  }
+  return ok;
+}
+
+Bool_t KinFitter::fitFrom(const TMatrixD &xi0) {
+  fConverged = false;
+  fIteration = 0;
+  fChi2 = 1e6;
+  fProb = 0;
+
   const bool hasXi = nUnmeasured() > 0;
   const TMatrixD alpha0(y); // measured values, kept unchanged
   const TMatrixD V0(V);     // their covariance
   TMatrixD alpha(alpha0);
-  TMatrixD xi0;
-  if (!startValues(xi0)) {
-    std::cerr << "KinFitter::fit(): no start vertex (parallel tracks?)"
-              << std::endl;
-    return kFALSE;
-  }
   TMatrixD xi(xi0), neu_xi(xi0);
   double chi2 = 1e6;
 

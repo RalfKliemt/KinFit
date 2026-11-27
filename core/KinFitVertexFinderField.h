@@ -40,6 +40,7 @@ class KinFitVertexFinderField {
 private:
   TVector3 fVertex{-1000., -1000., -1000.};
   bool fValid = false;
+  bool fHasEstimate = false;
   int fNTracks = 0;
   int fIterations = 0;
 
@@ -53,10 +54,14 @@ public:
                           const KinFitField *field = nullptr,
                           int maxIterations = 20, double tolerance = 1e-4);
 
-  /** @brief Vertex [mm], (-1000, -1000, -1000) if not valid. */
+  /** @brief Vertex [mm]; the last estimate if not converged,
+   * (-1000, -1000, -1000) if there is none. */
   TVector3 getVertex() const { return fVertex; }
-  /** @brief False for fewer than two usable tracks or a singular system. */
+  /** @brief True if converged (shift below the tolerance). */
   bool isValid() const { return fValid; }
+  /** @brief True if a vertex estimate exists, converged or not (false for
+   * fewer than two usable tracks or a singular system). */
+  bool hasEstimate() const { return fHasEstimate; }
   int getNumberOfTracks() const { return fNTracks; }
   int getIterations() const { return fIterations; }
 };

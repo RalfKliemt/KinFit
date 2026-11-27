@@ -271,4 +271,27 @@ KF_TEST(field_finder_exact_vertex) {
   }
 }
 
+// A non-converged run still provides an estimate (used as start value by
+// the common-vertex fit; it used to make the fit fail).
+KF_TEST(field_finder_estimate_without_convergence) {
+  TRandom3 rnd(72);
+  const auto bz = KinFitFieldUniform::Bz(1.0);
+  const TVector3 v(1, 2, 30);
+  std::vector<KinFitParticle> cands;
+  for (int k = 0; k < 3; ++k) {
+    TLorentzVector lv;
+    TVector3 p;
+    p.SetMagThetaPhi(300, 0.4, 1. + 2. * k);
+    lv.SetVectM(p, toy::kMassPion);
+    cands.push_back(toy::fieldTrack(lv, v, k % 2 ? 1 : -1, &bz,
+                                    toy::Resolution()));
+  }
+  KinFitVertexFinderField f(cands, &bz, 1, 0.); // one iteration, tolerance 0
+  KF_CHECK(!f.isValid());
+  KF_CHECK(f.hasEstimate());
+  KF_CHECK((f.getVertex() - v).Mag() < 50.);
+  KinFitVertexFinderField one({cands[0]}, &bz);
+  KF_CHECK(!one.hasEstimate());
+}
+
 KF_TEST_MAIN()
