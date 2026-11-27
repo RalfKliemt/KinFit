@@ -2,8 +2,8 @@
 
 ## Code Style
 - Headers and sources live side by side: core/ holds the fitter (KinFitter, KinFitParticle,
-  vertex finders, KFitDecayCandFinder, CoordinateConversion), analysis/ holds the
-  event-loop layer (KFitAnalyzer, KFitDecayBuilder). Include headers by bare file name.
+  vertex finders, KinFitDecayCandFinder, KinFitCoordinateConversion), analysis/ holds the
+  event-loop layer (KinFitAnalyzer, KinFitDecayBuilder). Include headers by bare file name.
 - Keep ROOT reflection/IO hooks intact for TObject-based classes:
   - Keep ClassDef(...) in headers.
   - Keep matching ClassImp(...) in source files.
@@ -15,9 +15,9 @@
 ## Architecture
 - Core fit engine: KinFitter (iterative constrained kinematic fit, Jacobians, covariance updates).
 - Physics object container: KinFitParticle (track parameters + covariance matrix + ROOT serialization).
-- Analysis orchestration: KFitAnalyzer (event loop and output writing), KFitDecayBuilder (candidate combinations and best-fit selection).
-- Utility/reconstruction helpers: KFitDecayCandFinder, KFitVertexFinder, CoordinateConversion.
-- Typical flow: build KinFitParticle objects -> configure constraint in KinFitter/KFitAnalyzer -> run fit -> read fitted daughters/mother/probability.
+- Analysis orchestration: KinFitAnalyzer (event loop and output writing), KinFitDecayBuilder (candidate combinations and best-fit selection).
+- Utility/reconstruction helpers: KinFitDecayCandFinder, KinFitVertexFinder, KinFitCoordinateConversion.
+- Typical flow: build KinFitParticle objects -> configure constraint in KinFitter/KinFitAnalyzer -> run fit -> read fitted daughters/mother/probability.
 
 ## Build and Test
 - Build/install (from repo root):

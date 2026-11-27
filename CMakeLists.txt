@@ -32,11 +32,11 @@ if(KINFIT_ENABLE_ASAN)
 endif()
 
 # Core fitter (KinFitter, particles, vertexing) and analysis layer
-# (KFitAnalyzer, KFitDecayBuilder); headers and sources live side by side.
+# (KinFitAnalyzer, KinFitDecayBuilder); headers and sources live side by side.
 set(CORE_CLASSES
-    KinFitter KinFitParticle KFitVertexFinder KFitVertexFinderConstB
-    KFitDecayCandFinder CoordinateConversion)
-set(ANALYSIS_CLASSES KFitAnalyzer KFitDecayBuilder)
+    KinFitter KinFitParticle KinFitVertexFinder KinFitVertexFinderConstB
+    KinFitDecayCandFinder KinFitCoordinateConversion)
+set(ANALYSIS_CLASSES KinFitAnalyzer KinFitDecayBuilder)
 
 set(SRCFILES)
 set(HFILES)

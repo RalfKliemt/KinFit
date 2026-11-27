@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * CoordinateConversion.h
+ * KinFitCoordinateConversion.h
  *
  * Utility class to convert track parameters between spherical
  * (p, theta, phi, R, Z) and Cartesian (X, Y, Z, Px, Py, Pz) forms,
@@ -41,7 +41,7 @@
  * cross terms 2 (df/da)(df/db) sigma_a sigma_b, i.e. assumed full
  * correlation.
  */
-class CoordinateConversion {
+class KinFitCoordinateConversion {
 
 public:
   // (The old defaults were 9 * 10 ^ (-999), an integer XOR, not 9e-999.)

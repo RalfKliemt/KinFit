@@ -14,12 +14,12 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-// ROOT includes
-#include "CoordinateConversion.h"
+#include "KinFitCoordinateConversion.h"
 
 /**
- * @file CoordinateConversion.cxx
+ * @file KinFitCoordinateConversion.cxx
  * @brief Translation unit for coordinate-conversion utilities.
  */
 
-void CoordTest();
+// The class is header-only; this file keeps the header/source pair and
+// gives the dictionary a translation unit.

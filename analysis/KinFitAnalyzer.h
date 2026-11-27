@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * KFitAnalyzer.h
+ * KinFitAnalyzer.h
  *
  * @updated 01.08.2023
  * @version v1.0.0
@@ -45,7 +45,7 @@
 using std::cout;
 using std::endl;
 
-class KFitAnalyzer {
+class KinFitAnalyzer {
 private:
   std::vector<std::vector<KinFitParticle>>
       fCandsFit; // Vector of vector of particle candidates for each PID
@@ -83,13 +83,13 @@ public:
    * @param nEvents Number of events to analyze. If negative, process all
    * available events.
    */
-  KFitAnalyzer(TString inFileName, TString outFileName, int nEvents = -1);
+  KinFitAnalyzer(TString inFileName, TString outFileName, int nEvents = -1);
 
   /** @brief Closes the input and (if still open) the output file. */
-  ~KFitAnalyzer();
+  ~KinFitAnalyzer();
 
-  KFitAnalyzer(const KFitAnalyzer &) = delete;
-  KFitAnalyzer &operator=(const KFitAnalyzer &) = delete;
+  KinFitAnalyzer(const KinFitAnalyzer &) = delete;
+  KinFitAnalyzer &operator=(const KinFitAnalyzer &) = delete;
 
   void setVerbosity(int val) { fVerbose = val; }
 

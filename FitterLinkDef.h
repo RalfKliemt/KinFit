@@ -10,11 +10,11 @@
 
 #pragma link C++ class KinFitter;
 #pragma link C++ class KinFitParticle;
-#pragma link C++ class KFitDecayCandFinder;
-#pragma link C++ class KFitVertexFinder;
-#pragma link C++ class KFitVertexFinderConstB;
-#pragma link C++ class KFitDecayBuilder;
-#pragma link C++ class KFitAnalyzer;
-#pragma link C++ class CoordinateConversion;
+#pragma link C++ class KinFitDecayCandFinder;
+#pragma link C++ class KinFitVertexFinder;
+#pragma link C++ class KinFitVertexFinderConstB;
+#pragma link C++ class KinFitDecayBuilder;
+#pragma link C++ class KinFitAnalyzer;
+#pragma link C++ class KinFitCoordinateConversion;
 
 #endif

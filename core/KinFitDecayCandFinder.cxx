@@ -14,16 +14,16 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitDecayCandFinder.h"
+#include "KinFitDecayCandFinder.h"
 
 #include <cmath>
 
 /**
- * @file KFitDecayCandFinder.cxx
+ * @file KinFitDecayCandFinder.cxx
  * @brief Implementation of decay-candidate kinematics and covariance estimate.
  */
 
-KFitDecayCandFinder::KFitDecayCandFinder(
+KinFitDecayCandFinder::KinFitDecayCandFinder(
     const std::vector<KinFitParticle> &cands, TVector3 primaryVertex,
     TVector3 decayVertex)
     : fCands(cands), fVerbose(0), fMomentumBeforeDecay(-1.),
@@ -32,14 +32,14 @@ KFitDecayCandFinder::KFitDecayCandFinder(
       fPrimVtxResZ(3.00431), fDecVtxResX(5.75369), fDecVtxResY(5.57198),
       fDecVtxResZ(10.2602) {
   if (fVerbose > 0) {
-    std::cout << "--------------- KFitDecayCandFinder -----------------"
+    std::cout << "--------------- KinFitDecayCandFinder -----------------"
               << std::endl;
   }
 
   calculateDecayCand();
 }
 
-KFitDecayCandFinder::KFitDecayCandFinder(
+KinFitDecayCandFinder::KinFitDecayCandFinder(
     const std::vector<KinFitParticle> &cands, double DecayCandMass,
     TVector3 primaryVertex, TVector3 decayVertex, double primVtxResX,
     double primVtxResY, double primVtxResZ, double decVtxResX,
@@ -51,17 +51,17 @@ KFitDecayCandFinder::KFitDecayCandFinder(
       fDecVtxResX(decVtxResX), fDecVtxResY(decVtxResY),
       fDecVtxResZ(decVtxResZ) {
   if (fVerbose > 0) {
-    std::cout << "--------------- KFitDecayCandFinder -----------------"
+    std::cout << "--------------- KinFitDecayCandFinder -----------------"
               << std::endl;
   }
 
   calculateDecayCand();
 }
 
-void KFitDecayCandFinder::calculateDecayCand() {
+void KinFitDecayCandFinder::calculateDecayCand() {
   if (fVerbose > 0) {
     std::cout
-        << " ----------- KFitDecayCandFinder::calculateDecayCand() -----------"
+        << " ----------- KinFitDecayCandFinder::calculateDecayCand() -----------"
         << std::endl;
   }
 

@@ -14,21 +14,21 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitDecayBuilder.h"
+#include "KinFitDecayBuilder.h"
 #include "KinFitter.h"
 
 /**
- * @file KFitDecayBuilder.cxx
+ * @file KinFitDecayBuilder.cxx
  * @brief Implementation of candidate combinatorics and best-fit selection.
  */
 
-KFitDecayBuilder::KFitDecayBuilder(TString task, std::vector<int> pids,
+KinFitDecayBuilder::KinFitDecayBuilder(TString task, std::vector<int> pids,
                                    TLorentzVector lv, double mass)
     : fTask(task), fPids(pids), fVerbose(0)
 
 {
   if (fVerbose > 0) {
-    std::cout << "--------------- KFitDecayBuilder() -----------------"
+    std::cout << "--------------- KinFitDecayBuilder() -----------------"
               << std::endl;
   }
 
@@ -36,10 +36,10 @@ KFitDecayBuilder::KFitDecayBuilder(TString task, std::vector<int> pids,
   setMass(mass);
 }
 
-void KFitDecayBuilder::countCombis() {
+void KinFitDecayBuilder::countCombis() {
   if (fVerbose > 0) {
     std::cout
-        << "--------------- KFitDecayBuilder::countCombis() -----------------"
+        << "--------------- KinFitDecayBuilder::countCombis() -----------------"
         << std::endl;
   }
   fCombiCounter = 0;
@@ -53,10 +53,10 @@ void KFitDecayBuilder::countCombis() {
   }
 }
 
-void KFitDecayBuilder::buildDecay() {
+void KinFitDecayBuilder::buildDecay() {
   if (fVerbose > 0) {
     std::cout
-        << "--------------- KFitDecayBuilder::buildDecay() -----------------"
+        << "--------------- KinFitDecayBuilder::buildDecay() -----------------"
         << std::endl;
   }
   if (fVerbose > 1) {
@@ -97,9 +97,9 @@ void KFitDecayBuilder::buildDecay() {
   }
 }
 
-Bool_t KFitDecayBuilder::doFit() {
+Bool_t KinFitDecayBuilder::doFit() {
   if (fVerbose > 0) {
-    std::cout << "--------------- KFitDecayBuilder::doFit() -----------------"
+    std::cout << "--------------- KinFitDecayBuilder::doFit() -----------------"
               << std::endl;
   }
   KinFitter Fitter(fFitCands);
@@ -125,7 +125,7 @@ Bool_t KFitDecayBuilder::doFit() {
     cout << "pion momentum error = " << cov_pi(0,0) << endl;
     */
   } else {
-    std::cerr << "KFitDecayBuilder: task \"" << fTask << "\" not available"
+    std::cerr << "KinFitDecayBuilder: task \"" << fTask << "\" not available"
               << std::endl;
     return kFALSE;
   }
@@ -150,10 +150,10 @@ Bool_t KFitDecayBuilder::doFit() {
   }
 }
 
-void KFitDecayBuilder::fillFitCands() {
+void KinFitDecayBuilder::fillFitCands() {
   if (fVerbose > 0) {
     std::cout
-        << "--------------- KFitDecayBuilder::fillFitCands() -----------------"
+        << "--------------- KinFitDecayBuilder::fillFitCands() -----------------"
         << std::endl;
   }
 
@@ -203,9 +203,9 @@ void KFitDecayBuilder::fillFitCands() {
                     // fFitCands, repeat with the next combination.
 }
 
-void KFitDecayBuilder::checkDoubleParticle(size_t i) {
+void KinFitDecayBuilder::checkDoubleParticle(size_t i) {
   if (fVerbose > 0) {
-    std::cout << "--------------- KFitDecayBuilder::checkDoubleParticle() "
+    std::cout << "--------------- KinFitDecayBuilder::checkDoubleParticle() "
                  "-----------------"
               << std::endl;
   }

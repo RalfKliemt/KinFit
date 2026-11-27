@@ -14,16 +14,16 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitVertexFinder.h"
+#include "KinFitVertexFinder.h"
 
 #include <cmath>
 
 /**
- * @file KFitVertexFinder.cxx
+ * @file KinFitVertexFinder.cxx
  * @brief Implementation of least-squares vertex finding from track lines.
  */
 
-KFitVertexFinder::KFitVertexFinder(const std::vector<KinFitParticle> &cands)
+KinFitVertexFinder::KinFitVertexFinder(const std::vector<KinFitParticle> &cands)
     : fVerbose(0) {
 
   fM.ResizeTo(3, 3);
@@ -55,11 +55,11 @@ KFitVertexFinder::KFitVertexFinder(const std::vector<KinFitParticle> &cands)
   findVertex(); // Solve the linear system and store the fitted vertex.
 }
 
-void KFitVertexFinder::addLinesToVertex(const TVector3 &r,
+void KinFitVertexFinder::addLinesToVertex(const TVector3 &r,
                                         const TVector3 &alpha, const double w) {
 
   if (fVerbose > 0) {
-    std::cout << " ----------- KFitVertexFinder::addLinesToVertex() -----------"
+    std::cout << " ----------- KinFitVertexFinder::addLinesToVertex() -----------"
               << std::endl;
     std::cout << "" << std::endl;
   }
@@ -86,10 +86,10 @@ void KFitVertexFinder::addLinesToVertex(const TVector3 &r,
   fB.SetZ(fB.Z() + fM(0, 2) * r.X() + fM(1, 2) * r.Y() + fM(2, 2) * r.Z());
 }
 
-void KFitVertexFinder::findVertex() {
+void KinFitVertexFinder::findVertex() {
 
   if (fVerbose > 0) {
-    std::cout << " ----------- KFitVertexFinder::findVertex() -----------"
+    std::cout << " ----------- KinFitVertexFinder::findVertex() -----------"
               << std::endl;
     std::cout << "" << std::endl;
   }
@@ -130,7 +130,7 @@ void KFitVertexFinder::findVertex() {
   }
 }
 
-void KFitVertexFinder::reset() {
+void KinFitVertexFinder::reset() {
 
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++)

@@ -34,7 +34,7 @@
 // In an interpreted ROOT session the KinFit classes are autoloaded from the
 // library dictionary; including the headers again would clash with it.
 #ifndef __CLING__
-#include "KFitVertexFinder.h"
+#include "KinFitVertexFinder.h"
 #include "KinFitParticle.h"
 #include "KinFitter.h"
 #endif
@@ -189,7 +189,7 @@ int toy_lambda_fit(int nEvents = 2000) {
       // Vertex position from the fitted tracks.
       std::vector<KinFitParticle> fitted;
       vtxFit.getDaughters(fitted);
-      KFitVertexFinder finder(fitted);
+      KinFitVertexFinder finder(fitted);
       vtxDist.add((finder.getVertex() - vTrue).Mag());
     }
   }

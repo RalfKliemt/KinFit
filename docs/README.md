@@ -15,7 +15,7 @@ their covariances, χ², fit probability and pulls.
 | [conventions.md](conventions.md) | Units, track parametrisation (1/p, θ, φ, R, Z), sign of R, covariance layout, magnetic field |
 | [kinfitter.md](kinfitter.md) | The `KinFitter` class: every constraint, its inputs and outputs, convergence, pulls |
 | [vertexing.md](vertexing.md) | Vertex finding with straight lines or helices in constant Bz; building a decay candidate |
-| [analyzer.md](analyzer.md) | Automated event-by-event fitting of ROOT files with `KFitAnalyzer` |
+| [analyzer.md](analyzer.md) | Automated event-by-event fitting of ROOT files with `KinFitAnalyzer` |
 | [examples/](examples/) | Runnable examples |
 | [../QA/README.md](../QA/README.md) | The automated test suite |
 
@@ -25,12 +25,12 @@ their covariances, χ², fit probability and pulls.
 | --- | --- |
 | `KinFitParticle` | A track: `TLorentzVector` + (R, Z) + 5×5 covariance + bookkeeping (PID, charge, …) |
 | `KinFitter` | The fitter. One constraint type per fitter instance |
-| `KFitVertexFinder` | Least-squares common point of straight tracks |
-| `KFitVertexFinderConstB` | Common point of helix tracks in a constant field Bz |
-| `KFitDecayCandFinder` | Builds a decaying "mother" candidate (e.g. Λ) from its daughters and two vertices, as input for a 3C fit |
-| `KFitDecayBuilder` | Loops over all particle combinations of an event and keeps the best fit |
-| `KFitAnalyzer` | Reads a tree of `KinFitParticle`s, runs `KFitDecayBuilder` per event, writes the best fit |
-| `CoordinateConversion` | Helper to convert between (p, θ, φ, R, Z) and Cartesian track parameters |
+| `KinFitVertexFinder` | Least-squares common point of straight tracks |
+| `KinFitVertexFinderConstB` | Common point of helix tracks in a constant field Bz |
+| `KinFitDecayCandFinder` | Builds a decaying "mother" candidate (e.g. Λ) from its daughters and two vertices, as input for a 3C fit |
+| `KinFitDecayBuilder` | Loops over all particle combinations of an event and keeps the best fit |
+| `KinFitAnalyzer` | Reads a tree of `KinFitParticle`s, runs `KinFitDecayBuilder` per event, writes the best fit |
+| `KinFitCoordinateConversion` | Helper to convert between (p, θ, φ, R, Z) and Cartesian track parameters |
 
 ## Quick start
 
@@ -67,7 +67,7 @@ version of this that generates its own input. It runs with no data file.
 | [toy_lambda_fit.cxx](examples/toy_lambda_fit.cxx) | Mass and vertex fit of generated Λ → pπ⁻, pull and probability checks | none |
 | [vertex_constB.cxx](examples/vertex_constB.cxx) | Helix vertex finding in Bz = 1 T compared with straight lines | none |
 | [fit_toyMC_fromPluto.C](examples/fit_toyMC_fromPluto.C) | Vertex fit on a Pluto toy MC tree, filling QA histograms | Pluto tree (not shipped) |
-| [analysis_user.C](examples/analysis_user.C) | `KFitAnalyzer` driver macro | `KinFitParticle` tree (not shipped) |
+| [analysis_user.C](examples/analysis_user.C) | `KinFitAnalyzer` driver macro | `KinFitParticle` tree (not shipped) |
 
 Run the two self-contained ones as compiled programs:
 

@@ -49,7 +49,7 @@ if (fitter.fit()) {
 - All constraints and fit results: [docs/kinfitter.md](docs/kinfitter.md)
 - Vertex finding (straight lines and constant Bz) and decay candidates:
   [docs/vertexing.md](docs/vertexing.md)
-- Automated event-by-event fitting of ROOT files with `KFitAnalyzer`:
+- Automated event-by-event fitting of ROOT files with `KinFitAnalyzer`:
   [docs/analyzer.md](docs/analyzer.md)
 - Runnable examples: [docs/examples/](docs/examples/). Build them with
   `-DKINFIT_BUILD_EXAMPLES=ON`.

@@ -14,13 +14,13 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-// Tests for CoordinateConversion: (p, theta, phi, R, Z) <-> Cartesian and
+// Tests for KinFitCoordinateConversion: (p, theta, phi, R, Z) <-> Cartesian and
 // error propagation.
 
 #include "KinFitTest.h"
 #include "ToyTracks.h"
 
-#include "CoordinateConversion.h"
+#include "KinFitCoordinateConversion.h"
 
 namespace {
 
@@ -43,7 +43,7 @@ void checkCartToSph(double thetaMin, double thetaMax, unsigned seed) {
     mom.SetMagThetaPhi(t.p, t.theta, t.phi);
     double cart[6] = {-t.R * std::sin(t.phi), t.R * std::cos(t.phi), t.Z,
                       mom.X(), mom.Y(), mom.Z()};
-    CoordinateConversion cc;
+    KinFitCoordinateConversion cc;
     cc.setparametersCart(cart);
     cc.setvarsSpher();
     KF_CHECK_REL(cc.getmom(), t.p, 1e-9, 1);
@@ -61,7 +61,7 @@ KF_TEST(sph_to_cart) {
   for (int i = 0; i < 200; ++i) {
     const Track t = randomTrack(rnd, 0.1, 3.0);
     double sph[5] = {t.p, t.theta, t.phi, t.R, t.Z};
-    CoordinateConversion cc;
+    KinFitCoordinateConversion cc;
     cc.setparametersSpher(sph);
     cc.setvarsCart();
     KF_CHECK_NEAR(cc.getPx(), t.p * std::sin(t.theta) * std::cos(t.phi), 1e-6);
@@ -87,7 +87,7 @@ KF_TEST(errors_sph_to_cart) {
     const Track t = randomTrack(rnd, 0.2, 2.9);
     const double err[5] = {0.02 * t.p, 0.002, 0.003, 0.5, 1.0};
     double sph[5] = {t.p, t.theta, t.phi, t.R, t.Z};
-    CoordinateConversion cc;
+    KinFitCoordinateConversion cc;
     cc.setparametersSpher(sph);
     double e[5] = {err[0], err[1], err[2], err[3], err[4]};
     cc.setparametererrorsSpher(e);

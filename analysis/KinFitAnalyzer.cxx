@@ -14,39 +14,39 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitAnalyzer.h"
-#include "KFitDecayBuilder.h"
+#include "KinFitAnalyzer.h"
+#include "KinFitDecayBuilder.h"
 
 #include "TFile.h"
 
 /**
- * @file KFitAnalyzer.cxx
+ * @file KinFitAnalyzer.cxx
  * @brief Implementation of the high-level analysis workflow wrapper.
  */
 
-KFitAnalyzer::KFitAnalyzer(TString inFileName, TString outFileName, int nEvents)
+KinFitAnalyzer::KinFitAnalyzer(TString inFileName, TString outFileName, int nEvents)
     : fEvents(nEvents), fVerbose(0),
       fCands_in(new TClonesArray("KinFitParticle")) {
   if (fVerbose > 0) {
-    std::cout << "--------------- KFitAnalyzer() -----------------"
+    std::cout << "--------------- KinFitAnalyzer() -----------------"
               << std::endl;
   }
 
   fInFile.reset(TFile::Open(inFileName, "READ"));
   if (!fInFile || fInFile->IsZombie()) {
-    std::cerr << "KFitAnalyzer: cannot open input file " << inFileName
+    std::cerr << "KinFitAnalyzer: cannot open input file " << inFileName
               << std::endl;
     fInFile.reset();
   } else {
     fInFile->GetObject("data", fTree);
     if (!fTree)
-      std::cerr << "KFitAnalyzer: no TTree 'data' in " << inFileName
+      std::cerr << "KinFitAnalyzer: no TTree 'data' in " << inFileName
                 << std::endl;
   }
 
   foutFile.reset(TFile::Open(outFileName, "RECREATE"));
   if (!foutFile || foutFile->IsZombie()) {
-    std::cerr << "KFitAnalyzer: cannot open output file " << outFileName
+    std::cerr << "KinFitAnalyzer: cannot open output file " << outFileName
               << std::endl;
     foutFile.reset();
   } else {
@@ -55,7 +55,7 @@ KFitAnalyzer::KFitAnalyzer(TString inFileName, TString outFileName, int nEvents)
   }
 }
 
-KFitAnalyzer::~KFitAnalyzer() {
+KinFitAnalyzer::~KinFitAnalyzer() {
   // Detach the input tree from fCands_in before either is destroyed.
   if (fTree)
     fTree->ResetBranchAddresses();
@@ -66,9 +66,9 @@ KFitAnalyzer::~KFitAnalyzer() {
 }
 
 // Select and sort particles according to their PID.
-void KFitAnalyzer::selectCandidates() {
+void KinFitAnalyzer::selectCandidates() {
   if (fVerbose > 0) {
-    std::cout << " ----------- KFitAnalyzer::selectCandidates() -----------"
+    std::cout << " ----------- KinFitAnalyzer::selectCandidates() -----------"
               << std::endl;
     std::cout << "" << std::endl;
   }
@@ -92,11 +92,11 @@ void KFitAnalyzer::selectCandidates() {
   } // end of PIDs loop
 }
 
-void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
+void KinFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
                                 double mass, TLorentzVector lv,
                                 KinFitParticle mother) {
   if (fVerbose > 0) {
-    std::cout << " ----------- KFitAnalyzer::selectCandidates() -----------"
+    std::cout << " ----------- KinFitAnalyzer::selectCandidates() -----------"
               << std::endl;
     std::cout << "" << std::endl;
     std::cout << "Task added: " << task << std::endl;
@@ -104,8 +104,8 @@ void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
   }
 
   if (!fTree || !fTree_out) {
-    std::cerr << "KFitAnalyzer::doFitterTask: no input tree or output already "
-                 "written (call doFitterTask once per KFitAnalyzer)"
+    std::cerr << "KinFitAnalyzer::doFitterTask: no input tree or output already "
+                 "written (call doFitterTask once per KinFitAnalyzer)"
               << std::endl;
     return;
   }
@@ -140,7 +140,7 @@ void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
     std::cout << "EntEvents to be analyzed: " << entries << std::endl;
   }
 
-  KFitDecayBuilder builder(task, fPids, lv, mass);
+  KinFitDecayBuilder builder(task, fPids, lv, mass);
   builder.setVerbosity(fVerbose);
 
   // start of the event loop
@@ -206,7 +206,7 @@ void KFitAnalyzer::doFitterTask(TString task, std::vector<int> pids,
 }
 
 // Write output and close all resources.
-void KFitAnalyzer::finish() {
+void KinFitAnalyzer::finish() {
   foutFile->cd();
   fTree_out->Write();
   foutFile->Close(); // deletes fTree_out

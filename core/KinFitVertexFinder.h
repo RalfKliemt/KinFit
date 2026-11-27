@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * KFitVertexFinder.h
+ * KinFitVertexFinder.h
  *
  * @updated 03.08.2023
  * @version v1.0.0
@@ -38,7 +38,7 @@
 using std::cout;
 using std::endl;
 
-class KFitVertexFinder {
+class KinFitVertexFinder {
 
 private:
   int fVerbose; // Verbosity level
@@ -70,10 +70,10 @@ public:
   /** @brief Constructor.
    * @param cands Input track candidates.
    */
-  KFitVertexFinder(const std::vector<KinFitParticle> &cands);
+  KinFitVertexFinder(const std::vector<KinFitParticle> &cands);
 
   /** @brief Default destructor. */
-  ~KFitVertexFinder() {};
+  ~KinFitVertexFinder() {};
 
   void setVerbosity(int val) { fVerbose = val; }
 

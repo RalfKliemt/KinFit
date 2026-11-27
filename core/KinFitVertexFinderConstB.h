@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * KFitVertexFinderConstB.h
+ * KinFitVertexFinderConstB.h
  *
  * Vertex finder for charged tracks in a constant magnetic field Bz.
  */
@@ -29,7 +29,7 @@
 
 #include <vector>
 
-class KFitVertexFinderConstB {
+class KinFitVertexFinderConstB {
 private:
   /** @brief Per-track state used by the local helix linearization. */
   struct HelixTrack {
@@ -92,9 +92,9 @@ public:
    * @param cands Input tracks in KinFitParticle representation.
    * @param bzTesla Constant magnetic field Bz in Tesla.
    */
-  KFitVertexFinderConstB(std::vector<KinFitParticle> &cands, double bzTesla);
+  KinFitVertexFinderConstB(std::vector<KinFitParticle> &cands, double bzTesla);
 
-  ~KFitVertexFinderConstB() {}
+  ~KinFitVertexFinderConstB() {}
 
   /** @brief Rebuild the track model and rerun the fit.
    *
