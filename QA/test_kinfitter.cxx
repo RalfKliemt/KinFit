@@ -456,15 +456,117 @@ KF_TEST(mass_exclusive_candidates) {
   KF_CHECK_NEAR((f.getDaughter(2).Vect() - s.cands[2].Vect()).Mag(), 0, 1e-6);
 }
 
-// With a single measured track the 4x4 system D V D^T has rank <= 3:
-// the fit must fail cleanly instead of returning garbage.
-KF_TEST(missing_particle_single_track_fails_cleanly) {
+// A single measured track with a missing particle: Lambda -> p (pi-),
+// initial system = Lambda. The 4C formulation is singular (D V D^T has
+// rank 3), so it is solved as (P_init - p)^2 = m_miss^2 (it used to fail).
+KF_TEST(missing_particle_single_track) {
   TRandom3 rnd(600);
-  Scenario s = makeScenario(C::MissingParticle, true, rnd);
-  s.cands.pop_back();
+  // exact input: chi2 ~ 0, missing particle = true pion
+  for (int ev = 0; ev < 20; ++ev) {
+    const toy::LambdaEvent l = toy::lambdaEvent(rnd);
+    std::vector<KinFitParticle> cands = {
+        toy::exactTrack(l.proton, l.decayVertex, kTrackRes)};
+    KinFitter f(cands);
+    f.addMissingParticleConstraint(l.lambda, toy::kMassPion);
+    KF_CHECK(f.fit());
+    KF_CHECK(f.getNDF() == 1);
+    KF_CHECK(f.getChi2() < 1e-6);
+    KF_CHECK_NEAR((f.getMissingDaughter().Vect() - l.pion.Vect()).Mag(), 0,
+                  1e-3);
+  }
+  // smeared input: flat probability, missing mass exact
+  toy::Stats prob, pullPx;
+  for (int ev = 0; ev < 1000; ++ev) {
+    const toy::LambdaEvent l = toy::lambdaEvent(rnd);
+    std::vector<KinFitParticle> cands = {
+        toy::smearedTrack(l.proton, l.decayVertex, kTrackRes, rnd)};
+    KinFitter f(cands);
+    f.addMissingParticleConstraint(l.lambda, toy::kMassPion);
+    if (!f.fit())
+      continue;
+    prob.add(f.getProb());
+    KF_CHECK_NEAR(f.getMissingDaughter().M(), toy::kMassPion, 1e-3);
+    const TMatrixD &c = f.getMissingDaughterCovariance();
+    pullPx.add((f.getMissingDaughter().Px() - l.pion.Px()) /
+               std::sqrt(c(0, 0)));
+  }
+  kftest::info("1-track MissingParticle: n %d <prob> %.3f, pull px %.3f +- "
+               "%.3f",
+               prob.n, prob.mean(), pullPx.mean(), pullPx.rms());
+  KF_CHECK(prob.n >= 990);
+  KF_CHECK_NEAR(prob.mean(), 0.5, 0.04);
+  // fitted - truth over the fitted error: width <= 1 (the constraint adds
+  // information), not >> 1
+  KF_CHECK(pullPx.rms() < 1.15);
+}
+
+// The 3x3 covariance of the missing particle (two measured tracks) matches
+// the spread of the fitted momentum around the truth.
+KF_TEST(missing_particle_covariance) {
+  TRandom3 rnd(601);
+  toy::Stats pull[3];
+  for (int ev = 0; ev < 1000; ++ev) {
+    Scenario s = makeScenario(C::MissingParticle, true, rnd);
+    KinFitter f(s.cands);
+    f.addMissingParticleConstraint(s.init, s.mass);
+    if (!f.fit())
+      continue;
+    const TMatrixD &c = f.getMissingDaughterCovariance();
+    KF_CHECK(c.GetNrows() == 3 && c.GetNcols() == 3);
+    const TVector3 diff = f.getMissingDaughter().Vect() - s.missingTruth.Vect();
+    for (int k = 0; k < 3; ++k)
+      pull[k].add(diff[k] / std::sqrt(c(k, k)));
+  }
+  for (int k = 0; k < 3; ++k) {
+    kftest::info("missing p[%d]: pull mean %+.3f rms %.3f", k, pull[k].mean(),
+                 pull[k].rms());
+    KF_CHECK_NEAR(pull[k].mean(), 0, 0.12);
+    KF_CHECK_NEAR(pull[k].rms(), 1, 0.12);
+  }
+}
+
+// Two identical mass constraints: D V D^T is singular up to rounding. The
+// fit must fail instead of inverting a near-singular matrix.
+KF_TEST(near_singular_system_fails) {
+  TRandom3 rnd(602);
+  Scenario s = makeScenario(C::Mass, true, rnd);
   KinFitter f(s.cands);
-  f.addMissingParticleConstraint(s.init, s.mass);
+  f.addMassConstraint(s.mass);
+  f.addMassConstraint(s.mass);
   KF_CHECK(!f.fit());
+}
+
+// Tracks with phi close to +-pi: the fitted tracks are returned with phi in
+// (-pi, pi] and theta in [0, pi], and still fulfil the constraint.
+KF_TEST(angles_normalised_near_pi) {
+  TRandom3 rnd(603);
+  int nConverged = 0;
+  for (int ev = 0; ev < 50; ++ev) {
+    toy::LambdaEvent l = toy::lambdaEvent(rnd);
+    // rotate the event so that the proton points to phi ~ pi
+    const double rot = TMath::Pi() - l.proton.Phi() + rnd.Gaus(0, 0.005);
+    for (TLorentzVector *v : {&l.lambda, &l.proton, &l.pion})
+      v->RotateZ(rot);
+    l.decayVertex.RotateZ(rot);
+    std::vector<KinFitParticle> cands = {
+        toy::smearedTrack(l.proton, l.decayVertex, kTrackRes, rnd),
+        toy::smearedTrack(l.pion, l.decayVertex, kTrackRes, rnd)};
+    KinFitter f(cands);
+    f.add4Constraint(l.lambda);
+    if (!f.fit())
+      continue;
+    ++nConverged;
+    for (int i = 0; i < 2; ++i) {
+      const KinFitParticle &d = f.getDaughter(i);
+      KF_CHECK(d.getPhiRad() > -TMath::Pi() && d.getPhiRad() <= TMath::Pi());
+      KF_CHECK(d.getThetaRad() >= 0 && d.getThetaRad() <= TMath::Pi());
+      KF_CHECK_NEAR(d.getPhiRad(), d.Phi(), 1e-12);
+    }
+    const TLorentzVector diff = f.getDaughter(0) + f.getDaughter(1) - l.lambda;
+    KF_CHECK_NEAR(diff.Px(), 0, 1e-2);
+    KF_CHECK_NEAR(diff.E(), 0, 1e-2);
+  }
+  KF_CHECK(nConverged == 50);
 }
 
 // A measured parameter that is exactly zero (R = 0 for a track from the

@@ -47,6 +47,9 @@ private:
   TMatrixD fYFit;          //! Fitted measured variables
   TMatrixD fVFit;          //! Fitted covariance of the measured variables
   TMatrixD fVxy;           //! Fitted covariance unmeasured x measured
+  TMatrixD fVMiss;         //! Fitted covariance of p_miss (px, py, pz)
+  bool fMissingFromMissingMass = false; // 1-track MissingParticle, solved
+                                        // as missing-mass constraint
   std::vector<double> fPull; // Pull value for all measured variables
   double fChi2 = 1e6;      // Chi2 of fit
   double fProb = 1e6;      // Probability of fit
@@ -251,6 +254,15 @@ public:
    * @return Missing daughter four-vector.
    */
   const TLorentzVector &getMissingDaughter() const { return fMissDaughter; }
+
+  /** @brief MissingParticle only: fitted 3x3 covariance of (px, py, pz) of
+   * the missing particle. */
+  const TMatrixD &getMissingDaughterCovariance() const { return fVMiss; }
+
+  /** @brief Full fitted covariance of all measured parameters, including
+   * correlations between tracks. Ordering as in getPull(); for 3C followed
+   * by (theta, phi, R, Z) of the mother. */
+  const TMatrixD &getFittedCovariance() const { return fVFit; }
 
 private:
   void updateDaughters();

@@ -20,6 +20,9 @@
 #include "KinFitTrackLine.h"
 #include "RtypesCore.h"
 
+#include <TVector2.h>
+
+#include <cmath>
 #include <numeric>
 
 /**
@@ -35,6 +38,76 @@ namespace {
 void assign(TMatrixD &dst, const TMatrixD &src) {
   dst.ResizeTo(src);
   dst = src;
+}
+
+/**
+ * Invert a symmetric positive-definite matrix in place (Cholesky, uses the
+ * lower triangle; the result is exactly symmetric). Fails if the matrix is
+ * not positive definite or near-singular: det / prod(diag) is the
+ * determinant of the corresponding correlation matrix, in (0, 1] and
+ * independent of the units of the rows. (Before, TMatrixD::Invert() and a
+ * test for det == 0 only, so near-singular systems gave garbage.)
+ */
+bool invertSPD(TMatrixD &m, double minCorrDet = 1e-12) {
+  const int n = m.GetNrows();
+  std::vector<double> L(n * n, 0.), Li(n * n, 0.);
+  double logCorrDet = 0;
+  for (int j = 0; j < n; ++j) {
+    const double ajj = m(j, j);
+    if (!(ajj > 0) || !std::isfinite(ajj))
+      return false;
+    double sum = ajj;
+    for (int k = 0; k < j; ++k)
+      sum -= L[j * n + k] * L[j * n + k];
+    if (!(sum > 0))
+      return false;
+    const double ljj = std::sqrt(sum);
+    L[j * n + j] = ljj;
+    logCorrDet += std::log(sum / ajj);
+    for (int i = j + 1; i < n; ++i) {
+      double t = m(i, j);
+      for (int k = 0; k < j; ++k)
+        t -= L[i * n + k] * L[j * n + k];
+      L[i * n + j] = t / ljj;
+    }
+  }
+  if (logCorrDet < std::log(minCorrDet))
+    return false;
+  // L^-1 (lower triangular), then m^-1 = L^-T L^-1
+  for (int i = 0; i < n; ++i) {
+    Li[i * n + i] = 1. / L[i * n + i];
+    for (int j = 0; j < i; ++j) {
+      double t = 0;
+      for (int k = j; k < i; ++k)
+        t -= L[i * n + k] * Li[k * n + j];
+      Li[i * n + j] = t / L[i * n + i];
+    }
+  }
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j <= i; ++j) {
+      double t = 0;
+      for (int k = i; k < n; ++k)
+        t += Li[k * n + i] * Li[k * n + j];
+      m(i, j) = m(j, i) = t;
+    }
+  return true;
+}
+
+/** Bring (theta, phi) of a fitted track back to [0, pi] x (-pi, pi]. A
+ * negative theta describes the same line as (-theta, phi + pi) with R -> -R;
+ * the covariance rows of theta and R change sign accordingly. Indices refer
+ * to the (1/p, theta, phi, R, Z) ordering of cov. */
+void normaliseAngles(double &theta, double &phi, double &R, TMatrixD &cov) {
+  if (theta < 0 || theta > TMath::Pi()) {
+    theta = theta < 0 ? -theta : TMath::TwoPi() - theta;
+    phi += TMath::Pi();
+    R = -R;
+    const double sign[5] = {1, -1, 1, -1, 1};
+    for (int i = 0; i < 5; ++i)
+      for (int j = 0; j < 5; ++j)
+        cov(i, j) *= sign[i] * sign[j];
+  }
+  phi = TVector2::Phi_mpi_pi(phi);
 }
 } // namespace
 
@@ -241,6 +314,17 @@ void KinFitter::addMissingParticleConstraint(TLorentzVector lv, double mass) {
 
   fInit = lv;
   fMassMissingParticle = mass;
+
+  if (fN == 1) {
+    // With one measured track the 4x4 matrix D V D^T has rank <= 3 (only
+    // 1/p, theta, phi enter), so the 4C + 3 unknowns formulation cannot be
+    // solved. Eliminating p_miss gives the equivalent single equation
+    // (P_init - p)^2 = m^2, i.e. the missing-mass constraint (NDF = 1 in both).
+    fMass = mass;
+    fMissingMassConstraint = true;
+    fMissingFromMissingMass = true;
+    return;
+  }
 
   x.ResizeTo(3, 1);
   Vx.ResizeTo(3, 3);
@@ -611,11 +695,15 @@ Bool_t KinFitter::fit() {
     assign(xi0, calcMissingMom(alpha0));
   TMatrixD xi(xi0), neu_xi(xi0);
   double chi2 = 1e6;
-  double determinant = 0.;
 
   TMatrixD D = Feta_eval(alpha, xi);
   TMatrixD d = f_eval(alpha, xi);
   fNdf = d.GetNrows() - nUnmeasured();
+  if (fNdf < 1) {
+    std::cerr << "KinFitter::fit(): NDF = " << fNdf
+              << " (fewer constraints than unknowns)" << std::endl;
+    return kFALSE;
+  }
   TMatrixD D_xi, DT_xi;
   if (hasXi)
     assign(D_xi, Fxi_eval(alpha, xi));
@@ -635,8 +723,7 @@ Bool_t KinFitter::fit() {
     assign(V0DT, V0 * DT);
     assign(S, D * V0DT); // D V0 D^T
     assign(VD, S);
-    VD.Invert(&determinant);
-    if (determinant == 0.) {
+    if (!invertSPD(VD)) {
       if (q == 0)
         return kFALSE; // protect against failed matrix inversion
       break;           // keep the last good iteration
@@ -647,8 +734,7 @@ Bool_t KinFitter::fit() {
       DT_xi.ResizeTo(D_xi.GetNcols(), D_xi.GetNrows());
       DT_xi.Transpose(D_xi);
       assign(VDD, DT_xi * VD * D_xi);
-      VDD.Invert(&determinant);
-      if (determinant == 0.) {
+      if (!invertSPD(VDD)) {
         if (q == 0)
           return kFALSE;
         break;
@@ -726,8 +812,7 @@ Bool_t KinFitter::fit() {
   DT.Transpose(D);
   assign(V0DT, V0 * DT);
   assign(VD, D * V0DT);
-  VD.Invert(&determinant);
-  if (determinant == 0.)
+  if (!invertSPD(VD))
     return kFALSE;
   const TMatrixD DV0(TMatrixD::kTransposed, V0DT); // D V0 (V0 symmetric)
   assign(fVFit, V0 - V0DT * VD * DV0);
@@ -736,9 +821,8 @@ Bool_t KinFitter::fit() {
     DT_xi.ResizeTo(D_xi.GetNcols(), D_xi.GetNrows());
     DT_xi.Transpose(D_xi);
     TMatrixD VxFit = DT_xi * VD * D_xi;
-    VxFit.Invert(&determinant);
-    if (determinant == 0.)
-      return kFALSE; // protect against failed matrix inversion
+    if (!invertSPD(VxFit))
+      return kFALSE;
     const TMatrixD G = V0DT * VD * D_xi; // fyDim x n_xi
     const TMatrixD GT(TMatrixD::kTransposed, G);
     fVFit += G * VxFit * GT;
@@ -748,8 +832,31 @@ Bool_t KinFitter::fit() {
 
   assign(fYFit, alpha);
   assign(x, xi);
-  if (fMissingParticleConstraint)
+  if (fMissingParticleConstraint) {
     fMissDaughter.SetXYZM(x(0, 0), x(1, 0), x(2, 0), fM[fN]);
+    assign(fVMiss, Vx);
+  }
+  if (fMissingFromMissingMass) {
+    // p_miss = P_init - p of the single track; its covariance follows from
+    // the fitted (1/p, theta, phi) block of that track.
+    const double p = 1. / alpha(0, 0), th = alpha(1, 0), ph = alpha(2, 0);
+    const double st = std::sin(th), ct = std::cos(th);
+    const double sp = std::sin(ph), cp = std::cos(ph);
+    const TVector3 pTrack(p * st * cp, p * st * sp, p * ct);
+    fMissDaughter.SetVectM(fInit.Vect() - pTrack, fMass);
+    TMatrixD J(3, 3); // d(p_miss)/d(1/p, theta, phi) = -d(p_track)/d(...)
+    J(0, 0) = p * p * st * cp;
+    J(1, 0) = p * p * st * sp;
+    J(2, 0) = p * p * ct;
+    J(0, 1) = -p * ct * cp;
+    J(1, 1) = -p * ct * sp;
+    J(2, 1) = p * st;
+    J(0, 2) = p * st * sp;
+    J(1, 2) = -p * st * cp;
+    J(2, 2) = 0;
+    const TMatrixD Vtrack = fVFit.GetSub(0, 2, 0, 2);
+    assign(fVMiss, J * Vtrack * TMatrixD(TMatrixD::kTransposed, J));
+  }
   fChi2 = chi2;
   fProb = TMath::Prob(chi2, fNdf);
 
@@ -783,22 +890,27 @@ void KinFitter::updateDaughters() {
   for (int val = 0; val < fN; ++val) {
     KinFitParticle &cand = fCands[val];
     const double p = 1. / fYFit(0 + val * cov_dim, 0);
-    const double theta = fYFit(1 + val * cov_dim, 0);
-    const double phi = fYFit(2 + val * cov_dim, 0);
+    double theta = fYFit(1 + val * cov_dim, 0);
+    double phi = fYFit(2 + val * cov_dim, 0);
+    double R = fYFit(3 + val * cov_dim, 0);
+
+    // Full 5x5 block of the fitted covariance.
+    TMatrixD cov(cov_dim, cov_dim);
+    for (size_t i = 0; i < cov_dim; ++i)
+      for (size_t j = 0; j < cov_dim; ++j)
+        cov(i, j) = fVFit(i + val * cov_dim, j + val * cov_dim);
+    // The fit works with unwrapped angles (pulls stay correct); only the
+    // returned track is brought back to the standard ranges.
+    normaliseAngles(theta, phi, R, cov);
+
     cand.SetXYZM(p * std::sin(theta) * std::cos(phi),
                  p * std::sin(theta) * std::sin(phi), p * std::cos(theta),
                  fM[val]);
     cand.setMomentum(p);
     cand.setThetaRad(theta);
     cand.setPhiRad(phi);
-    cand.setR(fYFit(3 + val * cov_dim, 0));
+    cand.setR(R);
     cand.setZ(fYFit(4 + val * cov_dim, 0));
-
-    // Full 5x5 block of the fitted covariance (was only the diagonal).
-    TMatrixD cov(cov_dim, cov_dim);
-    for (size_t i = 0; i < cov_dim; ++i)
-      for (size_t j = 0; j < cov_dim; ++j)
-        cov(i, j) = fVFit(i + val * cov_dim, j + val * cov_dim);
     cand.setCovariance(cov);
   }
 }
@@ -810,16 +922,9 @@ void KinFitter::updateMother() {
 
   KinFitParticle &mother = fMother;
   const double p = 1. / x(0, 0);
-  const double theta = fYFit(0 + fN * cov_dim, 0);
-  const double phi = fYFit(1 + fN * cov_dim, 0);
-  mother.SetXYZM(p * std::sin(theta) * std::cos(phi),
-                 p * std::sin(theta) * std::sin(phi), p * std::cos(theta),
-                 fM[fN]);
-  mother.setMomentum(p);
-  mother.setThetaRad(theta);
-  mother.setPhiRad(phi);
-  mother.setR(fYFit(2 + fN * cov_dim, 0));
-  mother.setZ(fYFit(3 + fN * cov_dim, 0));
+  double theta = fYFit(0 + fN * cov_dim, 0);
+  double phi = fYFit(1 + fN * cov_dim, 0);
+  double R = fYFit(2 + fN * cov_dim, 0);
 
   // (1/p, theta, phi, R, Z): 1/p is the unmeasured parameter, the rest the
   // measured mother block, including their correlations.
@@ -830,5 +935,15 @@ void KinFitter::updateMother() {
     for (int j = 0; j < 4; ++j)
       cov(i + 1, j + 1) = fVFit(i + fN * cov_dim, j + fN * cov_dim);
   }
+  normaliseAngles(theta, phi, R, cov);
+
+  mother.SetXYZM(p * std::sin(theta) * std::cos(phi),
+                 p * std::sin(theta) * std::sin(phi), p * std::cos(theta),
+                 fM[fN]);
+  mother.setMomentum(p);
+  mother.setThetaRad(theta);
+  mother.setPhiRad(phi);
+  mother.setR(R);
+  mother.setZ(fYFit(3 + fN * cov_dim, 0));
   mother.setCovariance(cov);
 }

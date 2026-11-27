@@ -47,7 +47,7 @@ The NDF is the number of equations minus the number of unknowns
 | `add4Constraint(lv)` | Σpᵢ − P_init = 0 (4) | – | 4 | all | ✅ verified |
 | `addMassConstraint(m)` | (Σpᵢ)² − m² = 0 (1) | – | 1 | all (or first *n*, see below) | ✅ verified |
 | `addVertexConstraint()` | (d₁ × d₂)·(B₁ − B₂) = 0 (1) | – | 1 | **first two** | ✅ verified |
-| `addMissingParticleConstraint(lv, m)` | P_init − Σpᵢ − p_miss = 0 with E_miss = √(p⃗²_miss + m²) (4) | p⃗_miss (3) | 1 | all, **at least two** | ✅ verified with 2 tracks |
+| `addMissingParticleConstraint(lv, m)` | P_init − Σpᵢ − p_miss = 0 with E_miss = √(p⃗²_miss + m²) (4) | p⃗_miss (3) | 1 | all (1 track: solved as missing mass, see below) | ✅ verified with 1 and 2 tracks |
 | `add3Constraint(mother)` | Σpᵢ − p_mother = 0 (4) | \|p_mother\| (1) | 3 | all daughters + mother | ✅ verified |
 | `addMassVtxConstraint(m)` | mass (1) + vertex of first two (1) | – | 2 | all / first two | ✅ verified |
 | `addMissingMassConstraint(lv, m)` | (P_init − Σpᵢ)² − m² = 0 (1) | – | 1 | all | ✅ verified |
@@ -55,11 +55,14 @@ The NDF is the number of equations minus the number of unknowns
 \* Status from the QA suite ([QA/](../QA/README.md), `test_kinfitter`):
 ✅ means that, with smeared Λ → pπ⁻ tracks, the fit converges, fulfils the
 constraint, gives pulls distributed as N(0, 1) and a flat probability, and
-that its analytic derivatives agree with finite differences. Open issues are
-listed in [TODO.md](../TODO.md):
+that its analytic derivatives agree with finite differences.
 
-- **MissingParticle with a single measured track:** the matrix D·V·Dᵀ is
-  singular (rank ≤ 3 for a 4×4 matrix), so the fit returns `false`.
+**MissingParticle with a single measured track:** in the 4-equation form the
+matrix D·V·Dᵀ has rank ≤ 3 (only 1/p, θ, φ of one track enter), so it cannot
+be inverted. Eliminating p⃗_miss gives the equivalent single equation
+(P_init − p)² = m², which is what the fitter uses internally for one track
+(NDF = 1 in both forms). `getMissingDaughter()` and
+`getMissingDaughterCovariance()` work as for two or more tracks.
 
 ### Inputs
 
@@ -130,10 +133,20 @@ converge; fixed.)
 | `getDaughter(i)`, `getDaughters(vec)` | fitted tracks: updated four-vector (same mass), R, Z and the full 5×5 fitted covariance |
 | `getMother()` | 3C only: fitted mother with fitted \|p\| and 5×5 covariance (incl. 1/p correlations) |
 | `getMissingDaughter()` | MissingParticle only: fitted four-vector of the missing particle |
+| `getMissingDaughterCovariance()` | MissingParticle only: 3×3 covariance of its (px, py, pz) |
+| `getFittedCovariance()` | full fitted covariance of all measured parameters, incl. correlations between tracks (ordering as for the pulls) |
 | `getPull(k)` | pull of parameter k, see below |
 
 `fit()` returns `false` if no constraint was added, the constraint
-configuration is invalid or a matrix inversion fails. It can be called again
+configuration is invalid (also NDF < 1), or a matrix to be inverted (D V₀ Dᵀ,
+Eᵀ S E) is not positive definite or near-singular: the determinant of its
+correlation matrix, det / Π diagonal, must be above 10⁻¹² (for example two
+identical mass constraints fail here).
+
+Fitted tracks (and the 3C mother) are returned with φ in (−π, π] and θ in
+[0, π]; a fitted θ < 0 is mapped to (−θ, φ + π, −R) with the covariance
+signs adjusted. The fit itself works with unwrapped angles, so pulls are not
+affected. It can be called again
 (the measured values are kept); the result is the same.
 
 ### Pulls

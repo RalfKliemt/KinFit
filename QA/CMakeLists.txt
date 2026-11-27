@@ -47,7 +47,8 @@ kinfit_add_test(test_kinfitter
         jacobian_4C jacobian_Mass jacobian_Vertex jacobian_MissingParticle
         jacobian_3C
         pull_of_unconstrained_parameter mass_exclusive_candidates
-        missing_particle_single_track_fails_cleanly
+        missing_particle_single_track missing_particle_covariance
+        near_singular_system_fails angles_normalised_near_pi
         single_iteration_returns_true
         exact_MissingMass pulls_MissingMass jacobian_MissingMass
         pulls_MassVtx jacobian_MassVtx converges_with_zero_parameters
