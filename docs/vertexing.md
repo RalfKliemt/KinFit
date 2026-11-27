@@ -6,17 +6,17 @@ before or after a fit.
 
 | Class | Track model | Output |
 | --- | --- | --- |
-| `KFitVertexFinder` | straight lines | vertex position |
-| `KFitVertexFinderConstB` | helices in constant Bz (straight lines for neutrals) | vertex position |
-| `KFitDecayCandFinder` | – | a mother `KinFitParticle` with covariance, for a 3C fit |
+| `KinFitVertexFinder` | straight lines | vertex position |
+| `KinFitVertexFinderConstB` | helices in constant Bz (straight lines for neutrals) | vertex position |
+| `KinFitDecayCandFinder` | – | a mother `KinFitParticle` with covariance, for a 3C fit |
 
 All three run their calculation in the constructor.
 
-## KFitVertexFinder: straight lines
+## KinFitVertexFinder: straight lines
 
 ```cpp
 std::vector<KinFitParticle> tracks = {t1, t2, t3};
-KFitVertexFinder finder(tracks);
+KinFitVertexFinder finder(tracks);
 TVector3 vertex = finder.getVertex();     // mm
 ```
 
@@ -35,15 +35,15 @@ Only an exactly zero determinant is detected, so a nearly singular system
 (e.g. a single track) can return a meaningless point. Use at least two
 non-parallel tracks.
 
-## KFitVertexFinderConstB: helices in constant Bz
+## KinFitVertexFinderConstB: helices in constant Bz
 
 For charged tracks in a solenoid-like field, the straight-line model is wrong
-away from the beam axis. `KFitVertexFinderConstB` follows each track as a
+away from the beam axis. `KinFitVertexFinderConstB` follows each track as a
 helix through its point of closest approach (PCA) to the z axis.
 
 ```cpp
 for (auto &t : tracks) t.setCharge(q);    // charge is required
-KFitVertexFinderConstB finder(tracks, 1.0 /* Bz [T] */);
+KinFitVertexFinderConstB finder(tracks, 1.0 /* Bz [T] */);
 TVector3 vertex = finder.getVertex();     // mm, (-1000,-1000,-1000) on failure
 
 // Change settings and run again:
@@ -62,7 +62,7 @@ Requirements:
   from +z.
 - Neutral tracks (charge 0), Bz = 0 and tracks along the beam axis are
   treated as straight lines. With Bz = 0 the result equals
-  `KFitVertexFinder`.
+  `KinFitVertexFinder`.
 
 Algorithm:
 
@@ -83,14 +83,14 @@ reproduced to better than 10⁻⁵ mm, while straight lines are off by
 0.01 – 0.5 mm in 1 T. See
 [examples/vertex_constB.cxx](examples/vertex_constB.cxx).
 
-## KFitDecayCandFinder: building a mother for a 3C fit
+## KinFitDecayCandFinder: building a mother for a 3C fit
 
 For a decay such as Λ → pπ⁻ the Λ is not measured directly.
-`KFitDecayCandFinder` builds it from its daughters and the primary and decay
+`KinFitDecayCandFinder` builds it from its daughters and the primary and decay
 vertices:
 
 ```cpp
-KFitDecayCandFinder finder(daughters, 1115.683,         // mass hypothesis
+KinFitDecayCandFinder finder(daughters, 1115.683,         // mass hypothesis
                            primaryVertex, decayVertex,  // TVector3, mm
                            0.5, 0.5, 1.0,               // σ primary x,y,z [mm]
                            2.0, 2.0, 4.0);              // σ decay   x,y,z [mm]
@@ -98,7 +98,7 @@ finder.setVertexCorrelations(0, 0, 0, 0, 0, 0);         // optional
 KinFitParticle lambda = finder.getDecayCand();
 ```
 
-A short constructor `KFitDecayCandFinder(daughters, primaryVertex,
+A short constructor `KinFitDecayCandFinder(daughters, primaryVertex,
 decayVertex)` uses a Λ mass of 1115.683 MeV/c² and HADES-like default
 resolutions.
 
@@ -115,8 +115,8 @@ What it computes:
 A typical chain:
 
 ```text
-tracks ──► KFitVertexFinder (primary)  ┐
-p, π⁻  ──► KFitVertexFinder (decay)    ├─► KFitDecayCandFinder ──► Λ
+tracks ──► KinFitVertexFinder (primary)  ┐
+p, π⁻  ──► KinFitVertexFinder (decay)    ├─► KinFitDecayCandFinder ──► Λ
                                        ┘
 KinFitter({p, π⁻}).add3Constraint(Λ) ──► fitted p, π⁻ and Λ
 ```

@@ -27,11 +27,11 @@ Each case is its own CTest entry, named `<executable>.<case>`. Labels:
 | Executable | Covers |
 | --- | --- |
 | `test_particle` | `KinFitParticle`: construction, (R, Z) convention and sign of R, covariance, `TClonesArray` I/O round trip |
-| `test_vertexfinder` | `KFitVertexFinder` and `KFitVertexFinderConstB`: exact vertices, loopers, ±Bz, B = 0, `fit()` after setters, singular input |
+| `test_vertexfinder` | `KinFitVertexFinder` and `KinFitVertexFinderConstB`: exact vertices, loopers, ±Bz, B = 0, `fit()` after setters, singular input |
 | `test_kinfitter` | `KinFitter`, for each constraint: `exact_*` (truth input), `pulls_*` (smeared input: constraint fulfilled, pulls N(0,1), flat probability), `jacobian_*` (analytic derivatives vs finite differences); plus edge cases |
-| `test_decaycandfinder` | `KFitDecayCandFinder`: momentum, direction, R/Z, covariance, use in a 3C fit |
-| `test_coordinateconversion` | `CoordinateConversion`: both directions and error propagation |
-| `test_analyzer` | `KFitDecayBuilder` combinatorics and the `KFitAnalyzer` file-to-file workflow |
+| `test_decaycandfinder` | `KinFitDecayCandFinder`: momentum, direction, R/Z, covariance, use in a 3C fit |
+| `test_coordinateconversion` | `KinFitCoordinateConversion`: both directions and error propagation |
+| `test_analyzer` | `KinFitDecayBuilder` combinatorics and the `KinFitAnalyzer` file-to-file workflow |
 | `example.*` | the self-contained examples as smoke tests (with `-DKINFIT_BUILD_EXAMPLES=ON`) |
 
 Helpers:

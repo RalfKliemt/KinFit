@@ -71,7 +71,7 @@ listed in [TODO.md](../TODO.md):
   mass (from the four-vector), direction θ, φ, position R, Z and a 5×5
   covariance. Only θ, φ, R, Z are treated as measured (with their
   covariance); \|p\| is a free parameter started from `mother.P()`. Use
-  `KFitDecayCandFinder` to build it (see [vertexing.md](vertexing.md)).
+  `KinFitDecayCandFinder` to build it (see [vertexing.md](vertexing.md)).
 
 ### Mass constraint on a subset
 
@@ -96,7 +96,7 @@ fitter.addMassConstraint(mLambda);              // (p1 + p3)^2 = mLambda^2
 Both tracks are straight lines (base point B, direction d, see
 [conventions.md](conventions.md)). The constraint requires the two lines to
 intersect, i.e. their distance of closest approach to be zero. It does not
-return a vertex position. To get one, run `KFitVertexFinder` on the fitted
+return a vertex position. To get one, run `KinFitVertexFinder` on the fitted
 tracks (as in [examples/toy_lambda_fit.cxx](examples/toy_lambda_fit.cxx)).
 
 ## Settings

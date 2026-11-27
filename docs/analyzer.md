@@ -1,6 +1,6 @@
-# Automated analysis: KFitAnalyzer and KFitDecayBuilder
+# Automated analysis: KinFitAnalyzer and KinFitDecayBuilder
 
-`KFitAnalyzer` runs one fit type over every event of a ROOT file. For each
+`KinFitAnalyzer` runs one fit type over every event of a ROOT file. For each
 event it builds all combinations of the requested particles, fits each one,
 and writes the combination with the highest fit probability to an output
 tree.
@@ -9,7 +9,7 @@ tree.
 
 ```cpp
 // analysis_user.C  (see examples/analysis_user.C)
-KFitAnalyzer analyzer("input.root", "fitted.root", 1000);   // nEvents, -1 = all
+KinFitAnalyzer analyzer("input.root", "fitted.root", 1000);   // nEvents, -1 = all
 
 std::vector<int> pids = {14, 11, 14, 9};   // particle species to combine
 TLorentzVector initial(0, 0, 5356.7, 2*938.272 + 4500.0);  // beam + target
@@ -24,7 +24,7 @@ root -l -e 'gSystem->Load("libKinFit")' 'analysis_user.C("input.root","fitted.ro
 ```
 
 `doFitterTask` runs the event loop, writes the output file and closes it, so
-call it **once** per `KFitAnalyzer` object.
+call it **once** per `KinFitAnalyzer` object.
 
 ### Tasks
 
@@ -74,7 +74,7 @@ for (/* events */) {
 t.Write();
 ```
 
-## Combinatorics (KFitDecayBuilder)
+## Combinatorics (KinFitDecayBuilder)
 
 For each event:
 

@@ -14,14 +14,14 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-// Tests for the analysis layer: KFitDecayBuilder combinatorics and the
-// KFitAnalyzer file-to-file workflow.
+// Tests for the analysis layer: KinFitDecayBuilder combinatorics and the
+// KinFitAnalyzer file-to-file workflow.
 
 #include "KinFitTest.h"
 #include "ToyTracks.h"
 
-#include "KFitAnalyzer.h"
-#include "KFitDecayBuilder.h"
+#include "KinFitAnalyzer.h"
+#include "KinFitDecayBuilder.h"
 
 #include <TClonesArray.h>
 #include <TFile.h>
@@ -32,7 +32,7 @@ namespace {
 constexpr int kPidProton = 14, kPidPion = 9;
 const toy::Resolution kRes;
 
-/** Write `nEvents` Lambda -> p pi- events in the KFitAnalyzer input format. */
+/** Write `nEvents` Lambda -> p pi- events in the KinFitAnalyzer input format. */
 void writeLambdaFile(const char *fname, int nEvents, unsigned seed) {
   TRandom3 rnd(seed);
   TFile f(fname, "RECREATE");
@@ -101,7 +101,7 @@ OutputSummary readOutput(const char *fname) {
 } // namespace
 
 // ---------------------------------------------------------------------------
-// KFitDecayBuilder
+// KinFitDecayBuilder
 // ---------------------------------------------------------------------------
 
 // One proton, the true pion and a fake pion: the best combination
@@ -124,7 +124,7 @@ KF_TEST(builder_selects_true_combination) {
     piTrue.setTrackId(1);
     piFake.setTrackId(2);
 
-    KFitDecayBuilder builder("Mass", {kPidProton, kPidPion}, TLorentzVector(),
+    KinFitDecayBuilder builder("Mass", {kPidProton, kPidPion}, TLorentzVector(),
                              toy::kMassLambda);
     builder.setInputCands({{p}, {piFake, piTrue}});
     builder.countCombis();
@@ -152,7 +152,7 @@ KF_TEST(builder_no_double_use) {
     KinFitParticle b = toy::smearedTrack(le.pion, le.decayVertex, kRes, rnd);
     a.setTrackId(0);
     b.setTrackId(1);
-    KFitDecayBuilder builder("Mass", {kPidProton, kPidProton}, TLorentzVector(),
+    KinFitDecayBuilder builder("Mass", {kPidProton, kPidProton}, TLorentzVector(),
                              toy::kMassLambda);
     builder.setInputCands({{a, b}, {a, b}});
     builder.countCombis();
@@ -166,14 +166,14 @@ KF_TEST(builder_no_double_use) {
 }
 
 // ---------------------------------------------------------------------------
-// KFitAnalyzer
+// KinFitAnalyzer
 // ---------------------------------------------------------------------------
 
 KF_TEST(analyzer_mass_fit_output) {
   const int nEvents = 30;
   writeLambdaFile("test_analyzer_in.root", nEvents, 10);
   {
-    KFitAnalyzer analyzer("test_analyzer_in.root", "test_analyzer_out.root", -1);
+    KinFitAnalyzer analyzer("test_analyzer_in.root", "test_analyzer_out.root", -1);
     analyzer.doFitterTask("Mass", {kPidProton, kPidPion}, toy::kMassLambda);
   }
   const OutputSummary s = readOutput("test_analyzer_out.root");
@@ -190,7 +190,7 @@ KF_TEST(analyzer_processes_first_event) {
   const int nEvents = 10;
   writeLambdaFile("test_analyzer_first_in.root", nEvents, 11);
   {
-    KFitAnalyzer analyzer("test_analyzer_first_in.root",
+    KinFitAnalyzer analyzer("test_analyzer_first_in.root",
                           "test_analyzer_first_out.root", -1);
     analyzer.doFitterTask("Mass", {kPidProton, kPidPion}, toy::kMassLambda);
   }
@@ -203,7 +203,7 @@ KF_TEST(analyzer_processes_first_event) {
 KF_TEST(analyzer_event_limit) {
   writeLambdaFile("test_analyzer_limit_in.root", 20, 12);
   {
-    KFitAnalyzer analyzer("test_analyzer_limit_in.root",
+    KinFitAnalyzer analyzer("test_analyzer_limit_in.root",
                           "test_analyzer_limit_out.root", 5);
     analyzer.doFitterTask("Mass", {kPidProton, kPidPion}, toy::kMassLambda);
   }
@@ -219,7 +219,7 @@ KF_TEST(builder_unknown_task_no_abort) {
   std::vector<std::vector<KinFitParticle>> cands = {
       {toy::exactTrack(ev.proton, ev.decayVertex, toy::Resolution())},
       {toy::exactTrack(ev.pion, ev.decayVertex, toy::Resolution())}};
-  KFitDecayBuilder builder("NoSuchTask", {kPidProton, kPidPion});
+  KinFitDecayBuilder builder("NoSuchTask", {kPidProton, kPidPion});
   builder.setInputCands(cands);
   builder.countCombis();
   builder.buildDecay();

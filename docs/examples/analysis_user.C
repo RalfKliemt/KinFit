@@ -14,13 +14,13 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitAnalyzer.h"
+#include "KinFitAnalyzer.h"
 
 Int_t analysis_user(TString infileList="../KinFit/QA/test_files/input.root", TString outfile = "fitted_test.root", Int_t nEvents=1000){
 
     // Initialize Analyzer 
     // Arguments are input file(list), output file name and number of events to analyze
-    KFitAnalyzer RootAnalyzer(infileList, outfile, nEvents);
+    KinFitAnalyzer RootAnalyzer(infileList, outfile, nEvents);
 
     // Create vector that contains the PIDs of the particles that should be analyzed
     std::vector<int> pids;

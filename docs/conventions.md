@@ -26,9 +26,9 @@ GeV.
 Some classes **do** fix the units, so MeV/c and mm are the recommended
 default:
 
-- `KFitVertexFinderConstB` converts pT to a curvature radius with
+- `KinFitVertexFinderConstB` converts pT to a curvature radius with
   ρ[mm] = pT[MeV/c] / (0.299792458 · |q| · Bz[T]).
-- `KFitDecayCandFinder` has a default Λ mass of 1115.683 (MeV/c²) and
+- `KinFitDecayCandFinder` has a default Λ mass of 1115.683 (MeV/c²) and
   default vertex resolutions in mm.
 
 ## Track parametrisation
@@ -77,7 +77,7 @@ Inside `KinFitter` all tracks are straight lines. For tracks that were
 reconstructed in a field, give the parameters **at the point of closest
 approach**: θ, φ and p are the momentum direction and magnitude at that
 point. The straight-line approximation is then valid near the beam axis.
-For vertices far from the axis use `KFitVertexFinderConstB`, which follows
+For vertices far from the axis use `KinFitVertexFinderConstB`, which follows
 the helix (see [vertexing.md](vertexing.md)).
 
 ## Covariance matrix
@@ -96,7 +96,7 @@ different tracks are not returned.
 
 ## Magnetic field
 
-`KFitVertexFinderConstB` takes the field component Bz in tesla, positive along
+`KinFitVertexFinderConstB` takes the field component Bz in tesla, positive along
 +z. With Bz > 0, positive particles turn **clockwise** seen from +z
 (F = q v × B). The charge comes from `KinFitParticle::getCharge()`, so set it
 with `setCharge()`.
@@ -113,8 +113,8 @@ with `setCharge()`.
 | four-momentum | constructor, `SetXYZM`, … | the mass is the particle hypothesis used in energy terms |
 | R, Z | constructor, `setR`, `setZ` | |
 | covariance | `setCovariance` | 5×5, see above |
-| charge | `setCharge` | needed for `KFitVertexFinderConstB` |
-| PID | `setPid` | user-defined code; used by `KFitAnalyzer` to select particles |
+| charge | `setCharge` | needed for `KinFitVertexFinderConstB` |
+| PID | `setPid` | user-defined code; used by `KinFitAnalyzer` to select particles |
 | track id | `setTrackId` | free for the user, copied to the output |
 | MC truth, sector, β, TOF, … | various setters | bookkeeping only, not used by the fit |
 
@@ -122,14 +122,14 @@ with `setCharge()`.
 copies. They are filled by the constructors and by the fit, but are **not**
 updated by the `TLorentzVector` setters. Prefer `P()`, `Theta()` and `Phi()`.
 
-## CoordinateConversion
+## KinFitCoordinateConversion
 
-`CoordinateConversion` is a small header-only helper that converts between
+`KinFitCoordinateConversion` is a small header-only helper that converts between
 (p, θ, φ, R, Z) and Cartesian (px, py, pz, X, Y, Z) and propagates
 uncorrelated errors:
 
 ```cpp
-CoordinateConversion cc;
+KinFitCoordinateConversion cc;
 double sph[5] = {p, theta, phi, R, Z};
 cc.setparametersSpher(sph);
 cc.setvarsCart();                // fills Px, Py, Pz, X, Y

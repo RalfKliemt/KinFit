@@ -32,11 +32,14 @@ if(KINFIT_ENABLE_ASAN)
 endif()
 
 # Core fitter (KinFitter, particles, vertexing) and analysis layer
-# (KFitAnalyzer, KFitDecayBuilder); headers and sources live side by side.
+# (KinFitAnalyzer, KinFitDecayBuilder); headers and sources live side by side.
 set(CORE_CLASSES
-    KinFitter KinFitParticle KFitVertexFinder KFitVertexFinderConstB
-    KFitDecayCandFinder CoordinateConversion)
-set(ANALYSIS_CLASSES KFitAnalyzer KFitDecayBuilder)
+    KinFitter KinFitParticle KinFitVertexFinder KinFitVertexFinderConstB
+    KinFitDecayCandFinder KinFitCoordinateConversion)
+set(ANALYSIS_CLASSES KinFitAnalyzer KinFitDecayBuilder)
+# Internal helpers of KinFitter: compiled into the library, but neither
+# installed nor part of the ROOT dictionary.
+set(INTERNAL_CLASSES KinFitFourMomentum KinFitTrackKinematics KinFitTrackLine)
 
 set(SRCFILES)
 set(HFILES)
@@ -45,6 +48,9 @@ foreach(cls ${CORE_CLASSES})
   list(APPEND SRCFILES core/${cls}.cxx)
   list(APPEND HFILES core/${cls}.h)
   list(APPEND DICT_HEADERS ${cls}.h)
+endforeach()
+foreach(cls ${INTERNAL_CLASSES})
+  list(APPEND SRCFILES core/${cls}.cxx)
 endforeach()
 foreach(cls ${ANALYSIS_CLASSES})
   list(APPEND SRCFILES analysis/${cls}.cxx)

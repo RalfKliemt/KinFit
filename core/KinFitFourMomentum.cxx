@@ -14,12 +14,12 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-// ROOT includes
-#include "CoordinateConversion.h"
+#include "KinFitFourMomentum.h"
+#include "KinFitTrackKinematics.h"
 
-/**
- * @file CoordinateConversion.cxx
- * @brief Translation unit for coordinate-conversion utilities.
- */
-
-void CoordTest();
+void KinFitFourMomentum::add(const KinFitTrackKinematics &k, double sign) {
+  px += sign * k.p * k.st * k.cp;
+  py += sign * k.p * k.st * k.sp;
+  pz += sign * k.p * k.ct;
+  E += sign * k.E;
+}

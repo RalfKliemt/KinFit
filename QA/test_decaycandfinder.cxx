@@ -14,13 +14,13 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-// Tests for KFitDecayCandFinder: building a Lambda candidate from its
+// Tests for KinFitDecayCandFinder: building a Lambda candidate from its
 // daughters and the primary and decay vertices.
 
 #include "KinFitTest.h"
 #include "ToyTracks.h"
 
-#include "KFitDecayCandFinder.h"
+#include "KinFitDecayCandFinder.h"
 #include "KinFitter.h"
 
 #include <TMatrixDSymEigen.h>
@@ -28,11 +28,11 @@
 
 namespace {
 
-KFitDecayCandFinder makeFinder(const toy::LambdaEvent &ev) {
+KinFitDecayCandFinder makeFinder(const toy::LambdaEvent &ev) {
   std::vector<KinFitParticle> daughters = {
       toy::exactTrack(ev.proton, ev.decayVertex, toy::Resolution()),
       toy::exactTrack(ev.pion, ev.decayVertex, toy::Resolution())};
-  return KFitDecayCandFinder(daughters, toy::kMassLambda, ev.primaryVertex,
+  return KinFitDecayCandFinder(daughters, toy::kMassLambda, ev.primaryVertex,
                              ev.decayVertex, 0.5, 0.5, 1.0, 2.0, 2.0, 4.0);
 }
 
@@ -96,7 +96,7 @@ KF_TEST(covariance_symmetric_positive) {
     std::vector<KinFitParticle> daughters = {
         toy::exactTrack(ev.proton, ev.decayVertex, toy::Resolution()),
         toy::exactTrack(ev.pion, ev.decayVertex, toy::Resolution())};
-    KFitDecayCandFinder finder(daughters, toy::kMassLambda, ev.primaryVertex,
+    KinFitDecayCandFinder finder(daughters, toy::kMassLambda, ev.primaryVertex,
                                ev.decayVertex, 0.5, 0.5, 1.0, 2.0, 2.0, 4.0);
     finder.setVertexCorrelations(0.3, 0.1, -0.2, 0.3, 0.1, -0.2);
     const TMatrixD cov = finder.getCovarianceMatrixDecayCand();
@@ -124,7 +124,7 @@ KF_TEST(covariance_matches_vertex_smearing) {
   // Small resolutions keep the propagation linear.
   const double sP[3] = {0.05, 0.05, 0.1}, sD[3] = {0.2, 0.2, 0.4};
   const double corr[3] = {0.3, 0.1, -0.2}; // xy, xz, yz
-  KFitDecayCandFinder finder(daughters, toy::kMassLambda, ev.primaryVertex,
+  KinFitDecayCandFinder finder(daughters, toy::kMassLambda, ev.primaryVertex,
                              ev.decayVertex, sP[0], sP[1], sP[2], sD[0], sD[1],
                              sD[2]);
   finder.setVertexCorrelations(corr[0], corr[1], corr[2], corr[0], corr[1],
@@ -147,7 +147,7 @@ KF_TEST(covariance_matches_vertex_smearing) {
   const KinFitParticle ref = finder.getDecayCand();
   const double par0[4] = {ref.Theta(), ref.Phi(), ref.getR(), ref.getZ()};
   for (int i = 0; i < n; ++i) {
-    KFitDecayCandFinder f(daughters, toy::kMassLambda,
+    KinFitDecayCandFinder f(daughters, toy::kMassLambda,
                           smear(ev.primaryVertex, sP),
                           smear(ev.decayVertex, sD), sP[0], sP[1], sP[2],
                           sD[0], sD[1], sD[2]);
@@ -184,7 +184,7 @@ KF_TEST(usable_as_3C_mother) {
     std::vector<KinFitParticle> daughters = {
         toy::exactTrack(ev.proton, ev.decayVertex, toy::Resolution()),
         toy::exactTrack(ev.pion, ev.decayVertex, toy::Resolution())};
-    KFitDecayCandFinder finder(daughters, toy::kMassLambda, ev.primaryVertex,
+    KinFitDecayCandFinder finder(daughters, toy::kMassLambda, ev.primaryVertex,
                                ev.decayVertex, 0.5, 0.5, 1.0, 2.0, 2.0, 4.0);
     KinFitter fitter(daughters);
     fitter.add3Constraint(finder.getDecayCand());

@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * KFitDecayBuilder.h
+ * KinFitDecayBuilder.h
  *
  * @updated 01.08.2023
  * @version v1.0.0
@@ -39,7 +39,7 @@
 using std::cout;
 using std::endl;
 
-class KFitDecayBuilder {
+class KinFitDecayBuilder {
 private:
   // Working Particles
   std::vector<std::vector<KinFitParticle>>
@@ -72,7 +72,7 @@ private:
   /** @brief Fills vector of particles to be fitted with current combination */
   void fillFitCands();
 
-  /** @brief Calls KFitter */
+  /** @brief Calls KinFitter */
   bool doFit();
 
   /** @brief Checks if same particle was used twice in same combination */
@@ -86,11 +86,11 @@ public:
    * @param lv Optional input four-vector needed by specific tasks.
    * @param mass Optional mass or missing mass used by specific tasks.
    */
-  KFitDecayBuilder(TString task, std::vector<int> pids,
+  KinFitDecayBuilder(TString task, std::vector<int> pids,
                    TLorentzVector lv = TLorentzVector(), double mass = -1.);
 
   /** @brief Default destructor. */
-  ~KFitDecayBuilder() {};
+  ~KinFitDecayBuilder() {};
 
   void setVerbosity(int val) { fVerbose = val; }
 

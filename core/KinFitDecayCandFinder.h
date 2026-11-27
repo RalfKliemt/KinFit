@@ -15,7 +15,7 @@
 //****************************************************************************
 
 /**
- * KFitDecayCandFinder.h
+ * KinFitDecayCandFinder.h
  *
  * @updated 03.08.2023
  * @version v1.0.0
@@ -37,7 +37,7 @@
 using std::cout;
 using std::endl;
 
-class KFitDecayCandFinder {
+class KinFitDecayCandFinder {
 private:
   std::vector<KinFitParticle> fCands; // Vector of decay products
 
@@ -102,7 +102,7 @@ public:
    * @param decVtxResY Decay vertex resolution in y-direction.
    * @param decVtxResZ Decay vertex resolution in z-direction.
    */
-  KFitDecayCandFinder(const std::vector<KinFitParticle> &cands,
+  KinFitDecayCandFinder(const std::vector<KinFitParticle> &cands,
                       double decayCandMass, TVector3 primaryVertex,
                       TVector3 decayVertex, double primVtxResX,
                       double primVtxResY, double primVtxResZ, double decVtxResX,
@@ -114,11 +114,11 @@ public:
    * @param primaryVertex Primary vertex position.
    * @param decayVertex Decay vertex position.
    */
-  KFitDecayCandFinder(const std::vector<KinFitParticle> &cands,
+  KinFitDecayCandFinder(const std::vector<KinFitParticle> &cands,
                       TVector3 primaryVertex, TVector3 decayVertex);
 
   /** @brief Default destructor. */
-  ~KFitDecayCandFinder() {};
+  ~KinFitDecayCandFinder() {};
 
   void setVerbosity(int val) { fVerbose = val; }
 

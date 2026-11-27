@@ -21,7 +21,7 @@
  * Charged tracks are generated from a known vertex in Bz = 1 T, propagated
  * along their helices to the point of closest approach (PCA) to the z axis,
  * and stored as KinFitParticles (R, Z, theta, phi at the PCA). Then the
- * straight-line KFitVertexFinder and the helix KFitVertexFinderConstB are
+ * straight-line KinFitVertexFinder and the helix KinFitVertexFinderConstB are
  * compared.
  *
  * Units: MeV/c, mm, Tesla.
@@ -30,8 +30,8 @@
 // In an interpreted ROOT session the KinFit classes are autoloaded from the
 // library dictionary; including the headers again would clash with it.
 #ifndef __CLING__
-#include "KFitVertexFinder.h"
-#include "KFitVertexFinderConstB.h"
+#include "KinFitVertexFinder.h"
+#include "KinFitVertexFinderConstB.h"
 #include "KinFitParticle.h"
 #endif
 
@@ -103,8 +103,8 @@ int vertex_constB(int nEvents = 10) {
       cands.push_back(trackAtPCA(vTrue, p, (t % 2) ? -1 : +1, bz, 139.570));
     }
 
-    KFitVertexFinderConstB helixFinder(cands, bz);
-    KFitVertexFinder lineFinder(cands);
+    KinFitVertexFinderConstB helixFinder(cands, bz);
+    KinFitVertexFinder lineFinder(cands);
 
     std::printf("(%7.2f, %7.2f, %7.2f)    %16.6f %16.3f\n", vTrue.X(),
                 vTrue.Y(), vTrue.Z(),

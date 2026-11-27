@@ -14,7 +14,7 @@
 //*               The authors are listed in the file "AUTHORS".              *
 //****************************************************************************
 
-#include "KFitVertexFinderConstB.h"
+#include "KinFitVertexFinderConstB.h"
 
 #include <TMath.h>
 #include <TVector2.h>
@@ -24,7 +24,7 @@
 #include <iostream>
 
 /**
- * @file KFitVertexFinderConstB.cxx
+ * @file KinFitVertexFinderConstB.cxx
  * @brief Helix-aware vertex fit in a constant magnetic field Bz.
  *
  * The algorithm alternates between:
@@ -34,7 +34,7 @@
  */
 
 /** @brief Build and run the fit immediately from input tracks and field. */
-KFitVertexFinderConstB::KFitVertexFinderConstB(std::vector<KinFitParticle> &cands,
+KinFitVertexFinderConstB::KinFitVertexFinderConstB(std::vector<KinFitParticle> &cands,
                                                double bzTesla)
     : fBzTesla(bzTesla), fCands(cands) {
   fM.ResizeTo(3, 3);
@@ -44,24 +44,24 @@ KFitVertexFinderConstB::KFitVertexFinderConstB(std::vector<KinFitParticle> &cand
 }
 
 /** @brief Rebuild the track model with current settings and refit. */
-void KFitVertexFinderConstB::fit() {
+void KinFitVertexFinderConstB::fit() {
   buildTrackModel();
   fitVertex();
 }
 
-bool KFitVertexFinderConstB::isInvalidVertex(const TVector3 &v) {
+bool KinFitVertexFinderConstB::isInvalidVertex(const TVector3 &v) {
   return v.X() < -999.0 && v.Y() < -999.0 && v.Z() < -999.0;
 }
 
 /** @brief Build a 3D point on the track from the (R,phi,Z) representation. */
-TVector3 KFitVertexFinderConstB::lineBaseFromCand(const KinFitParticle &cand) const {
+TVector3 KinFitVertexFinderConstB::lineBaseFromCand(const KinFitParticle &cand) const {
   return TVector3(cand.getR() * std::cos(cand.Phi() + TMath::PiOver2()),
                   cand.getR() * std::sin(cand.Phi() + TMath::PiOver2()),
                   cand.getZ());
 }
 
 /** @brief Build local track direction from spherical angles. */
-TVector3 KFitVertexFinderConstB::lineDirectionFromCand(const KinFitParticle &cand) const {
+TVector3 KinFitVertexFinderConstB::lineDirectionFromCand(const KinFitParticle &cand) const {
   return TVector3(std::sin(cand.Theta()) * std::cos(cand.Phi()),
                   std::sin(cand.Theta()) * std::sin(cand.Phi()),
                   std::cos(cand.Theta()));
@@ -72,7 +72,7 @@ TVector3 KFitVertexFinderConstB::lineDirectionFromCand(const KinFitParticle &can
  *
  * Straight-line fallback is used for neutral tracks, tiny Bz, or degenerate pT.
  */
-void KFitVertexFinderConstB::buildTrackModel() {
+void KinFitVertexFinderConstB::buildTrackModel() {
   fTracks.clear();
   fTracks.reserve(fCands.size());
 
@@ -117,7 +117,7 @@ void KFitVertexFinderConstB::buildTrackModel() {
 }
 
 /** @brief Evaluate helix position at arc length s from the reference point. */
-TVector3 KFitVertexFinderConstB::helixPoint(const HelixTrack &track, double sMm) const {
+TVector3 KinFitVertexFinderConstB::helixPoint(const HelixTrack &track, double sMm) const {
   if (track.fUseStraightLine || std::abs(track.fSignedRho) < 1e-12) {
     const TVector3 dir(std::cos(track.fPhi), std::sin(track.fPhi), track.fCotTheta);
     return track.fRefPoint + sMm * dir;
@@ -137,7 +137,7 @@ TVector3 KFitVertexFinderConstB::helixPoint(const HelixTrack &track, double sMm)
 }
 
 /** @brief Evaluate first derivative dr/ds at arc length s. */
-TVector3 KFitVertexFinderConstB::helixDerivative(const HelixTrack &track,
+TVector3 KinFitVertexFinderConstB::helixDerivative(const HelixTrack &track,
                                                  double sMm) const {
   if (track.fUseStraightLine || std::abs(track.fSignedRho) < 1e-12) {
     return TVector3(std::cos(track.fPhi), std::sin(track.fPhi), track.fCotTheta);
@@ -148,7 +148,7 @@ TVector3 KFitVertexFinderConstB::helixDerivative(const HelixTrack &track,
 }
 
 /** @brief Evaluate second derivative d2r/ds2 at arc length s. */
-TVector3 KFitVertexFinderConstB::helixSecondDerivative(const HelixTrack &track,
+TVector3 KinFitVertexFinderConstB::helixSecondDerivative(const HelixTrack &track,
                                                        double sMm) const {
   if (track.fUseStraightLine || std::abs(track.fSignedRho) < 1e-12) {
     return TVector3(0.0, 0.0, 0.0);
@@ -171,7 +171,7 @@ TVector3 KFitVertexFinderConstB::helixSecondDerivative(const HelixTrack &track,
  * and are limited to a fraction of the radius to stay on the same branch.
  * @return Estimated arc length s in mm.
  */
-double KFitVertexFinderConstB::estimateArcLengthToPoint(const HelixTrack &track,
+double KinFitVertexFinderConstB::estimateArcLengthToPoint(const HelixTrack &track,
                                                          const TVector3 &point) const {
   const TVector3 delta0 = point - track.fRefPoint;
 
@@ -229,7 +229,7 @@ double KFitVertexFinderConstB::estimateArcLengthToPoint(const HelixTrack &track,
 }
 
 /** @brief Clear normal-equation accumulators before building one fit step. */
-void KFitVertexFinderConstB::resetLinearSystem() {
+void KinFitVertexFinderConstB::resetLinearSystem() {
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
       fM(i, j) = 0.0;
@@ -240,7 +240,7 @@ void KFitVertexFinderConstB::resetLinearSystem() {
 }
 
 /** @brief Add one local tangent-line contribution to the least-squares system. */
-void KFitVertexFinderConstB::addLineToVertexSystem(const TVector3 &r,
+void KinFitVertexFinderConstB::addLineToVertexSystem(const TVector3 &r,
                                                     const TVector3 &alpha,
                                                     double w) {
   fM(0, 0) = w * (alpha.Y() * alpha.Y() + alpha.Z() * alpha.Z());
@@ -266,7 +266,7 @@ void KFitVertexFinderConstB::addLineToVertexSystem(const TVector3 &r,
  * @brief Solve the symmetric 3x3 normal-equation system.
  * @return Fitted vertex; returns (-1000,-1000,-1000) for singular systems.
  */
-TVector3 KFitVertexFinderConstB::solveVertexFromSystem() const {
+TVector3 KinFitVertexFinderConstB::solveVertexFromSystem() const {
   TMatrixD m(3, 3);
 
   const double det =
@@ -306,7 +306,7 @@ TVector3 KFitVertexFinderConstB::solveVertexFromSystem() const {
  * Starts from a straight-line estimate and then re-linearizes each helix
  * around the current vertex guess until convergence.
  */
-void KFitVertexFinderConstB::fitVertex() {
+void KinFitVertexFinderConstB::fitVertex() {
   if (fTracks.empty()) {
     fVertex.SetXYZ(-1000.0, -1000.0, -1000.0);
     return;
@@ -335,7 +335,7 @@ void KFitVertexFinderConstB::fitVertex() {
   }
 
   if (fVerbose > 0) {
-    std::cout << "KFitVertexFinderConstB::fitVertex(): " << fTracks.size()
+    std::cout << "KinFitVertexFinderConstB::fitVertex(): " << fTracks.size()
               << " tracks, Bz = " << fBzTesla << " T, start ("
               << vertexGuess.X() << ", " << vertexGuess.Y() << ", "
               << vertexGuess.Z() << ") mm" << std::endl;
@@ -362,7 +362,7 @@ void KFitVertexFinderConstB::fitVertex() {
     const TVector3 newVertex = solveVertexFromSystem();
     if (isInvalidVertex(newVertex)) {
       if (fVerbose > 0) {
-        std::cout << "KFitVertexFinderConstB::fitVertex(): singular system in "
+        std::cout << "KinFitVertexFinderConstB::fitVertex(): singular system in "
                   << "iteration " << iter << ", fit failed" << std::endl;
       }
       fVertex = newVertex;
@@ -379,7 +379,7 @@ void KFitVertexFinderConstB::fitVertex() {
     vertexGuess = newVertex;
     if (shift < fConvergenceTolMm) {
       if (fVerbose > 0) {
-        std::cout << "KFitVertexFinderConstB::fitVertex(): converged after "
+        std::cout << "KinFitVertexFinderConstB::fitVertex(): converged after "
                   << iter + 1 << " iterations" << std::endl;
       }
       fVertex = vertexGuess;
@@ -388,7 +388,7 @@ void KFitVertexFinderConstB::fitVertex() {
   }
 
   if (fVerbose > 0) {
-    std::cout << "KFitVertexFinderConstB::fitVertex(): not converged after "
+    std::cout << "KinFitVertexFinderConstB::fitVertex(): not converged after "
               << std::max(1, fMaxIterations) << " iterations" << std::endl;
   }
   fVertex = vertexGuess;
