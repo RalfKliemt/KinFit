@@ -19,7 +19,7 @@ set(CMAKE_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # Locate the ROOT package and define a number of useful targets and variables.
-find_package(ROOT REQUIRED Core)
+find_package(ROOT REQUIRED Core Hist)
 if(NOT ROOT_FOUND)
   message(FATAL_ERROR "ROOT is required but missing !")
 endif(NOT ROOT_FOUND)
@@ -43,7 +43,8 @@ endif()
 # (KinFitAnalyzer, KinFitDecayBuilder); headers and sources live side by side.
 set(CORE_CLASSES
     KinFitter KinFitParticle KinFitVertexFinder KinFitVertexFinderConstB
-    KinFitDecayCandFinder KinFitCoordinateConversion)
+    KinFitDecayCandFinder KinFitCoordinateConversion KinFitField
+    KinFitFieldUniform KinFitFieldByZ KinFitFieldByXZ KinFitFieldFunction)
 set(ANALYSIS_CLASSES KinFitAnalyzer KinFitDecayBuilder)
 # Internal helpers of KinFitter: compiled into the library, but neither
 # installed nor part of the ROOT dictionary.
@@ -78,7 +79,7 @@ root_generate_dictionary(KinFitDict ${DICT_HEADERS}
 # cmake-format: on
 add_library(KinFit SHARED ${SRCFILES} KinFitDict.cxx)
 add_library(KinFit::KinFit ALIAS KinFit)
-target_link_libraries(KinFit ROOT::Core ROOT::Matrix ROOT::Physics ROOT::MathCore ROOT::RIO ROOT::Tree)
+target_link_libraries(KinFit ROOT::Core ROOT::Matrix ROOT::Physics ROOT::MathCore ROOT::RIO ROOT::Tree ROOT::Hist)
 target_include_directories(
   KinFit
   PUBLIC $<INSTALL_INTERFACE:include>

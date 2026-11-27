@@ -16,5 +16,10 @@
 #pragma link C++ class KinFitDecayBuilder;
 #pragma link C++ class KinFitAnalyzer;
 #pragma link C++ class KinFitCoordinateConversion;
+#pragma link C++ class KinFitField;
+#pragma link C++ class KinFitFieldUniform;
+#pragma link C++ class KinFitFieldByZ;
+#pragma link C++ class KinFitFieldByXZ;
+#pragma link C++ class KinFitFieldFunction;
 
 #endif

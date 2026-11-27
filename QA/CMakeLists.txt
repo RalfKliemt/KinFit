@@ -31,6 +31,10 @@ kinfit_add_test(test_particle
         covariance_5x5 covariance_wrong_size_ignored io_roundtrip_tclonesarray
         construct_from_point_has_5x5_covariance construct_from_point_along_z setters_store_values)
 
+kinfit_add_test(test_field
+  LABELS core field
+  CASES uniform by_of_z_histogram by_of_xz_histogram function)
+
 kinfit_add_test(test_vertexfinder
   LABELS core vertex
   CASES lines_exact_intersection lines_parallel_tracks_fail_cleanly
