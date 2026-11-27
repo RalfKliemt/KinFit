@@ -28,7 +28,11 @@ Int_t analysis_user(TString infileList="../KinFit/QA/test_files/input.root", TSt
     //pids.push_back(14); pids.push_back(14); pids.push_back(9);    // Missing K fits
     //pids.push_back(14); pids.push_back(9);  // Vertex fit, Mass fit
 
-    // Other input that might be needed, depending on constraint
+    // Other input that might be needed, depending on constraint.
+    // Units: GeV, like the tracks in the input file this macro was written
+    // for. KinFitter is unit-agnostic, but the initial system and masses
+    // must use the same unit as the tracks (see docs/conventions.md); for
+    // MeV input multiply these values by 1000.
     TLorentzVector ppSystem(0,0,5.3567,2*0.938272+4.500);
     Double_t mLambda = 1.11568;
     Double_t mK = 0.493677;

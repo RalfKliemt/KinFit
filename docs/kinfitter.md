@@ -164,6 +164,47 @@ For correct covariances and Gaussian errors the pulls are distributed as
 N(0, 1) and the probability is flat between 0 and 1. These are the standard
 checks for a fit setup (see the expected output in [README.md](README.md)).
 
+## Constraint equations and derivatives
+
+Per track the measured parameters are η = (1/p, θ, φ, R, Z), with momentum
+p⃗ = p u, u = (sinθ cosφ, sinθ sinφ, cosθ), energy E = √(p² + m²) and the
+straight line B + s u, B = (−R sinφ, R cosφ, Z). The derivatives the fitter
+uses (`KinFitTrackKinematics`, `KinFitTrackLine`) are
+
+```text
+∂p⃗/∂(1/p) = −p² u          ∂E/∂(1/p) = −p³/E
+∂p⃗/∂θ     = p (cosθ cosφ, cosθ sinφ, −sinθ)
+∂p⃗/∂φ     = p (−sinθ sinφ, sinθ cosφ, 0)       (E depends on 1/p only)
+```
+
+**Four-momentum (4C, 3C, MissingParticle):** f = Σ (p⃗ᵢ, Eᵢ) − P, with
+P = P_init (4C), the mother (3C; its 1/p is the unknown ξ, its θ, φ enter
+like a track with sign −1) or P_init − (p⃗_miss, √(p⃗²_miss + m²))
+(MissingParticle; ξ = p⃗_miss, ∂E_miss/∂p⃗_miss = p⃗_miss/E_miss). The rows of
+D are the derivatives above.
+
+**Invariant / missing mass (Mass, MassVtx, MissingMass):**
+f = E_tot² − p⃗_tot² − m² with (p⃗_tot, E_tot) = Σᵢ s (p⃗ᵢ, Eᵢ) (+ P_init for
+the missing mass), s = +1 for the invariant mass and −1 for the missing mass:
+
+```text
+∂f/∂ηᵢ = s (2 E_tot ∂Eᵢ/∂ηᵢ − 2 p⃗_tot · ∂p⃗ᵢ/∂ηᵢ)
+```
+
+**Vertex (Vertex, MassVtx):** two lines intersect iff
+f = (u₁ × u₂) · (B₁ − B₂) = 0. With n = u₁ × u₂, ΔB = B₁ − B₂:
+
+```text
+∂f/∂θ₁ = (∂u₁/∂θ₁ × u₂) · ΔB      ∂f/∂φ₁ = (∂u₁/∂φ₁ × u₂) · ΔB + n · ∂B₁/∂φ₁
+∂f/∂R₁ = n · (−sinφ₁, cosφ₁, 0)   ∂f/∂Z₁ = n_z
+```
+
+and for track 2 the same with u₁ × ∂u₂, and −n for the B₂ terms
+(∂B/∂φ = (−R cosφ, −R sinφ, 0)). 1/p does not enter.
+
+All Jacobians are checked against central finite differences in
+`test_kinfitter` (`jacobian_*`).
+
 ## Internals
 
 | Member | Content |
