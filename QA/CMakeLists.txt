@@ -35,6 +35,11 @@ kinfit_add_test(test_field
   LABELS core field
   CASES uniform by_of_z_histogram by_of_xz_histogram function)
 
+kinfit_add_test(test_trajectory
+  LABELS core field
+  CASES radius_and_turning_direction straight_lines helix_equals_runge_kutta
+        closest_approach track_parameter_round_trip)
+
 kinfit_add_test(test_vertexfinder
   LABELS core vertex
   CASES lines_exact_intersection lines_parallel_tracks_fail_cleanly
