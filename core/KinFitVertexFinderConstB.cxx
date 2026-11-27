@@ -277,7 +277,10 @@ TVector3 KinFitVertexFinderConstB::solveVertexFromSystem() const {
       fSys(0, 1) * fSys(0, 1) * fSys(2, 2) -
       fSys(1, 2) * fSys(1, 2) * fSys(0, 0);
 
-  if (std::abs(det) < 1e-18) {
+  // Relative threshold (as in KinFitVertexFinder): the absolute 1e-18 used
+  // before depended on the number of tracks.
+  const double scale = (fSys(0, 0) + fSys(1, 1) + fSys(2, 2)) / 3.;
+  if (!(std::abs(det) > 1e-12 * scale * scale * scale)) {
     return TVector3(-1000.0, -1000.0, -1000.0);
   }
 

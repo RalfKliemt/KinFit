@@ -16,6 +16,7 @@
 
 #include "KinFitParticle.h"
 
+#include <cmath>
 #include <iostream>
 
 /**
@@ -36,30 +37,18 @@ KinFitParticle::KinFitParticle(TLorentzVector cand, double X, double Y,
   // The covariance was left 0x0 here, so KinFitter read out of bounds.
   fCov.ResizeTo(5, 5);
 
-  // Base and direction vector of particle candidate.
-  TVector3 base(X, Y, Z);
-  TVector3 dir(TMath::Sin(fTheta) * TMath::Cos(fPhi),
-               TMath::Sin(fTheta) * TMath::Sin(fPhi), TMath::Cos(fTheta));
-
-  // Base and direction vector of beamline
-  TVector3 beam_base(0, 0, 1);
-  TVector3 beam_dir(0, 0, 1);
-
-  TVector3 cross = dir.Cross(beam_dir);
-  TVector3 diff = base - beam_base;
-
-  // fR = diff.Dot(cross)/(cross.Mag());
-  fR = -((cross.Dot(diff)) / cross.Mag()); // R is signed
-
-  double a = beam_base.Dot(beam_dir);
-  double b = beam_dir.Dot(beam_dir);
-  double c = base.Dot(beam_dir);
-  double d = (beam_base.Dot(dir)) * (dir.Dot(beam_dir)) / dir.Dot(dir);
-  double e = (beam_dir.Dot(dir)) * (dir.Dot(beam_dir)) / dir.Dot(dir);
-  double f = (base.Dot(dir)) * (dir.Dot(beam_dir)) / dir.Dot(dir);
-  double u1 = (-a + c + d - f) / (b - e);
-
-  fZ = beam_base.Z() + beam_dir.Z() * u1;
+  // Point of closest approach (PCA) of the line through (X, Y, Z) to the z
+  // axis, PCA = (-R sin(phi), R cos(phi), Z). Moving along the line keeps
+  // R = -X sin(phi) + Y cos(phi) fixed and reaches the PCA after a transverse
+  // step of -(X cos(phi) + Y sin(phi)). (Same result as the former
+  // dot-product construction, which divided by |d x z| and gave NaN for a
+  // track along z.)
+  const double sp = std::sin(fPhi), cp = std::cos(fPhi);
+  const double st = std::sin(fTheta), ct = std::cos(fTheta);
+  fR = -X * sp + Y * cp;
+  fZ = Z;
+  if (std::abs(st) > 1e-12) // parallel to z: every point is a PCA
+    fZ -= ct / st * (X * cp + Y * sp);
 }
 
 KinFitParticle::KinFitParticle() : TLorentzVector() {

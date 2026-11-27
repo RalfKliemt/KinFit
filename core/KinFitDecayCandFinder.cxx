@@ -16,6 +16,8 @@
 
 #include "KinFitDecayCandFinder.h"
 
+#include <TMath.h>
+
 #include <cmath>
 
 /**
@@ -79,7 +81,15 @@ void KinFitDecayCandFinder::calculateDecayCand() {
 
   // --- Direction: primary -> decay vertex ---
   const TVector3 &D = fDecayVertex;
-  const TVector3 v = fDecayVertex - fPrimaryVertex;
+  TVector3 v = fDecayVertex - fPrimaryVertex;
+  if (v.Mag2() == 0) {
+    // Coinciding vertices: no flight direction. Use the summed daughter
+    // momentum instead of producing NaN.
+    std::cerr << "KinFitDecayCandFinder: primary and decay vertex coincide, "
+                 "direction taken from the daughter momenta"
+              << std::endl;
+    v = sumP;
+  }
   const double theta = v.Theta();
   const double phi = v.Phi();
   const double st = std::sin(theta), ct = std::cos(theta);
@@ -91,7 +101,12 @@ void KinFitDecayCandFinder::calculateDecayCand() {
   //   R = -sin(phi) Dx + cos(phi) Dy,   Z = Dz - cot(theta) L.
   // (The line used to be anchored at D - P, and the sign of R was taken from
   // the primary vertex y.)
-  const double cotTheta = ct / st;
+  const double rho2 = v.Perp2();
+  const double rho = std::sqrt(rho2);
+  const double r2 = v.Mag2();
+  // Flight (anti)parallel to z: every point of the line is a PCA; keep Dz.
+  const bool alongZ = rho2 < 1e-18 * r2;
+  const double cotTheta = alongZ ? 0. : ct / st;
   const double L = cp * D.X() + sp * D.Y();
   const double valR = -sp * D.X() + cp * D.Y();
   const double valZ = D.Z() - cotTheta * L;
@@ -112,20 +127,26 @@ void KinFitDecayCandFinder::calculateDecayCand() {
   // J_direct the explicit dependence of R, Z on D. The old code mixed sqrt
   // of correlations, asymmetric signs and wrong derivatives (dtheta/dx used
   // z/r^2, dphi had |x|).
-  const double rho2 = v.Perp2();
-  const double rho = std::sqrt(rho2);
-  const double r2 = v.Mag2();
   TMatrixD dAngles(2, 3); // d(theta, phi) / d(vx, vy, vz)
-  dAngles(0, 0) = v.X() * v.Z() / (r2 * rho);
-  dAngles(0, 1) = v.Y() * v.Z() / (r2 * rho);
-  dAngles(0, 2) = -rho / r2;
-  dAngles(1, 0) = -v.Y() / rho2;
-  dAngles(1, 1) = v.X() / rho2;
-  dAngles(1, 2) = 0;
+  // Flight (anti)parallel to z: phi is undefined and d(theta)/d(vx, vy)
+  // depends on the direction of approach. Use |d(theta)| = 1/|v| for the
+  // transverse components, no phi dependence, and a flat phi variance below.
+  if (alongZ) {
+    dAngles(0, 0) = dAngles(0, 1) = 1. / std::sqrt(2. * r2);
+    dAngles(0, 2) = 0;
+    dAngles(1, 0) = dAngles(1, 1) = dAngles(1, 2) = 0;
+  } else {
+    dAngles(0, 0) = v.X() * v.Z() / (r2 * rho);
+    dAngles(0, 1) = v.Y() * v.Z() / (r2 * rho);
+    dAngles(0, 2) = -rho / r2;
+    dAngles(1, 0) = -v.Y() / rho2;
+    dAngles(1, 1) = v.X() / rho2;
+    dAngles(1, 2) = 0;
+  }
 
   // d(R, Z)/d(theta, phi) at fixed D
   const double dR_dphi = -L;
-  const double dZ_dtheta = L / (st * st);
+  const double dZ_dtheta = alongZ ? 0. : L / (st * st);
   const double dZ_dphi = -cotTheta * valR;
 
   TMatrixD Jv(4, 3); // d(theta, phi, R, Z) / dv
@@ -167,6 +188,8 @@ void KinFitDecayCandFinder::calculateDecayCand() {
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j)
       fCovarianceDecayCand(i + 1, j + 1) = 0.5 * (C(i, j) + C(j, i));
+  if (alongZ)
+    fCovarianceDecayCand(2, 2) = TMath::Pi() * TMath::Pi() / 3.; // flat phi
 
   fDecayCand.setCovariance(fCovarianceDecayCand);
 

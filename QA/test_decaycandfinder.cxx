@@ -173,6 +173,28 @@ KF_TEST(covariance_matches_vertex_smearing) {
     }
 }
 
+// Degenerate geometry must not give NaN: flight exactly along z, and
+// coinciding primary and decay vertices.
+KF_TEST(degenerate_geometry_finite) {
+  TRandom3 rnd(8);
+  const auto ev = toy::lambdaEvent(rnd);
+  std::vector<KinFitParticle> daughters = {
+      toy::exactTrack(ev.proton, ev.decayVertex, toy::Resolution()),
+      toy::exactTrack(ev.pion, ev.decayVertex, toy::Resolution())};
+  const TVector3 prim(0.5, -0.3, 1.);
+  for (const TVector3 &dec : {prim + TVector3(0, 0, 40.), prim}) {
+    KinFitDecayCandFinder f(daughters, toy::kMassLambda, prim, dec, 0.5,
+                               0.5, 1.0, 2.0, 2.0, 4.0);
+    const KinFitParticle c = f.getDecayCand();
+    KF_CHECK(std::isfinite(c.Theta()) && std::isfinite(c.Phi()));
+    KF_CHECK(std::isfinite(c.getR()) && std::isfinite(c.getZ()));
+    const TMatrixD cov = f.getCovarianceMatrixDecayCand();
+    for (int i = 0; i < 5; ++i)
+      for (int j = 0; j < 5; ++j)
+        KF_CHECK(std::isfinite(cov(i, j)));
+  }
+}
+
 // The candidate can be used as mother in a 3C fit of exact daughters.
 // Depends on correct R, Z (see R_Z_of_flight_line).
 KF_TEST(usable_as_3C_mother) {

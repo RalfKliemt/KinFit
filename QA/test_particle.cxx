@@ -113,6 +113,15 @@ KF_TEST(construct_from_point_has_5x5_covariance) {
   KF_CHECK(p.getCovariance().GetNcols() == 5);
 }
 
+// A track along z built from a point: R, Z finite (used to divide by 0).
+KF_TEST(construct_from_point_along_z) {
+  TLorentzVector lv;
+  lv.SetXYZM(0, 0, 500, 938.272);
+  const KinFitParticle p(lv, 1., 2., 3.);
+  KF_CHECK(std::isfinite(p.getR()) && std::isfinite(p.getZ()));
+  KF_CHECK_NEAR(p.getZ(), 3., 0);
+}
+
 // setPhiRad/Deg used to overwrite theta of the internal vector.
 KF_TEST(setters_store_values) {
   KinFitParticle p;

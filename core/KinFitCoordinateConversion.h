@@ -180,6 +180,12 @@ public:
     const double p2 = pT2 + Pz * Pz;
     const double p = std::sqrt(p2);
     errmom = quad(Px / p * errPx, Py / p * errPy, Pz / p * errPz);
+    if (pT2 == 0) { // along z: phi undefined, theta from the transverse errors
+      errtheta = quad(errPx, errPy, 0) / p;
+      errphi = TMath::Pi();
+      errR = quad(errX, errY, 0);
+      return;
+    }
     errtheta = quad(Px * Pz / (pT * p2) * errPx, Py * Pz / (pT * p2) * errPy,
                     pT / p2 * errPz);
     errphi = quad(Py / pT2 * errPx, Px / pT2 * errPy, 0);

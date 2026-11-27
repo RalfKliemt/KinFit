@@ -29,7 +29,7 @@ kinfit_add_test(test_particle
   LABELS core io
   CASES construct_from_R_Z construct_from_point_gives_PCA sign_of_R
         covariance_5x5 covariance_wrong_size_ignored io_roundtrip_tclonesarray
-        construct_from_point_has_5x5_covariance setters_store_values)
+        construct_from_point_has_5x5_covariance construct_from_point_along_z setters_store_values)
 
 kinfit_add_test(test_vertexfinder
   LABELS core vertex
@@ -61,12 +61,12 @@ kinfit_add_test(test_decaycandfinder
   CASES momentum_from_daughter_energies direction_from_vertices
         covariance_accessors_agree covariance_symmetric_positive
         usable_as_3C_mother R_Z_of_flight_line
-        covariance_matches_vertex_smearing)
+        covariance_matches_vertex_smearing degenerate_geometry_finite)
 
 kinfit_add_test(test_coordinateconversion
   LABELS core
   CASES sph_to_cart cart_to_sph_forward cart_to_sph_backward
-        errors_sph_to_cart)
+        errors_sph_to_cart errors_along_z_finite)
 
 kinfit_add_test(test_analyzer
   LABELS analysis io

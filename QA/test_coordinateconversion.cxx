@@ -127,4 +127,17 @@ KF_TEST(errors_sph_to_cart) {
   KF_CHECK(nBad == 0);
 }
 
+// Momentum along z: errors finite (used to be 0/0).
+KF_TEST(errors_along_z_finite) {
+  KinFitCoordinateConversion cc;
+  double cart[6] = {0.1, 0.2, 3., 0., 0., 500.};
+  double err[6] = {0.1, 0.1, 0.2, 2., 2., 5.};
+  cc.setparametersCart(cart);
+  cc.setparametererrorsCart(err);
+  cc.setvarsSpher();
+  cc.seterrorsSpher();
+  KF_CHECK(std::isfinite(cc.errmom) && std::isfinite(cc.errtheta) &&
+           std::isfinite(cc.errphi) && std::isfinite(cc.errR));
+}
+
 KF_TEST_MAIN()
