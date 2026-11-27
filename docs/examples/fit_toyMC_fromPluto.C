@@ -222,8 +222,8 @@ Int_t fit_toyMC_fromPluto(TString infile, Int_t nEvents)
             KinFitParticle fcand1 = fitter.getDaughter(0); // proton
             KinFitParticle fcand2 = fitter.getDaughter(1); // pion
 
-            TLorentzVector daughter = fitter.getMissingDaughter();
-            cout<<daughter.Px()<<endl;
+            // fitted common vertex of all charged tracks (+ covariance)
+            TVector3 vertex = fitter.getVertex();
 
             h02->Fill(fitter.getChi2());
             h03->Fill(fitter.getProb());

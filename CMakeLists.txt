@@ -96,7 +96,7 @@ set_target_properties(
 # Standalone examples in docs/examples (off by default)
 option(KINFIT_BUILD_EXAMPLES "Build the compiled examples in docs/examples" OFF)
 if(KINFIT_BUILD_EXAMPLES)
-  foreach(example toy_lambda_fit vertex_constB)
+  foreach(example toy_lambda_fit vertex_constB vertex_field_fit)
     add_executable(${example} docs/examples/${example}.cxx)
     target_link_libraries(${example} PRIVATE KinFit)
   endforeach()

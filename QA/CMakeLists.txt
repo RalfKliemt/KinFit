@@ -45,7 +45,7 @@ kinfit_add_test(test_vertexfinder
   LABELS core vertex
   CASES lines_exact_intersection lines_parallel_tracks_fail_cleanly
         lines_nearly_parallel_fail_cleanly finders_ignore_neutral_hits
-        field_finder_exact_vertex
+        field_finder_exact_vertex field_finder_estimate_without_convergence
         helix_exact_vertex helix_low_pt_loopers helix_negative_field
         helix_zero_field_equals_lines helix_neutral_tracks_are_lines
         helix_refit_after_setters helix_parallel_tracks_fail_cleanly)
@@ -99,6 +99,8 @@ kinfit_add_test(test_analyzer
 if(KINFIT_BUILD_EXAMPLES)
   add_test(NAME example.toy_lambda_fit COMMAND toy_lambda_fit 200)
   add_test(NAME example.vertex_constB COMMAND vertex_constB 3)
+  add_test(NAME example.vertex_field_fit COMMAND vertex_field_fit 50)
   set_tests_properties(example.toy_lambda_fit example.vertex_constB
+                       example.vertex_field_fit
                        PROPERTIES LABELS example)
 endif()

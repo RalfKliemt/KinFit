@@ -21,8 +21,9 @@
  * Charged tracks are generated from a known vertex in Bz = 1 T, propagated
  * along their helices to the point of closest approach (PCA) to the z axis,
  * and stored as KinFitParticles (R, Z, theta, phi at the PCA). Then the
- * straight-line KinFitVertexFinder and the helix KinFitVertexFinderConstB are
- * compared.
+ * helix finder KinFitVertexFinderConstB, the general-field finder
+ * KinFitVertexFinderField (here with a uniform Bz) and the straight-line
+ * KinFitVertexFinder are compared.
  *
  * Units: MeV/c, mm, Tesla.
  */
@@ -31,7 +32,9 @@
 // library dictionary; including the headers again would clash with it.
 #ifndef __CLING__
 #include "KinFitVertexFinder.h"
+#include "KinFitFieldUniform.h"
 #include "KinFitVertexFinderConstB.h"
+#include "KinFitVertexFinderField.h"
 #include "KinFitParticle.h"
 #endif
 
@@ -89,8 +92,9 @@ int vertex_constB(int nEvents = 10) {
 
   std::printf("Vertex finding in Bz = %.1f T, 3 tracks/event, no smearing\n",
               bz);
-  std::printf("%-28s %16s %16s\n", "true vertex [mm]", "|d| helix [mm]",
-              "|d| lines [mm]");
+  std::printf("%-28s %14s %14s %14s\n", "true vertex [mm]", "|d| ConstB",
+              "|d| Field", "|d| lines");
+  const KinFitFieldUniform field = KinFitFieldUniform::Bz(bz);
 
   for (int ev = 0; ev < nEvents; ++ev) {
     const TVector3 vTrue(rnd.Uniform(-30, 30), rnd.Uniform(-30, 30),
@@ -104,11 +108,13 @@ int vertex_constB(int nEvents = 10) {
     }
 
     KinFitVertexFinderConstB helixFinder(cands, bz);
+    KinFitVertexFinderField fieldFinder(cands, &field); // any KinFitField
     KinFitVertexFinder lineFinder(cands);
 
-    std::printf("(%7.2f, %7.2f, %7.2f)    %16.6f %16.3f\n", vTrue.X(),
+    std::printf("(%7.2f, %7.2f, %7.2f)    %14.6f %14.6f %14.3f\n", vTrue.X(),
                 vTrue.Y(), vTrue.Z(),
                 (helixFinder.getVertex() - vTrue).Mag(),
+                (fieldFinder.getVertex() - vTrue).Mag(),
                 (lineFinder.getVertex() - vTrue).Mag());
   }
   return 0;

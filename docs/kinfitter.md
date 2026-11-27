@@ -126,6 +126,12 @@ TVector3 v = fitter.getVertex();                // + getVertexCovariance()
   The fitted daughters carry that four-momentum; their track parameters
   (`getThetaRad()`, `getR()`, ...) stay at the reference point. Without a
   vertex fit, momenta are taken at the reference point.
+- **Start value:** `KinFitVertexFinderField` (also when not converged). If
+  the fit fails or ends with probability < 10⁻⁶, `fit()` retries once from
+  the mean of the tracks' reference points and keeps the better result:
+  nearly collinear tracks determine the vertex poorly along their direction,
+  and a far-off start can end in a wrong local minimum.
+- See [examples/vertex_field_fit.cxx](examples/vertex_field_fit.cxx).
 - **Jacobians** of the vertex equations (and of the transported momenta)
   are central finite differences: a two-track vertex fit costs about 14 µs
   (the former two-line constraint 4 µs, but without vertex, field or more
