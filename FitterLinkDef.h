@@ -22,5 +22,6 @@
 #pragma link C++ class KinFitFieldByXZ;
 #pragma link C++ class KinFitFieldFunction;
 #pragma link C++ class KinFitTrajectory;
+#pragma link C++ class KinFitVertexFinderField;
 
 #endif

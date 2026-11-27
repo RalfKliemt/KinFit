@@ -45,7 +45,7 @@ set(CORE_CLASSES
     KinFitter KinFitParticle KinFitVertexFinder KinFitVertexFinderConstB
     KinFitDecayCandFinder KinFitCoordinateConversion KinFitField
     KinFitFieldUniform KinFitFieldByZ KinFitFieldByXZ KinFitFieldFunction
-    KinFitTrajectory)
+    KinFitTrajectory KinFitVertexFinderField)
 set(ANALYSIS_CLASSES KinFitAnalyzer KinFitDecayBuilder)
 # Internal helpers of KinFitter: compiled into the library, but neither
 # installed nor part of the ROOT dictionary.

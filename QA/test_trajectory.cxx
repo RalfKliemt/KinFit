@@ -18,6 +18,7 @@
 // track-parameter round trip.
 
 #include "KinFitTest.h"
+#include "ToyTracks.h"
 
 #include "KinFitFieldByZ.h"
 #include "KinFitFieldFunction.h"
@@ -156,6 +157,26 @@ KF_TEST(track_parameter_round_trip) {
       u.closestApproach(v, pca, dir);
       KF_CHECK_NEAR((pca - v).Mag(), 0, 1e-6);
     }
+  }
+}
+
+// Independent check: trackParameters() in constant Bz agrees with the
+// closed-form helix PCA of the toy generator.
+KF_TEST(track_parameters_match_toy_helix) {
+  TRandom3 rnd(4);
+  const double bz = 0.8;
+  const auto f = KinFitFieldUniform::Bz(bz);
+  for (int i = 0; i < 50; ++i) {
+    const int q = rnd.Rndm() < .5 ? -1 : 1;
+    const TVector3 v(rnd.Gaus(0, 5), rnd.Gaus(0, 5), rnd.Gaus(20, 10));
+    const TVector3 p = randomMomentum(rnd);
+    const KinFitParticle ref = toy::helixTrackAtPCA(v, p, q, bz, 139.57);
+    double invP, theta, phi, R, Z;
+    KinFitTrajectory(v, p, q, &f).trackParameters(invP, theta, phi, R, Z);
+    KF_CHECK_NEAR(theta, ref.Theta(), 1e-9);
+    KF_CHECK_NEAR(TVector2::Phi_mpi_pi(phi - ref.Phi()), 0, 1e-9);
+    KF_CHECK_NEAR(R, ref.getR(), 1e-6);
+    KF_CHECK_NEAR(Z, ref.getZ(), 1e-6);
   }
 }
 

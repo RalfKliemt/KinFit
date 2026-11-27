@@ -38,12 +38,14 @@ kinfit_add_test(test_field
 kinfit_add_test(test_trajectory
   LABELS core field
   CASES radius_and_turning_direction straight_lines helix_equals_runge_kutta
-        closest_approach track_parameter_round_trip)
+        closest_approach track_parameter_round_trip
+        track_parameters_match_toy_helix)
 
 kinfit_add_test(test_vertexfinder
   LABELS core vertex
   CASES lines_exact_intersection lines_parallel_tracks_fail_cleanly
-        lines_nearly_parallel_fail_cleanly
+        lines_nearly_parallel_fail_cleanly finders_ignore_neutral_hits
+        field_finder_exact_vertex
         helix_exact_vertex helix_low_pt_loopers helix_negative_field
         helix_zero_field_equals_lines helix_neutral_tracks_are_lines
         helix_refit_after_setters helix_parallel_tracks_fail_cleanly)
