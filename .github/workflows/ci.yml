@@ -1,31 +1,48 @@
 name: CI
 
+# Every push (any branch), every pull request and manual runs must
+# compile without warnings and pass the full test suite.
 on:
   push:
-    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch / PR cancels the run still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 # Official ROOT image (ROOT + compiler + CMake), pinned by digest to the
-# image of the last known-good run (both jobs). To update: run once with
+# image of the last known-good run (all jobs). To update: run once with
 # rootproject/root:latest and take the "Digest:" line of the pull step.
 jobs:
   build-and-test:
+    name: Build (warnings as errors) + tests + examples
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container: rootproject/root:latest@sha256:a2ab342848316c71b803b8cdfb1867b8fc29109671de2268640eb46567272bd0
     steps:
       - uses: actions/checkout@v5
 
       - name: Configure
-        run: cmake -S . -B build -DKINFIT_BUILD_TESTS=ON -DKINFIT_BUILD_EXAMPLES=ON
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DKINFIT_BUILD_TESTS=ON
+          -DKINFIT_BUILD_EXAMPLES=ON
+          -DKINFIT_WARNINGS_AS_ERRORS=ON
 
       - name: Build
         run: cmake --build build -j "$(nproc)"
 
+      # --no-tests=error: an empty test list (e.g. tests not built) fails.
       - name: Test
-        run: ctest --test-dir build --output-on-failure -j "$(nproc)"
+        run: ctest --test-dir build --output-on-failure --no-tests=error -j "$(nproc)"
 
   asan:
+    name: AddressSanitizer + tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container: rootproject/root:latest@sha256:a2ab342848316c71b803b8cdfb1867b8fc29109671de2268640eb46567272bd0
     steps:
       - uses: actions/checkout@v5
@@ -40,4 +57,4 @@ jobs:
       - name: Test
         env:
           ASAN_OPTIONS: detect_leaks=0
-        run: ctest --test-dir build-asan --output-on-failure -j "$(nproc)"
+        run: ctest --test-dir build-asan --output-on-failure --no-tests=error -j "$(nproc)"
