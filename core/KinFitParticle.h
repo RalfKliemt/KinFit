@@ -34,7 +34,7 @@
 
 class KinFitParticle : public TLorentzVector {
 
-  ClassDef(KinFitParticle, 3);
+  ClassDef(KinFitParticle, 4);
 
 private:
   TLorentzVector cand; // TLorentzVector the KinFitParticle inherits from
@@ -75,6 +75,11 @@ private:
 
   int fCharge = 0;
 
+  // Neutral measured only by energy and a hit position (e.g. a calorimeter
+  // cluster). Its direction is hit - production vertex.
+  bool fIsNeutralHit = false;
+  double fHitX = 0, fHitY = 0, fHitZ = 0; // hit position [mm]
+
   int fPid = -1;     // PID code for the particle species
   int fTrackId = -1; // Track id, can be used to differentiate different track types,
                 // e.g. reconstructed in different parts of the detector
@@ -114,6 +119,20 @@ public:
    * @param Z - Starting Z-position of track
    */
   KinFitParticle(TLorentzVector cand, double X, double Y, double Z);
+
+  /** @brief Neutral particle measured by its energy and a hit position.
+   * @param E measured energy [MeV]
+   * @param mass mass hypothesis [MeV/c^2] (0 for photons)
+   * @param hit measured hit position [mm]
+   * @param cov covariance of (E, X, Y, Z): 4x4, or 5x5 with that ordering
+   *        (the fifth row/column is unused)
+   * @param origin production point used for the direction (hit - origin);
+   *        a common-vertex fit in KinFitter replaces it by the fitted vertex
+   */
+  static KinFitParticle fromNeutralHit(double E, double mass,
+                                       const TVector3 &hit,
+                                       const TMatrixD &cov,
+                                       const TVector3 &origin = TVector3());
 
   /** Default Destructor **/
   ~KinFitParticle() {};
@@ -249,6 +268,17 @@ public:
   double getGenZ() const { return fGenZ; }
 
   int getSector() const { return fSector; } // Returns the sector
+
+  /** True for a neutral measured by energy and hit (fromNeutralHit()).
+   * Its parameter vector is (E, X, Y, Z, -) instead of (1/p, theta, phi, R,
+   * Z), and so is the ordering of its covariance. */
+  bool isNeutralHit() const { return fIsNeutralHit; }
+  TVector3 getHit() const { return TVector3(fHitX, fHitY, fHitZ); }
+  void setHit(const TVector3 &hit) {
+    fHitX = hit.X();
+    fHitY = hit.Y();
+    fHitZ = hit.Z();
+  }
 
   void Print(Option_t *option) const; // Prints the particle information to the console
   void PrintCovariance() const; // Prints the covariance matrix and parameter ordering

@@ -22,8 +22,9 @@
  *     straight tracks),
  *   - converts the tracks to the KinFit parametrisation (1/p, theta, phi, R, Z),
  *   - smears them according to a diagonal covariance,
- *   - runs a mass-constraint fit and a vertex-constraint fit,
- *   - reports chi2/probability and pull widths.
+ *   - runs a mass-constraint fit and a common-vertex fit (vertex fitted
+ *     with its covariance),
+ *   - reports chi2/probability, pull widths and the vertex resolution.
  *
  * Units: MeV/c, MeV/c^2, mm, rad.
  *
@@ -34,7 +35,6 @@
 // In an interpreted ROOT session the KinFit classes are autoloaded from the
 // library dictionary; including the headers again would clash with it.
 #ifndef __CLING__
-#include "KinFitVertexFinder.h"
 #include "KinFitParticle.h"
 #include "KinFitter.h"
 #endif
@@ -154,6 +154,7 @@ int toy_lambda_fit(int nEvents = 2000) {
   TRandom3 rnd(4711);
 
   Stats massBefore, massAfter, massProb, vtxProb, vtxDist;
+  Stats vtxPullXYZ[3]; // (fitted - true vertex) / sigma
   Stats massPull[5], vtxPull[5]; // pulls of the proton parameters
   int massOk = 0, vtxOk = 0;
 
@@ -177,20 +178,21 @@ int toy_lambda_fit(int nEvents = 2000) {
         massPull[k].add(massFit.getPull(k));
     }
 
-    // --- Vertex constraint: both tracks from one point ---------------------
+    // --- Common vertex: all tracks from one point, vertex fitted -----------
     KinFitter vtxFit(cands);
-    vtxFit.addVertexConstraint();
+    vtxFit.addCommonVertexConstraint(); // B = 0 by default (setField())
     if (vtxFit.fit()) {
       ++vtxOk;
       vtxProb.add(vtxFit.getProb());
       for (int k = 0; k < 5; ++k)
         vtxPull[k].add(vtxFit.getPull(k));
 
-      // Vertex position from the fitted tracks.
-      std::vector<KinFitParticle> fitted;
-      vtxFit.getDaughters(fitted);
-      KinFitVertexFinder finder(fitted);
-      vtxDist.add((finder.getVertex() - vTrue).Mag());
+      // Fitted vertex and its covariance
+      const TVector3 &v = vtxFit.getVertex();
+      const TMatrixD &cv = vtxFit.getVertexCovariance();
+      vtxDist.add((v - vTrue).Mag());
+      for (int j = 0; j < 3; ++j)
+        vtxPullXYZ[j].add((v[j] - vTrue[j]) / std::sqrt(cv(j, j)));
     }
   }
 
@@ -210,7 +212,8 @@ int toy_lambda_fit(int nEvents = 2000) {
                 massPull[k].rms());
   std::printf("\n\n");
 
-  std::printf("Vertex fit: converged %d/%d\n", vtxOk, nEvents);
+  std::printf("Vertex fit: converged %d/%d (NDF = 2 tracks x 2 - 3 = 1)\n",
+              vtxOk, nEvents);
   std::printf("  <prob> = %.3f\n", vtxProb.mean());
   // 1/p does not enter the vertex constraint: its pull is undefined
   // (KinFitter reports -10000), so start at theta.
@@ -218,8 +221,13 @@ int toy_lambda_fit(int nEvents = 2000) {
   for (int k = 1; k < 5; ++k)
     std::printf("  %s %+.2f/%.2f", names[k], vtxPull[k].mean(),
                 vtxPull[k].rms());
-  std::printf("\n  |vertex - truth| from fitted tracks: mean %.2f mm\n",
-              vtxDist.mean());
+  std::printf("\n  |fitted vertex - truth|: mean %.2f mm\n", vtxDist.mean());
+  std::printf("  vertex pulls (mean / width):");
+  const char *xyz[3] = {"x", "y", "z"};
+  for (int j = 0; j < 3; ++j)
+    std::printf("  %s %+.2f/%.2f", xyz[j], vtxPullXYZ[j].mean(),
+                vtxPullXYZ[j].rms());
+  std::printf("\n");
   return 0;
 }
 

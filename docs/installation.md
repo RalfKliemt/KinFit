@@ -4,7 +4,7 @@
 
 - C++17 compiler (the C++ standard is taken over from the ROOT build)
 - CMake ≥ 3.10
-- ROOT 6 with the components Core, Matrix, Physics, MathCore, RIO and Tree.
+- ROOT 6 with the components Core, Matrix, Physics, MathCore, RIO, Tree and Hist.
   The build is tested with ROOT 6.40.
 
 ## Build and install
@@ -26,7 +26,7 @@ package files to `<prefix>/lib/cmake/KinFit`.
 
 | Option | Default | Effect |
 | --- | --- | --- |
-| `KINFIT_BUILD_EXAMPLES` | `OFF` | Build `toy_lambda_fit` and `vertex_constB` from `docs/examples/` |
+| `KINFIT_BUILD_EXAMPLES` | `OFF` | Build `toy_lambda_fit`, `vertex_constB` and `vertex_field_fit` from `docs/examples/` |
 | `KINFIT_BUILD_TESTS` | `ON` | Build the QA test suite (run with `ctest --test-dir build`) |
 | `KINFIT_ENABLE_ASAN` | `OFF` | Build with AddressSanitizer for debugging memory errors |
 | `KINFIT_WARNINGS_AS_ERRORS` | `OFF` | Treat compiler warnings (`-Wall -Wextra`, KinFit code only) as errors; on in CI |
@@ -50,7 +50,7 @@ build directory and configure again.
 ## Using KinFit from another CMake project
 
 ```cmake
-find_package(ROOT REQUIRED COMPONENTS Core Physics Tree)
+find_package(ROOT REQUIRED COMPONENTS Core Physics Tree Hist)
 find_package(KinFit REQUIRED)        # add <prefix> to CMAKE_PREFIX_PATH
 
 add_executable(my_analysis my_analysis.cxx)

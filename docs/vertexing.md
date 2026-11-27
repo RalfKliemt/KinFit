@@ -8,9 +8,27 @@ before or after a fit.
 | --- | --- | --- |
 | `KinFitVertexFinder` | straight lines | vertex position |
 | `KinFitVertexFinderConstB` | helices in constant Bz (straight lines for neutrals) | vertex position |
+| `KinFitVertexFinderField` | any `KinFitField` (B = 0, Bz, By, By(z), By(x,z), function) | vertex position |
 | `KinFitDecayCandFinder` | – | a mother `KinFitParticle` with covariance, for a 3C fit |
 
-All three run their calculation in the constructor.
+All run their calculation in the constructor. The vertex finders use all
+tracks and skip neutral hits (`KinFitParticle::fromNeutralHit`): their
+direction is (hit − vertex) and carries no vertex information. They are
+unweighted; for a weighted vertex with covariance use the common-vertex
+constraint of `KinFitter` ([kinfitter.md](kinfitter.md)).
+
+## KinFitVertexFinderField: any field
+
+```cpp
+KinFitFieldByZ field(hBy);                          // By(z) from a TH1
+KinFitVertexFinderField finder(tracks, &field);     // nullptr: B = 0
+if (finder.isValid()) TVector3 v = finder.getVertex();
+```
+
+Each track is followed with `KinFitTrajectory` (exact helix in uniform
+fields, Runge-Kutta otherwise), linearised by its tangent at the point of
+closest approach to the current estimate, and the least-squares point of
+the tangent lines is iterated until the shift is below 10⁻⁴ mm.
 
 ## KinFitVertexFinder: straight lines
 
@@ -130,5 +148,6 @@ flight direction exactly along z (θ = 0).
 ### Vertex finders as input for KinFitter
 
 Vertex finders do not change the tracks. To constrain tracks to a common
-vertex, use `KinFitter::addVertexConstraint()` (two tracks, straight lines)
-and run a vertex finder on the fitted tracks to get the position.
+vertex and get a weighted vertex with covariance, use
+`KinFitter::addCommonVertexConstraint()` with `setField()`; it starts from
+`KinFitVertexFinderField`.

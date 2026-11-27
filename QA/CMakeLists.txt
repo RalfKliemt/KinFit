@@ -29,12 +29,23 @@ kinfit_add_test(test_particle
   LABELS core io
   CASES construct_from_R_Z construct_from_point_gives_PCA sign_of_R
         covariance_5x5 covariance_wrong_size_ignored io_roundtrip_tclonesarray
-        construct_from_point_has_5x5_covariance construct_from_point_along_z setters_store_values)
+        construct_from_point_has_5x5_covariance construct_from_point_along_z neutral_hit setters_store_values)
+
+kinfit_add_test(test_field
+  LABELS core field
+  CASES uniform by_of_z_histogram by_of_xz_histogram function)
+
+kinfit_add_test(test_trajectory
+  LABELS core field
+  CASES radius_and_turning_direction straight_lines helix_equals_runge_kutta
+        closest_approach track_parameter_round_trip
+        track_parameters_match_toy_helix)
 
 kinfit_add_test(test_vertexfinder
   LABELS core vertex
   CASES lines_exact_intersection lines_parallel_tracks_fail_cleanly
-        lines_nearly_parallel_fail_cleanly
+        lines_nearly_parallel_fail_cleanly finders_ignore_neutral_hits
+        field_finder_exact_vertex field_finder_estimate_without_convergence
         helix_exact_vertex helix_low_pt_loopers helix_negative_field
         helix_zero_field_equals_lines helix_neutral_tracks_are_lines
         helix_refit_after_setters helix_parallel_tracks_fail_cleanly)
@@ -55,6 +66,15 @@ kinfit_add_test(test_kinfitter
         jacobian_Mass_three_particles two_mass_constraints_on_subsets
         vertex_plus_mass invalid_configuration_returns_false ndf_per_constraint
         covariance_symmetric_and_refit_stable)
+
+kinfit_add_test(test_vertexfit
+  LABELS core fitter vertex field
+  CASES exact_B0 exact_Bz exact_By exact_ByZ exact_ByXZ exact_function
+        pulls_B0 pulls_Bz pulls_By pulls_ByZ pulls_ByXZ pulls_function
+        jacobian_B0 jacobian_Bz jacobian_ByZ jacobian_function
+        neutral_4C_vertex_Bz neutral_4C_vertex_ByZ jacobian_neutral_4C_vertex
+        neutral_mass_fixed_origin legacy_vertex_uses_all_tracks
+        lambda_mass_vertex_ByZ)
 
 kinfit_add_test(test_decaycandfinder
   LABELS core vertex
@@ -79,6 +99,8 @@ kinfit_add_test(test_analyzer
 if(KINFIT_BUILD_EXAMPLES)
   add_test(NAME example.toy_lambda_fit COMMAND toy_lambda_fit 200)
   add_test(NAME example.vertex_constB COMMAND vertex_constB 3)
+  add_test(NAME example.vertex_field_fit COMMAND vertex_field_fit 50)
   set_tests_properties(example.toy_lambda_fit example.vertex_constB
+                       example.vertex_field_fit
                        PROPERTIES LABELS example)
 endif()

@@ -32,6 +32,8 @@ KinFitVertexFinder::KinFitVertexFinder(const std::vector<KinFitParticle> &cands)
   reset();
 
   for (const KinFitParticle &cand : cands) { // no copies of the tracks
+    if (cand.isNeutralHit())
+      continue; // direction = hit - vertex: carries no vertex information
 
     double param_theta = cand.Theta();
     double param_phi = cand.Phi();

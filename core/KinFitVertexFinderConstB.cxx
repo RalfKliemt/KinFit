@@ -78,6 +78,8 @@ void KinFitVertexFinderConstB::buildTrackModel() {
 
   for (size_t i = 0; i < fCands.size(); ++i) {
     const KinFitParticle &cand = fCands[i];
+    if (cand.isNeutralHit())
+      continue; // direction = hit - vertex: carries no vertex information
     HelixTrack track;
 
     track.fRefPoint = lineBaseFromCand(cand);

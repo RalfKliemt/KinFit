@@ -4,7 +4,9 @@ KinFit is a C++/ROOT library for kinematic fitting of charged-particle tracks.
 It adjusts measured tracks within their uncertainties to fulfil physical
 constraints and returns the improved tracks, χ², fit probability and pulls.
 Constraints include four-momentum conservation, invariant mass, a missing
-particle and a common vertex.
+particle and a common vertex of all tracks in a magnetic field (uniform,
+dipole profile or field map), with neutral particles measured by energy and
+hit position.
 
 **Full documentation: [docs/](docs/README.md)**
 
@@ -18,7 +20,7 @@ cmake --build build -j
 cmake --install build
 ```
 
-KinFit needs ROOT 6 (Core, Matrix, Physics, MathCore, RIO, Tree). Use it from
+KinFit needs ROOT 6 (Core, Matrix, Physics, MathCore, RIO, Tree, Hist). Use it from
 CMake with
 
 ```cmake
@@ -47,8 +49,10 @@ if (fitter.fit()) {
 
 - Units, track parametrisation and covariance layout: [docs/conventions.md](docs/conventions.md)
 - All constraints and fit results: [docs/kinfitter.md](docs/kinfitter.md)
-- Vertex finding (straight lines and constant Bz) and decay candidates:
-  [docs/vertexing.md](docs/vertexing.md)
+- Common-vertex fit in a magnetic field, neutral hits:
+  [docs/kinfitter.md](docs/kinfitter.md#the-common-vertex-constraint-and-the-magnetic-field)
+- Vertex finding (straight lines, constant Bz, any field) and decay
+  candidates: [docs/vertexing.md](docs/vertexing.md)
 - Automated event-by-event fitting of ROOT files with `KinFitAnalyzer`:
   [docs/analyzer.md](docs/analyzer.md)
 - Runnable examples: [docs/examples/](docs/examples/). Build them with

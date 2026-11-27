@@ -18,8 +18,8 @@
 #include "KinFitTrackKinematics.h"
 
 void KinFitFourMomentum::add(const KinFitTrackKinematics &k, double sign) {
-  px += sign * k.p * k.st * k.cp;
-  py += sign * k.p * k.st * k.sp;
-  pz += sign * k.p * k.ct;
+  px += sign * k.px;
+  py += sign * k.py;
+  pz += sign * k.pz;
   E += sign * k.E;
 }

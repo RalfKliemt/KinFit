@@ -27,6 +27,7 @@
 #pragma once
 
 #include "KinFitParticle.h"
+#include "KinFitTrajectory.h"
 
 #include <TLorentzVector.h>
 #include <TMath.h>
@@ -171,6 +172,64 @@ inline KinFitParticle helixTrackAtPCA(const TVector3 &v, const TVector3 &p,
   KinFitParticle cand(lv, R, zPCA);
   cand.setCharge(q);
   return cand;
+}
+
+/** Charged track with charge q from vertex `v` in any field: the truth
+ *  (1/p, theta, phi, R, Z) at the transverse PCA to the z axis (as
+ *  KinFitTrajectory::trackParameters), optionally smeared. */
+inline KinFitParticle fieldTrack(const TLorentzVector &truth,
+                                 const TVector3 &v, int q,
+                                 const KinFitField *field,
+                                 const Resolution &res,
+                                 TRandom3 *rnd = nullptr) {
+  double invP, theta, phi, R, Z;
+  KinFitTrajectory(v, truth.Vect(), q, field)
+      .trackParameters(invP, theta, phi, R, Z);
+  if (rnd) {
+    invP = rnd->Gaus(invP, res.relInvP * invP);
+    theta = rnd->Gaus(theta, res.theta);
+    phi = rnd->Gaus(phi, res.phi);
+    R = rnd->Gaus(R, res.R);
+    Z = rnd->Gaus(Z, res.Z);
+  }
+  const double p = 1. / invP;
+  TLorentzVector lv;
+  lv.SetXYZM(p * std::sin(theta) * std::cos(phi),
+             p * std::sin(theta) * std::sin(phi), p * std::cos(theta),
+             truth.M());
+  KinFitParticle cand(lv, R, Z);
+  cand.setCharge(q);
+  cand.setCovariance(covariance(truth.P(), res));
+  return cand;
+}
+
+/** Resolution of a neutral hit: sigma(E)/E and the hit position. */
+struct NeutralResolution {
+  double relE = 0.03;
+  double xy = 3.0;
+  double z = 3.0;
+};
+
+/** Neutral from vertex `v` hitting a detector `distance` mm away along its
+ *  momentum; energy and hit optionally smeared. `origin` is the production
+ *  point the particle assumes for its direction (hit - origin). */
+inline KinFitParticle neutralHit(const TLorentzVector &truth,
+                                 const TVector3 &v, double distance,
+                                 const NeutralResolution &res,
+                                 TRandom3 *rnd = nullptr,
+                                 const TVector3 &origin = TVector3()) {
+  TVector3 hit = v + distance * truth.Vect().Unit();
+  double E = truth.E();
+  if (rnd) {
+    E = rnd->Gaus(E, res.relE * truth.E());
+    hit.SetXYZ(rnd->Gaus(hit.X(), res.xy), rnd->Gaus(hit.Y(), res.xy),
+               rnd->Gaus(hit.Z(), res.z));
+  }
+  TMatrixD cov(4, 4);
+  cov(0, 0) = std::pow(res.relE * truth.E(), 2);
+  cov(1, 1) = cov(2, 2) = res.xy * res.xy;
+  cov(3, 3) = res.z * res.z;
+  return KinFitParticle::fromNeutralHit(E, truth.M(), hit, cov, origin);
 }
 
 /** Parameter vector (1/p, theta, phi, R, Z) of a set of particles, laid out

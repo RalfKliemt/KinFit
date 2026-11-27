@@ -35,10 +35,11 @@ The order of the particles in the input vector matters for some constraints
 
 ## Constraints
 
-Use **at most one** of 4C, Vertex, MassVtx, MissingMass, MissingParticle and
-3C per `KinFitter` object; `fit()` returns `false` (with a message) if two of
-them are set. Mass constraints (`addMassConstraint`) can be added on top of
-any of them, e.g. 4C + mass or Vertex + mass: their equations are appended.
+Use **at most one** of the kinematic constraints 4C, MissingMass,
+MissingParticle and 3C per `KinFitter` object; `fit()` returns `false` (with
+a message) if two of them are set. The common-vertex constraint and mass
+constraints can be added on top (common vertex not with 3C), e.g.
+4C + vertex, vertex + mass: their equations are appended.
 The NDF is the number of equations minus the number of unknowns
 (`getNDF()`).
 
@@ -46,10 +47,10 @@ The NDF is the number of equations minus the number of unknowns
 | --- | --- | --- | --- | --- | --- |
 | `add4Constraint(lv)` | Σpᵢ − P_init = 0 (4) | – | 4 | all | ✅ verified |
 | `addMassConstraint(m)` | (Σpᵢ)² − m² = 0 (1) | – | 1 | all (or first *n*, see below) | ✅ verified |
-| `addVertexConstraint()` | (d₁ × d₂)·(B₁ − B₂) = 0 (1) | – | 1 | **first two** | ✅ verified |
+| `addCommonVertexConstraint()` (= `addVertexConstraint()`) | closest approach of each charged track to the vertex (2 per track) | vertex (3) | 2·N_charged − 3 | all charged tracks; neutral hits through their direction | ✅ verified (B = 0, Bz, By, By(z), By(x,z), function) |
 | `addMissingParticleConstraint(lv, m)` | P_init − Σpᵢ − p_miss = 0 with E_miss = √(p⃗²_miss + m²) (4) | p⃗_miss (3) | 1 | all (1 track: solved as missing mass, see below) | ✅ verified with 1 and 2 tracks |
 | `add3Constraint(mother)` | Σpᵢ − p_mother = 0 (4) | \|p_mother\| (1) | 3 | all daughters + mother | ✅ verified |
-| `addMassVtxConstraint(m)` | mass (1) + vertex of first two (1) | – | 2 | all / first two | ✅ verified |
+| `addMassVtxConstraint(m)` | = common vertex + `addMassConstraint(m)` | vertex (3) | 2·N_charged − 2 | all | ✅ verified |
 | `addMissingMassConstraint(lv, m)` | (P_init − Σpᵢ)² − m² = 0 (1) | – | 1 | all | ✅ verified |
 
 \* Status from the QA suite ([QA/](../QA/README.md), `test_kinfitter`):
@@ -94,13 +95,51 @@ fitter.setUseCandInFit(1); fitter.setUseCandInFit(3);
 fitter.addMassConstraint(mLambda);              // (p1 + p3)^2 = mLambda^2
 ```
 
-### The vertex constraint
+### The common-vertex constraint and the magnetic field
 
-Both tracks are straight lines (base point B, direction d, see
-[conventions.md](conventions.md)). The constraint requires the two lines to
-intersect, i.e. their distance of closest approach to be zero. It does not
-return a vertex position. To get one, run `KinFitVertexFinder` on the fitted
-tracks (as in [examples/toy_lambda_fit.cxx](examples/toy_lambda_fit.cxx)).
+```cpp
+KinFitter fitter(cands);                        // tracks and neutral hits
+fitter.setField(KinFitFieldUniform::By(0.7));   // default: B = 0
+fitter.add4Constraint(initial);                 // optional
+fitter.addCommonVertexConstraint();
+fitter.fit();
+TVector3 v = fitter.getVertex();                // + getVertexCovariance()
+```
+
+- **Unknowns:** the vertex (x, y, z), started from `KinFitVertexFinderField`.
+- **Equations:** for every charged track, the trajectory in the field
+  (`KinFitTrajectory`: exact helix for uniform fields, Runge-Kutta
+  otherwise) is propagated to its point of closest approach to the vertex.
+  The distance vector, projected on two directions perpendicular to the
+  track, must vanish: 2 equations per charged track. Charge-0 tracks
+  (`setCharge(0)`) are straight lines.
+- **Neutral hits** (`KinFitParticle::fromNeutralHit`, measured E, X, Y, Z)
+  give no vertex equation; their direction is (hit − vertex), so they couple
+  to the vertex through the kinematic and mass constraints.
+- **Field models** (`KinFitField`): `KinFitFieldUniform` (B = 0, constant Bz,
+  constant By, any constant vector), `KinFitFieldByZ` (By(z) from a TH1),
+  `KinFitFieldByXZ` (By(x, z) from a TH2), `KinFitFieldFunction` (any
+  B(x, y, z)). Tesla, mm, MeV/c.
+- **Momenta in a field:** kinematic and mass constraints use the momentum of
+  each charged track at its point of closest approach to the fitted vertex
+  (momentum conservation holds there, not at the track's reference point).
+  The fitted daughters carry that four-momentum; their track parameters
+  (`getThetaRad()`, `getR()`, ...) stay at the reference point. Without a
+  vertex fit, momenta are taken at the reference point.
+- **Start value:** `KinFitVertexFinderField` (also when not converged). If
+  the fit fails or ends with probability < 10⁻⁶, `fit()` retries once from
+  the mean of the tracks' reference points and keeps the better result:
+  nearly collinear tracks determine the vertex poorly along their direction,
+  and a far-off start can end in a wrong local minimum.
+- See [examples/vertex_field_fit.cxx](examples/vertex_field_fit.cxx).
+- **Jacobians** of the vertex equations (and of the transported momenta)
+  are central finite differences: a two-track vertex fit costs about 14 µs
+  (the former two-line constraint 4 µs, but without vertex, field or more
+  tracks).
+
+The former `addVertexConstraint()` (first two tracks, straight lines, no
+vertex returned) is replaced by this constraint; for two straight tracks
+both have NDF 1 and give the same χ² (checked on the toy).
 
 ## Settings
 
@@ -191,19 +230,23 @@ the missing mass), s = +1 for the invariant mass and −1 for the missing mass:
 ∂f/∂ηᵢ = s (2 E_tot ∂Eᵢ/∂ηᵢ − 2 p⃗_tot · ∂p⃗ᵢ/∂ηᵢ)
 ```
 
-**Vertex (Vertex, MassVtx):** two lines intersect iff
-f = (u₁ × u₂) · (B₁ − B₂) = 0. With n = u₁ × u₂, ΔB = B₁ − B₂:
+**Neutral hit** with parameters (E, H⃗) and vertex v⃗: d⃗ = H⃗ − v⃗, u = d⃗/|d⃗|,
+p = √(E² − m²):
 
 ```text
-∂f/∂θ₁ = (∂u₁/∂θ₁ × u₂) · ΔB      ∂f/∂φ₁ = (∂u₁/∂φ₁ × u₂) · ΔB + n · ∂B₁/∂φ₁
-∂f/∂R₁ = n · (−sinφ₁, cosφ₁, 0)   ∂f/∂Z₁ = n_z
+∂p⃗/∂E = (E/p) u      ∂E/∂E = 1
+∂p⃗/∂H⃗ = p (1 − u uᵀ)/|d⃗| = −∂p⃗/∂v⃗
 ```
 
-and for track 2 the same with u₁ × ∂u₂, and −n for the B₂ terms
-(∂B/∂φ = (−R cosφ, −R sinφ, 0)). 1/p does not enter.
+**Common vertex:** for track i with trajectory r(s) and closest approach s*
+to v⃗, the residuals are fⱼ = eⱼ · (r(s*) − v⃗), j = 1, 2, with
+e₁ = t × a/|t × a| (a a fixed coordinate axis, t the direction at s*) and
+e₂ = t × e₁. Their derivatives with respect to the track parameters and v⃗
+(and those of the transported momentum p t(s*)) are taken by central
+differences (steps: 10⁻⁶ relative for 1/p, 10⁻⁶ rad, 10⁻⁴ mm).
 
 All Jacobians are checked against central finite differences in
-`test_kinfitter` (`jacobian_*`).
+`test_kinfitter` and `test_vertexfit` (`jacobian_*`).
 
 ## Internals
 

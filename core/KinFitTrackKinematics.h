@@ -18,40 +18,42 @@
  * KinFitTrackKinematics.h
  *
  * Internal helper of KinFitter (not installed, not in the dictionary):
- * kinematics of one track from its (1/p, theta, phi) fit parameters, with
- * the trigonometric functions evaluated once, and the derivatives of the
- * momentum and mass constraints with respect to these parameters.
+ * four-momentum of one particle from its fit parameters, with the
+ * derivatives with respect to its five parameter slots and, for neutral
+ * hits, with respect to the vertex.
+ *
+ * Parameter slots: tracks (1/p, theta, phi, R, Z), neutral hits
+ * (E, X, Y, Z, unused) with direction (hit - vertex).
  */
 
 #pragma once
 
 #include <TMatrixD.h>
+#include <TVector3.h>
 
 class KinFitFourMomentum;
 
 class KinFitTrackKinematics {
 public:
-  double p = 0;  ///< |p|
-  double E = 0;  ///< energy for the track's mass
-  double st = 0; ///< sin(theta)
-  double ct = 1; ///< cos(theta)
-  double sp = 0; ///< sin(phi)
-  double cp = 1; ///< cos(phi)
+  double px = 0, py = 0, pz = 0, E = 0;
+  double dEta[4][5] = {}; ///< d(px, py, pz, E) / d(parameter slot)
+  double dVtx[4][3] = {}; ///< d(px, py, pz, E) / d(vertex), neutral hits only
 
   KinFitTrackKinematics() = default;
-  /** @param m column vector of fit parameters
-   *  @param offset row of 1/p of this track (theta, phi follow)
-   *  @param mass track mass */
+
+  /** @brief Track: (1/p, theta, phi, R, Z) at rows offset.. of m. */
   KinFitTrackKinematics(const TMatrixD &m, int offset, double mass);
 
+  /** @brief Neutral hit: (E, X, Y, Z) at rows offset.. of m, produced at
+   * `vertex`. */
+  static KinFitTrackKinematics neutralHit(const TMatrixD &m, int offset,
+                                          double mass, const TVector3 &vertex);
+
   /**
-   * d(E^2 - p^2)/d(1/p, theta, phi) of this track entering the total P with
-   * `sign` (+1: invariant mass of a sum, -1: missing mass P_init - sum).
+   * d(E_tot^2 - p_tot^2) of the total P to which this particle contributes
+   * with `sign` (+1: invariant mass of a sum, -1: missing mass P_init - sum),
+   * with respect to its parameter slots and to the vertex.
    */
   void massDerivatives(const KinFitFourMomentum &P, double sign,
-                       double &dInvP, double &dTheta, double &dPhi) const;
-
-  /** d(px, py, pz, E)/d(1/p, theta, phi) into rows 0..3, columns
-   * col0..col0+2 of H. */
-  void momentumJacobian(TMatrixD &H, int col0) const;
+                       double dEtaOut[5], double dVtxOut[3]) const;
 };

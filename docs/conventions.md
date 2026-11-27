@@ -73,12 +73,22 @@ double Z   =  B.Z();
 
 ### Tracks in a magnetic field
 
-Inside `KinFitter` all tracks are straight lines. For tracks that were
-reconstructed in a field, give the parameters **at the point of closest
-approach**: θ, φ and p are the momentum direction and magnitude at that
-point. The straight-line approximation is then valid near the beam axis.
-For vertices far from the axis use `KinFitVertexFinderConstB`, which follows
-the helix (see [vertexing.md](vertexing.md)).
+The parameters (1/p, θ, φ, R, Z) are the **state at the reference point**
+(−R sinφ, R cosφ, Z): momentum magnitude and direction there. Use the point
+where the track is closest to the z axis in the transverse plane
+(r_T · t_T = 0); `KinFitTrajectory::trackParameters()` computes it for any
+field. With a field set (`KinFitter::setField`) and the common-vertex
+constraint, tracks are followed from this state to the vertex; otherwise
+they are straight lines from it.
+
+### Neutral hits
+
+`KinFitParticle::fromNeutralHit(E, m, hit, cov, origin)` describes a neutral
+measured by energy and hit position (e.g. a calorimeter cluster). Its
+parameters are (E, X, Y, Z, unused) instead of (1/p, θ, φ, R, Z), and the
+covariance uses that ordering (a 4×4 matrix is padded). The direction is
+(hit − vertex): the fitted vertex with the common-vertex constraint, else
+`origin` (stored as the particle's vertex).
 
 ## Covariance matrix
 
@@ -95,6 +105,13 @@ track is the full 5×5 block of the updated matrix; correlations between
 different tracks are not returned.
 
 ## Magnetic field
+
+Field models derive from `KinFitField` (B(x, y, z) in tesla at mm):
+`KinFitFieldUniform` (B = 0, constant Bz/By or any constant vector),
+`KinFitFieldByZ` (By(z) from a TH1), `KinFitFieldByXZ` (By(x, z) from a TH2,
+x axis = x, y axis = z), `KinFitFieldFunction` (user callback). Histograms
+are copied, interpolated linearly and held constant beyond the outer bin
+centres. Curvature: 1/ρ = 0.299792458 · q · B / p (MeV/c, T, mm).
 
 `KinFitVertexFinderConstB` takes the field component Bz in tesla, positive along
 +z. With Bz > 0, positive particles turn **clockwise** seen from +z

@@ -32,7 +32,7 @@ call it **once** per `KinFitAnalyzer` object.
 | --- | --- | --- |
 | `"4C"` | `add4Constraint(lv)` | `lv` |
 | `"Mass"` | `addMassConstraint(mass)` | `mass` |
-| `"Vertex"` | `addVertexConstraint()` | – (uses the first two PIDs) |
+| `"Vertex"` | `addVertexConstraint()` | – (common vertex of all charged tracks, B = 0) |
 | `"MissingParticle"` or `"Mom"` | `addMissingParticleConstraint(lv, mass)` | `lv`, `mass` |
 | `"MissingMass"` or `"MM"` | `addMissingMassConstraint(lv, mass)` | `lv`, `mass` |
 | `"MassVtx"` | `addMassVtxConstraint(mass)` | `mass` |

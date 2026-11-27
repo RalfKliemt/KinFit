@@ -21,6 +21,10 @@
 #include "ToyTracks.h"
 
 #include "KinFitVertexFinder.h"
+#include "KinFitVertexFinderField.h"
+#include "KinFitFieldByZ.h"
+#include "KinFitFieldUniform.h"
+#include <TH1D.h>
 #include "KinFitVertexFinderConstB.h"
 
 namespace {
@@ -197,6 +201,97 @@ KF_TEST(helix_parallel_tracks_fail_cleanly) {
   }
   KinFitVertexFinderConstB finder(cands, 0.0);
   KF_CHECK(isFailureMarker(finder.getVertex()));
+}
+
+// ---------------------------------------------------------------------------
+// Neutral hits and KinFitVertexFinderField
+// ---------------------------------------------------------------------------
+
+// Neutral hits carry no vertex information and are skipped by all finders.
+KF_TEST(finders_ignore_neutral_hits) {
+  TRandom3 rnd(70);
+  const auto ev = toy::lambdaEvent(rnd);
+  std::vector<KinFitParticle> cands = {
+      toy::exactTrack(ev.proton, ev.decayVertex, toy::Resolution()),
+      toy::exactTrack(ev.pion, ev.decayVertex, toy::Resolution())};
+  TLorentzVector g;
+  g.SetXYZM(50, 80, 400, 0);
+  std::vector<KinFitParticle> withNeutral = cands;
+  // origin far away: as a line it would pull the vertex
+  withNeutral.push_back(toy::neutralHit(g, TVector3(300, -200, 50), 1000.,
+                                        toy::NeutralResolution(), nullptr,
+                                        TVector3(300, -200, 50)));
+  KF_CHECK_NEAR((KinFitVertexFinder(withNeutral).getVertex() -
+                 KinFitVertexFinder(cands).getVertex()).Mag(), 0, 1e-9);
+  KF_CHECK_NEAR((KinFitVertexFinderConstB(withNeutral, 0.).getVertex() -
+                 KinFitVertexFinderConstB(cands, 0.).getVertex()).Mag(), 0,
+                1e-9);
+  KinFitVertexFinderField f(withNeutral);
+  KF_CHECK(f.isValid());
+  KF_CHECK(f.getNumberOfTracks() == 2);
+  KF_CHECK_NEAR((f.getVertex() - ev.decayVertex).Mag(), 0, 1e-6);
+}
+
+// All tracks, exact input: the vertex is found for B = 0, constant Bz,
+// constant By and a By(z) profile.
+KF_TEST(field_finder_exact_vertex) {
+  TH1D h("hBy", "", 60, -1000., 2000.);
+  for (int i = 1; i <= 60; ++i)
+    h.SetBinContent(i, 1.2 * std::exp(-0.5 * std::pow(
+                                 (h.GetBinCenter(i) - 500.) / 300., 2)));
+  const KinFitFieldUniform zero;
+  const auto bz = KinFitFieldUniform::Bz(1.0);
+  const auto by = KinFitFieldUniform::By(0.7);
+  const KinFitFieldByZ byz(h);
+  TRandom3 rnd(71);
+  for (const KinFitField *f :
+       {static_cast<const KinFitField *>(&zero),
+        static_cast<const KinFitField *>(&bz),
+        static_cast<const KinFitField *>(&by),
+        static_cast<const KinFitField *>(&byz)}) {
+    double worst = 0;
+    for (int ev = 0; ev < 20; ++ev) {
+      const TVector3 v(rnd.Gaus(0, 10), rnd.Gaus(0, 10), rnd.Uniform(0, 100));
+      std::vector<KinFitParticle> cands;
+      for (int k = 0; k < 4; ++k) {
+        TLorentzVector lv;
+        TVector3 p;
+        p.SetMagThetaPhi(rnd.Uniform(300, 2000), rnd.Uniform(0.1, 0.6),
+                         rnd.Uniform(-TMath::Pi(), TMath::Pi()));
+        lv.SetVectM(p, toy::kMassPion);
+        cands.push_back(toy::fieldTrack(lv, v, k % 2 ? 1 : -1, f,
+                                        toy::Resolution()));
+      }
+      KinFitVertexFinderField finder(cands, f);
+      KF_CHECK(finder.isValid());
+      worst = std::max(worst, (finder.getVertex() - v).Mag());
+    }
+    kftest::info("worst |v - truth| = %g mm", worst);
+    KF_CHECK(worst < 1e-3);
+  }
+}
+
+// A non-converged run still provides an estimate (used as start value by
+// the common-vertex fit; it used to make the fit fail).
+KF_TEST(field_finder_estimate_without_convergence) {
+  TRandom3 rnd(72);
+  const auto bz = KinFitFieldUniform::Bz(1.0);
+  const TVector3 v(1, 2, 30);
+  std::vector<KinFitParticle> cands;
+  for (int k = 0; k < 3; ++k) {
+    TLorentzVector lv;
+    TVector3 p;
+    p.SetMagThetaPhi(300, 0.4, 1. + 2. * k);
+    lv.SetVectM(p, toy::kMassPion);
+    cands.push_back(toy::fieldTrack(lv, v, k % 2 ? 1 : -1, &bz,
+                                    toy::Resolution()));
+  }
+  KinFitVertexFinderField f(cands, &bz, 1, 0.); // one iteration, tolerance 0
+  KF_CHECK(!f.isValid());
+  KF_CHECK(f.hasEstimate());
+  KF_CHECK((f.getVertex() - v).Mag() < 50.);
+  KinFitVertexFinderField one({cands[0]}, &bz);
+  KF_CHECK(!one.hasEstimate());
 }
 
 KF_TEST_MAIN()
